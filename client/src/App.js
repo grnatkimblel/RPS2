@@ -82,7 +82,7 @@ function App() {
               Back
             </button>
             <LoginButton
-              styles={{ flex: 1 }} //
+              styles={{ flex: 1 }}
               validationFormula={() => {
                 let dependencies = [
                   { value: loginUsername, minLength: 3 },
