@@ -1,0 +1,47 @@
+@font-face {
+  font-family: ComicSans;
+  src: url(fonts/ComicSansMS3.ttf);
+}
+
+.title {
+  z-index: 1;
+  position: absolute;
+  top: 10%;
+  width: 100%;
+  text-align: center;
+  letter-spacing: 10px;
+  font-family: "ComicSans";
+  font-size: 150px;
+  color: #5d45c4;
+  -webkit-text-stroke-width: 5px;
+  -webkit-text-stroke-color: white;
+  pointer-events: none;
+}
+
+p.loginInputFieldName {
+  color: white;
+  text-align: center;
+  position: relative;
+  bottom: 19vh;
+}
+
+div.account-username {
+  z-index: 1;
+  position: absolute;
+  letter-spacing: 10px;
+  font-family: "ComicSans";
+  font-size: 40px;
+  padding: 30px;
+}
+
+div.gamemode-smalltext {
+  position: absolute;
+  z-index: 1;
+  letter-spacing: 5px;
+  font-family: "ComicSans";
+  font-size: 20px;
+  margin: 5px;
+  padding: 5px;
+  color: white;
+  pointer-events: none;
+}

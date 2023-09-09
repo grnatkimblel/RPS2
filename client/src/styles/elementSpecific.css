@@ -1,0 +1,51 @@
+button {
+  display: inline;
+  letter-spacing: 15px;
+  font-family: "ComicSans";
+  font-size: 60px;
+  border: none;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+input[type="text"] {
+  position: relative;
+  bottom: 5vh;
+  z-index: 2;
+  padding: 20px 40px 20px 40px;
+  border: 6px solid red;
+  border-radius: 10vh;
+
+  font-size: 30px;
+}
+
+input[type="password"] {
+  position: relative;
+  bottom: 5vh;
+  z-index: 2;
+  padding: 20px 40px 20px 40px;
+  border: 6px solid red;
+  border-radius: 10vh;
+
+  font-size: 30px;
+}
+
+input[type="text"]:focus-visible {
+  outline: none;
+}
+
+input[type="password"]:focus-visible {
+  outline: none;
+}
+
+.flex-container > div {
+  margin: 40px;
+  letter-spacing: 15px;
+  font-family: "ComicSans";
+  font-size: 60px;
+  text-align: left;
+}

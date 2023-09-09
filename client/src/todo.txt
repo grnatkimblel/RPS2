@@ -1,0 +1,22 @@
+TODO:
+[✅] Get Create Account Working
+[✅] Get Login Working
+[] Make the Login Button uninteracable while processing fetch requestReceived
+
+
+Suspense components can be used to display something while something else loads, maybe use during Login Time?
+
+async function ping() {
+  let start = Date.now();
+  const response = await fetch("http://localhost:8080/ping");
+  let end = Date.now();
+  let timeElapsed = end - start;
+  const json = await response.json();
+  let RTT = json.requestReceived - start;
+  console.log("TimeElapsed");
+  console.log(timeElapsed);
+  console.log("RTT");
+  console.log(RTT);
+  console.log("Fetch Body");
+  console.log(json);
+}

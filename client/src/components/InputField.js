@@ -1,0 +1,31 @@
+function InputField({
+  value,
+  hook,
+  // onChange,
+  title,
+  type,
+  minLength,
+  tabIndex,
+  inputRef,
+}) {
+  return (
+    <form>
+      <input
+        value={value}
+        onChange={(event) => {
+          hook(event.target.value);
+        }}
+        title={title}
+        autoComplete="true"
+        type={type}
+        size="20"
+        minLength={minLength}
+        maxLength="20"
+        tabIndex={tabIndex}
+        ref={inputRef}
+      ></input>
+    </form>
+  );
+}
+
+export default InputField;
