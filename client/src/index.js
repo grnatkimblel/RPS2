@@ -1,9 +1,23 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import {
+  createBrowserRouter,
+  MemoryRouter,
+  Router,
+  RouterProvider,
+} from "react-router-dom";
 import "./index.css";
 import App from "./App";
+import ErrorPage from "./routes/error-page";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+  <React.StrictMode>
+    <MemoryRouter>
+      <App />
+    </MemoryRouter>
+  </React.StrictMode>
+);
 
 async function ping() {
   let start = Date.now();
@@ -19,9 +33,3 @@ async function ping() {
   console.log("Fetch Body");
   console.log(json);
 }
-
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);

@@ -1,5 +1,5 @@
 const pages = {
-  INITIAL: "initial",
+  INITIAL: "",
   LOGIN: "login",
   CREATE_ACCOUNT: "create_account",
   MAIN_MENU: "main_menu",
