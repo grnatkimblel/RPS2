@@ -4,18 +4,7 @@ import "../styles/elementSpecific.css";
 
 import pages from "../enums/pages";
 
-import { useState } from "react";
-// import { useLocation } from "react-router-dom";
-
-function MainMenu({ navigate, userInfo, accessTokenHook, refreshTokenHook }) {
-  // const location = useLocation();
-  // const locationState = location.state;
-
-  const [currentGameMode, setCurrentGameMode] = useState({
-    gameModeType: "",
-    gameMode: "",
-  });
-
+function MainMenu({ navigate, userInfo, onLogout }) {
   return (
     <>
       <div
@@ -34,11 +23,7 @@ function MainMenu({ navigate, userInfo, accessTokenHook, refreshTokenHook }) {
         <button
           style={{ flex: 1 }}
           className={"defaultColor bottomBorder leftBorder"}
-          onClick={() => {
-            accessTokenHook("");
-            refreshTokenHook("");
-            navigate(`/${pages.INITIAL}`);
-          }}
+          onClick={onLogout}
         >
           Logout
         </button>

@@ -7,6 +7,7 @@ import "./styles/elementSpecific.css";
 
 import pages from "./enums/pages";
 import apiRoutes from "./apiRoutes";
+import { getNewAccessToken } from "./helper";
 
 import Root from "./routes/root.js";
 import Login from "./routes/login";
@@ -54,6 +55,29 @@ function App() {
     navigate(`/${pages.MAIN_MENU}`);
   };
 
+  async function authorizeThenCall(url, requestType, body) {
+    try {
+      if (accessToken == " ")
+        throw new Error("No AccessToken to authorize against");
+      let res = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + accessToken,
+        },
+        method: requestType,
+        body: JSON.stringify(body),
+      });
+      if (res.status == 403) {
+        setAccessToken(getNewAccessToken(refreshToken));
+        return await authorizeThenCall(url, requestType, body);
+      }
+      if (res.status == 200) return res;
+    } catch (error) {
+      console.error("Error authorizing call to:" + url);
+      console.error(error);
+    }
+  }
+
   return (
     <Routes>
       <Route
@@ -74,14 +98,23 @@ function App() {
           <MainMenu
             navigate={navigate}
             userInfo={userInfo}
-            accessTokenHook={setAccessToken}
-            refreshTokenHook={setRefreshToken}
+            onLogout={() => {
+              setAccessToken("");
+              setRefreshToken("");
+              navigate(`/${pages.INITIAL}`);
+            }}
           />
         }
       />
       <Route
         path={`/${pages.ACCOUNT}`}
-        element={<Account navigate={navigate} userInfo={userInfo} />}
+        element={
+          <Account
+            navigate={navigate}
+            userInfo={userInfo}
+            authHelper={authorizeThenCall}
+          />
+        }
       />
       <Route
         path={`/${pages.ONLINE.INITIAL}`}

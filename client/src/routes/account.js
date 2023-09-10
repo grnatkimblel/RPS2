@@ -1,15 +1,13 @@
 import "../styles/buttonStyles.css";
 import "../styles/texts.css";
 import "../styles/elementSpecific.css";
-// import { useLocation } from "react-router-dom";
+
 import pages from "../enums/pages";
-import { getNewAccessToken } from "../helper";
-import { useState } from "react";
+import apiRoutes from "../apiRoutes";
 
-function Account({ navigate, userInfo }) {
-  //   const location = useLocation();
-  //   const locationState = location.state;
-
+async function Account({ navigate, userInfo, authHelper }) {
+  const users = await (await authHelper(apiRoutes.getUsers, "GET")).json();
+  console.log(users); //why is this being called 8 times. At least 4 if strictmode is doubling it
   return (
     <>
       <div
@@ -35,12 +33,18 @@ function Account({ navigate, userInfo }) {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "space-evenly",
+              fontSize: "20px",
             }}
-            className="notInteractableColor flex-container"
+            // className="notInteractableColor flex-container"
+            className="notInteractableColor "
           >
-            <div>{`Username: ${userInfo.username}`}</div>
-            <div>{`userId: ${userInfo.userId}`}</div>
-            <div>{`emoji: ${userInfo.emoji}`}</div>
+            {users.map((user) => {
+              <>
+                <div>{`Username: ${user.username}`}</div>
+                <div>{`userId: ${user.id}`}</div>
+                <div>{`emoji: ${user.emoji}`}</div>
+              </>;
+            })}
 
             {/* <div>Win/Loss: {0.0}</div>
             <div>Rock: {0.0}%</div>
