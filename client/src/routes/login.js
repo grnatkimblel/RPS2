@@ -6,10 +6,9 @@ import LoginButton from "../components/LoginButton";
 import LoginInputButton from "../components/LoginInputButton";
 
 import pages from "../enums/pages";
-import { attemptLogin } from "../helper";
 import { useState } from "react";
 
-function Login({ navigate, accessTokenHook, refreshTokenHook, userInfoHook }) {
+function Login({ navigate, login }) {
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
@@ -49,15 +48,7 @@ function Login({ navigate, accessTokenHook, refreshTokenHook, userInfoHook }) {
             });
           }}
           OnClick={async () => {
-            // setLoginUsername("");
-            // setLoginPassword("");
-            await attemptLogin(
-              navigate,
-              userCredentials,
-              accessTokenHook,
-              refreshTokenHook,
-              userInfoHook
-            );
+            await login(userCredentials);
           }}
         />
       </div>

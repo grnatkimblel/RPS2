@@ -39,7 +39,15 @@ router.post("/login", async (req, res) => {
       refreshTokenEntry = await RefreshToken.create({
         refresh_token: refreshToken,
       });
-      res.json({ accessToken: accessToken, refreshToken: refreshToken });
+      res.json({
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        user: {
+          username: userFoundInDb.username,
+          userId: userFoundInDb.id,
+          emoji: userFoundInDb.player_emoji,
+        },
+      });
     } else {
       res.send("Incorrect Password");
     }

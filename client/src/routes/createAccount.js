@@ -7,16 +7,10 @@ import LoginInputButton from "../components/LoginInputButton";
 
 import apiRoutes from "../apiRoutes";
 import pages from "../enums/pages";
-import { attemptLogin } from "../helper";
 
 import { useState } from "react";
 
-function CreateAccount({
-  navigate,
-  accessTokenHook,
-  refreshTokenHook,
-  userInfoHook,
-}) {
+function CreateAccount({ navigate, login }) {
   const [createAccountUsername, setCreateAccountUsername] = useState("");
   const [createAccountInitialPassword, setCreateAccountInitialPassword] =
     useState("");
@@ -66,35 +60,24 @@ function CreateAccount({
             return minLengthSatisfied && passwordsMatch;
           }}
           OnClick={async () => {
-            // console.log("createAccountUsername:" + createAccountUsername);
-            // console.log(
-            //   "createAccountConfirmPassword:" + createAccountConfirmPassword
-            // );
-            // console.log("userCredentials:");
-            // console.log(userCredentials);
-            // console.log("STRINGIFY OUTPUT:");
-            // console.log(JSON.stringify(userCredentials));
-            let res = await fetch(apiRoutes.register, {
-              headers: {
-                "Content-Type": "application/json",
-              },
-              method: "POST",
-              body: JSON.stringify(userCredentials),
-            });
-            console.log("Status:" + res.status);
-            if (res.status == 200) {
-              // setCreateAccountUsername("");
-              // setCreateAccountInitialPassword("");
-              // setCreateAccountConfirmPassword("");
-              await attemptLogin(
-                navigate,
-                userCredentials,
-                accessTokenHook,
-                refreshTokenHook,
-                userInfoHook
-              );
-            } else {
-              alert("Error Code: " + res.status);
+            try {
+              let res = await fetch(apiRoutes.register, {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                method: "POST",
+                body: JSON.stringify(userCredentials),
+              });
+
+              console.log("Status:" + res.status);
+
+              if (res.status == 200) {
+                await login(userCredentials);
+              } else {
+                console.error("Registration failed");
+              }
+            } catch (error) {
+              console.error("An error occurred:", error);
             }
           }}
         />

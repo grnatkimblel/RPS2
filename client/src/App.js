@@ -6,6 +6,7 @@ import "./styles/texts.css";
 import "./styles/elementSpecific.css";
 
 import pages from "./enums/pages";
+import apiRoutes from "./apiRoutes";
 
 import Root from "./routes/root.js";
 import Login from "./routes/login";
@@ -27,7 +28,31 @@ function App() {
   const [userInfo, setUserInfo] = useState({
     username: "",
     userId: "",
+    emoji: "",
   });
+
+  const loginHelper = async (credentials) => {
+    //authorizes user and returns access tokens and user account info
+    let res = await fetch(apiRoutes.login, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify(credentials),
+    });
+    let body = await res.json();
+    console.log(body);
+    // return body;
+    setAccessToken(body.accessToken);
+    setRefreshToken(body.refreshToken);
+    setUserInfo({
+      //this could be sent in the body of the JWT for style points
+      username: body.user.username,
+      userId: body.user.userId,
+      emoji: body.user.emoji,
+    });
+    navigate(`/${pages.MAIN_MENU}`);
+  };
 
   return (
     <Routes>
@@ -37,25 +62,11 @@ function App() {
       />
       <Route
         path={`/${pages.LOGIN}`}
-        element={
-          <Login
-            navigate={navigate}
-            accessTokenHook={setAccessToken}
-            refreshTokenHook={setRefreshToken}
-            userInfoHook={setUserInfo}
-          />
-        }
+        element={<Login navigate={navigate} login={loginHelper} />}
       />
       <Route
         path={`/${pages.CREATE_ACCOUNT}`}
-        element={
-          <CreateAccount
-            navigate={navigate}
-            accessTokenHook={setAccessToken}
-            refreshTokenHook={setRefreshToken}
-            userInfoHook={setUserInfo}
-          />
-        }
+        element={<CreateAccount navigate={navigate} login={loginHelper} />}
       />
       <Route
         path={`/${pages.MAIN_MENU}`}

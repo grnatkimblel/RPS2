@@ -38,10 +38,14 @@ function Account({ navigate, userInfo }) {
             }}
             className="notInteractableColor flex-container"
           >
-            <div>Win/Loss: {0.0}</div>
+            <div>{`Username: ${userInfo.username}`}</div>
+            <div>{`userId: ${userInfo.userId}`}</div>
+            <div>{`emoji: ${userInfo.emoji}`}</div>
+
+            {/* <div>Win/Loss: {0.0}</div>
             <div>Rock: {0.0}%</div>
             <div>Paper: {0.0}%</div>
-            <div>Scissors: {0.0}%</div>
+            <div>Scissors: {0.0}%</div> */}
           </div>
         </div>
 
