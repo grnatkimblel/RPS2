@@ -5,9 +5,34 @@ import "../styles/elementSpecific.css";
 import pages from "../enums/pages";
 import apiRoutes from "../apiRoutes";
 
-async function Account({ navigate, userInfo, authHelper }) {
-  const users = await (await authHelper(apiRoutes.getUsers, "GET")).json();
-  console.log(users); //why is this being called 8 times. At least 4 if strictmode is doubling it
+import { useEffect, useState } from "react";
+
+function Account({ navigate, userInfo, authHelper }) {
+  const [users, setUsers] = useState(null);
+
+  useEffect(() => {
+    let ignore = false;
+
+    authHelper(apiRoutes.getUsers, "GET").then(
+      (res) => {
+        if (res == undefined) return;
+        if (!ignore) {
+          // console.log(res);
+          res.json().then((body) => {
+            // console.log(body);
+            setUsers(body);
+          });
+        }
+        return () => {
+          ignore = true;
+        };
+      },
+      (error) => {
+        console.error("AuthHelper failed");
+      }
+    );
+  }, [authHelper]);
+
   return (
     <>
       <div
@@ -38,13 +63,17 @@ async function Account({ navigate, userInfo, authHelper }) {
             // className="notInteractableColor flex-container"
             className="notInteractableColor "
           >
-            {users.map((user) => {
-              <>
-                <div>{`Username: ${user.username}`}</div>
-                <div>{`userId: ${user.id}`}</div>
-                <div>{`emoji: ${user.emoji}`}</div>
-              </>;
-            })}
+            {users != null ? (
+              users.map((user) => (
+                <div key={user.id}>
+                  <div>{`Username: ${user.username}`}</div>
+                  <div>{`userId: ${user.id}`}</div>
+                  <div>{`emoji: ${user.player_emoji}`}</div>
+                </div>
+              ))
+            ) : (
+              <></>
+            )}
 
             {/* <div>Win/Loss: {0.0}</div>
             <div>Rock: {0.0}%</div>

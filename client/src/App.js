@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
 import "./styles/buttonStyles.css";
@@ -22,10 +22,7 @@ function App() {
 
   const [accessToken, setAccessToken] = useState("");
   const [refreshToken, setRefreshToken] = useState("");
-  const tokens = {
-    accessToken: accessToken,
-    refreshToken: refreshToken,
-  };
+
   const [userInfo, setUserInfo] = useState({
     username: "",
     userId: "",
@@ -55,28 +52,54 @@ function App() {
     navigate(`/${pages.MAIN_MENU}`);
   };
 
-  async function authorizeThenCall(url, requestType, body) {
-    try {
-      if (accessToken == " ")
-        throw new Error("No AccessToken to authorize against");
-      let res = await fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + accessToken,
-        },
-        method: requestType,
-        body: JSON.stringify(body),
-      });
-      if (res.status == 403) {
-        setAccessToken(getNewAccessToken(refreshToken));
-        return await authorizeThenCall(url, requestType, body);
+  const authorizeThenCall = useCallback(
+    async (url, requestType, body) => {
+      // console.log("From AuthThenCall");
+      // console.log("accessToken");
+      // console.log(accessToken);
+      // console.log("refreshToken");
+      // console.log(refreshToken);
+      // console.log("");
+      try {
+        if (accessToken == "")
+          throw new Error("No AccessToken to authorize against");
+
+        let res = await fetch(url, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + accessToken,
+          },
+          method: requestType,
+          body: JSON.stringify(body),
+        });
+
+        if (res.status == 403) {
+          //refresh Token
+          const newAccessToken = await getNewAccessToken(refreshToken);
+          setAccessToken(newAccessToken);
+
+          res = await fetch(url, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + newAccessToken,
+            },
+            method: requestType,
+            body: JSON.stringify(body),
+          });
+
+          if (res.status == 403) {
+            throw new Error("Refresh Token invalid");
+          }
+        }
+        if (res.status == 200) return res;
+      } catch (error) {
+        console.error("Error authorizing call to:" + url);
+        console.error(error);
+        throw new Error(error); // to make the promise get rejected
       }
-      if (res.status == 200) return res;
-    } catch (error) {
-      console.error("Error authorizing call to:" + url);
-      console.error(error);
-    }
-  }
+    },
+    [accessToken, refreshToken]
+  );
 
   return (
     <Routes>
