@@ -39,7 +39,7 @@ function App() {
       body: JSON.stringify(credentials),
     });
     let body = await res.json();
-    console.log(body);
+    //console.log(body);
     // return body;
     setAccessToken(body.accessToken);
     setRefreshToken(body.refreshToken);
@@ -122,6 +122,10 @@ function App() {
             navigate={navigate}
             userInfo={userInfo}
             onLogout={() => {
+              authorizeThenCall(apiRoutes.logout, "DELETE", {
+                refreshToken: refreshToken,
+              });
+
               setAccessToken("");
               setRefreshToken("");
               navigate(`/${pages.INITIAL}`);

@@ -57,21 +57,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.delete("/logout", async (req, res) => {
-  try {
-    //console.log(req.refreshToken);
-    await RefreshToken.destroy({
-      where: {
-        refresh_token: req.body.refreshToken,
-      },
-    });
-    res.sendStatus(204);
-  } catch (e) {
-    console.log(e);
-    res.sendStatus(400);
-  }
-});
-
 router.post("/token", async (req, res) => {
   const refreshToken = req.body.refreshToken;
   if (refreshToken == null) return res.sendStatus(400);

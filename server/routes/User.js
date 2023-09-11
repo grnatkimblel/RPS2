@@ -5,7 +5,7 @@ dotenv.config({ path: path.join(__dirname, "../config", ".env") });
 const express = require("express");
 const router = express.Router();
 
-const { User } = require("../models");
+const { User, RefreshToken } = require("../models");
 const { Op } = require("sequelize");
 
 const jwt = require("jsonwebtoken");
@@ -39,6 +39,22 @@ router.post("/createUser", async (req, res) => {
 router.get("/getUsers", authenticateToken, async (req, res) => {
   const listOfUsers = await User.findAll();
   res.json(listOfUsers);
+});
+
+//DELETES
+router.delete("/logout", authenticateToken, async (req, res) => {
+  try {
+    console.log(req.body);
+    await RefreshToken.destroy({
+      where: {
+        refresh_token: req.body.refreshToken,
+      },
+    });
+    res.sendStatus(204);
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(400);
+  }
 });
 
 //MIDDLEWARE

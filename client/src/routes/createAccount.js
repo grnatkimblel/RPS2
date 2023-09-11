@@ -69,7 +69,7 @@ function CreateAccount({ navigate, login }) {
                 body: JSON.stringify(userCredentials),
               });
 
-              console.log("Status:" + res.status);
+              //console.log("Status:" + res.status);
 
               if (res.status == 200) {
                 await login(userCredentials);
