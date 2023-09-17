@@ -7,7 +7,8 @@ const pages = {
   ONLINE: {
     INITIAL: "online.initial",
     GAMEMODE_CHOSEN: "online.gameMode_chosen",
-    OPPONENT_TYPE_CHOSEN: "online.opponent_type_chosen",
+    RANDOM_OPPONENT: "online.random_opponent",
+    SEARCH_OPPONENT: "online.search_opponent",
   },
 };
 

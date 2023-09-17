@@ -18,6 +18,12 @@
   pointer-events: none;
 }
 
+.secondary {
+  letter-spacing: 10px;
+  font-family: "ComicSans";
+  font-size: 35px;
+}
+
 p.loginInputFieldName {
   color: white;
   text-align: center;

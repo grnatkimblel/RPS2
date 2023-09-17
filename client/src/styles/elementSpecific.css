@@ -1,6 +1,6 @@
 button {
   display: inline;
-  letter-spacing: 15px;
+  letter-spacing: 10px;
   font-family: "ComicSans";
   font-size: 60px;
   border: none;
@@ -12,26 +12,19 @@ body,
   height: 100%;
 }
 
-input[type="text"] {
+input {
   position: relative;
   bottom: 5vh;
   z-index: 2;
   padding: 20px 40px 20px 40px;
   border: 6px solid red;
   border-radius: 10vh;
-
   font-size: 30px;
 }
 
-input[type="password"] {
-  position: relative;
-  bottom: 5vh;
-  z-index: 2;
-  padding: 20px 40px 20px 40px;
-  border: 6px solid red;
-  border-radius: 10vh;
-
-  font-size: 30px;
+input.search {
+  padding: 10px 30px 10px 30px;
+  margin-top: 40px;
 }
 
 input[type="text"]:focus-visible {

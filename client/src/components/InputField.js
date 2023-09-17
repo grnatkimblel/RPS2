@@ -8,6 +8,7 @@ function InputField({
   tabIndex,
   inputRef,
 }) {
+  // im not sure if form is needed
   return (
     <form>
       <input
