@@ -38,18 +38,23 @@ function App() {
       method: "POST",
       body: JSON.stringify(credentials),
     });
-    let body = await res.json();
-    //console.log(body);
-    // return body;
-    setAccessToken(body.accessToken);
-    setRefreshToken(body.refreshToken);
-    setUserInfo({
-      //this could be sent in the body of the JWT for style points
-      username: body.user.username,
-      userId: body.user.userId,
-      emoji: body.user.emoji,
-    });
-    navigate(`/${pages.MAIN_MENU}`);
+    if (res.status == 200) {
+      let body = await res.json();
+      //console.log(body);
+      // return body;
+      setAccessToken(body.accessToken);
+      setRefreshToken(body.refreshToken);
+      setUserInfo({
+        //this could be sent in the body of the JWT for style points
+        username: body.user.username,
+        userId: body.user.userId,
+        emoji: body.user.emoji,
+      });
+      navigate(`/${pages.MAIN_MENU}`);
+    } else {
+      let body = await res.text();
+      console.log(body);
+    }
   };
 
   const authorizeThenCall = useCallback(

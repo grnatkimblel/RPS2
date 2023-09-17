@@ -49,7 +49,7 @@ router.post("/login", async (req, res) => {
         },
       });
     } else {
-      res.send("Incorrect Password");
+      res.status(401).send("Incorrect Password");
     }
   } catch (e) {
     console.log(e);
@@ -85,7 +85,7 @@ router.post("/token", async (req, res) => {
 });
 
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15s" });
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "10m" });
 }
 
 module.exports = router;
