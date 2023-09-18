@@ -1,4 +1,4 @@
-import apiRoutes from "./apiRoutes";
+import apiRoutes from "./enums/apiRoutes";
 
 async function getNewAccessToken(refreshToken) {
   try {

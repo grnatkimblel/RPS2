@@ -6,7 +6,7 @@ import "./styles/texts.css";
 import "./styles/elementSpecific.css";
 
 import pages from "./enums/pages";
-import apiRoutes from "./apiRoutes";
+import apiRoutes from "./enums/apiRoutes";
 import { getNewAccessToken } from "./helper";
 
 import Root from "./routes/root.js";

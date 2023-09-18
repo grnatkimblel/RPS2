@@ -3,7 +3,7 @@ import "../styles/texts.css";
 import "../styles/elementSpecific.css";
 
 import pages from "../enums/pages";
-import apiRoutes from "../apiRoutes";
+import apiRoutes from "../enums/apiRoutes";
 
 import { useEffect, useState } from "react";
 

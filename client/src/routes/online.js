@@ -6,7 +6,8 @@ import GameModeSelector from "../components/GameModeSelector";
 import pages from "../enums/pages";
 import { gameModeTypes } from "../enums/gameEnums";
 import { useState, useRef } from "react";
-import OpponentSelectButton from "../components/OpponentSelectButton";
+
+import OpponentSearchButton from "../components/OpponentSearchButton";
 // import { useLocation } from "react-router-dom";
 
 function Online({ navigate }) {
@@ -15,17 +16,6 @@ function Online({ navigate }) {
     gameModeType: "",
     gameMode: "",
   });
-  const inputFieldRef = useRef(null);
-  const opponents = [
-    "Opponent",
-    "Opponent",
-    "Opponent",
-    "Opponent",
-    "Opponent",
-    "Opponent",
-    "Opponent",
-    "Opponent",
-  ];
 
   const onlineInitial = () => {
     return (
@@ -114,61 +104,16 @@ function Online({ navigate }) {
         >
           Search Opponent
         </button>
-        <div
-          style={{
-            cursor: "text",
-            flex: 20,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            position: "relative",
-          }}
-          className="defaultColor"
-          onClick={() => inputFieldRef.current.focus()}
-        >
-          {/* im not sure if form is needed */}
-
-          <input className="search" ref={inputFieldRef}></input>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              margin: "60px",
-            }}
-          >
-            {opponents.map((opponent, index) => {
-              let classes = "";
-              if (index == 0)
-                classes =
-                  "secondary bottomBorder topBorder leftBorder rightBorder";
-              else classes = "secondary bottomBorder leftBorder rightBorder";
-              return (
-                <OpponentSelectButton
-                  opponentName={"Opponent"}
-                  classes={classes}
-                />
-              );
-            })}
-            <button
-              className="secondary defaultColor bottomBorder leftBorder rightBorder"
-              onClick={(e) => {
-                e.stopPropagation();
-                //setCurrentPage(pages.ONLINE.GAMEMODE_CHOSEN);
-              }}
-              onMouseOver={(e) => {
-                e.stopPropagation();
-              }}
-            >
-              More...
-            </button>
-          </div>
-        </div>
+        <OpponentSearchButton />
       </>
     );
   };
 
-  const getPage = (previousPage, currentPage, classes) => {
+  const getPage = (
+    previousPage,
+    currentPage,
+    isBackButtonInteractable = true
+  ) => {
     return (
       <div
         style={{
@@ -178,7 +123,9 @@ function Online({ navigate }) {
       >
         <button
           style={{ flex: 1 }}
-          className={classes ? classes : "defaultColor"}
+          className={
+            isBackButtonInteractable ? "defaultColor" : "notInteractableColor"
+          }
           onClick={() => {
             if (previousPage === pages.MAIN_MENU) navigate(`/${previousPage}`);
             else setCurrentPage(previousPage);
@@ -203,17 +150,10 @@ function Online({ navigate }) {
     case pages.ONLINE.GAMEMODE_CHOSEN:
       return getPage(pages.ONLINE.INITIAL, gameModeChosen);
     case pages.ONLINE.RANDOM_OPPONENT:
-      return getPage(
-        pages.ONLINE.INITIAL, //does nothing for this page
-        randomOpponent,
-        "notInteractableColor"
-      );
+      return getPage(null, randomOpponent, false);
     case pages.ONLINE.SEARCH_OPPONENT:
       return getPage(pages.ONLINE.GAMEMODE_CHOSEN, onlineSearchOpponent);
   }
-
-  //   const location = useLocation();
-  //   const locationState = location.state;
 }
 
 export default Online;

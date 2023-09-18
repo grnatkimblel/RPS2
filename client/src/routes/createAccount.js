@@ -5,7 +5,7 @@ import "../styles/elementSpecific.css";
 import LoginButton from "../components/LoginButton";
 import LoginInputButton from "../components/LoginInputButton";
 
-import apiRoutes from "../apiRoutes";
+import apiRoutes from "../enums/apiRoutes";
 import pages from "../enums/pages";
 
 import { useState } from "react";
