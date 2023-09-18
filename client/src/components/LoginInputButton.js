@@ -18,6 +18,7 @@ function LoginInputButton({ fieldName, fieldType, tabIndex, stateVar, hook }) {
     >
       <p className="loginInputFieldName">{fieldName}</p>
       <InputField
+        classes="login"
         value={stateVar}
         hook={hook}
         title={inputHint}

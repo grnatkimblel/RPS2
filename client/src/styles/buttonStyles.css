@@ -1,3 +1,11 @@
+button {
+  display: inline;
+  letter-spacing: 10px;
+  font-family: "ComicSans";
+  font-size: 60px;
+  border: none;
+}
+
 .transition {
   transition-duration: 0.2s;
 }
@@ -61,7 +69,10 @@
       var(--stroke-color);
 }
 
-.defaultColor:hover {
+/* this isnt supported on firefox
+https://stackoverflow.com/questions/6679283/css-hover-only-affect-top-div-of-nest
+ */
+.defaultColor:not(:has(div:hover)):hover {
   background-color: #d14d44;
   color: white;
 }

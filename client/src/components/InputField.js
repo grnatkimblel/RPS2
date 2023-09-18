@@ -1,4 +1,5 @@
 function InputField({
+  classes,
   value,
   hook,
   // onChange,
@@ -12,6 +13,7 @@ function InputField({
   return (
     <form>
       <input
+        className={classes}
         value={value}
         onChange={(event) => {
           hook(event.target.value);

@@ -1,18 +1,10 @@
-button {
-  display: inline;
-  letter-spacing: 10px;
-  font-family: "ComicSans";
-  font-size: 60px;
-  border: none;
-}
-
 html,
 body,
 #root {
   height: 100%;
 }
 
-input {
+input.login {
   position: relative;
   bottom: 5vh;
   z-index: 2;
@@ -24,7 +16,10 @@ input {
 
 input.search {
   padding: 10px 30px 10px 30px;
-  margin-top: 40px;
+  margin: 40px 60px 0px 60px;
+  border: 6px solid red;
+  border-radius: 10vh;
+  font-size: 30px;
 }
 
 input[type="text"]:focus-visible {
@@ -41,4 +36,8 @@ input[type="password"]:focus-visible {
   font-family: "ComicSans";
   font-size: 60px;
   text-align: left;
+}
+
+div.noHover:hover {
+  pointer-events: none;
 }
