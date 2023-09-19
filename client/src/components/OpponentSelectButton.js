@@ -1,17 +1,47 @@
 import { useState } from "react";
 
-function OpponentSelectButton({ opponentName, styles, classes }) {
-  const [isSelected, setIsSelected] = useState(false);
+function OpponentSelectButton({ opponentInfo, styles, classes }) {
+  const [isGreen, setIsGreen] = useState(opponentInfo.isJoinable);
+  const [isButtonPressed, setIsButtonPressed] = useState(false);
+
+  const sendInvitation = () => {
+    setIsGreen(true);
+  };
+
+  const unSendInvitation = (e) => {
+    setIsGreen(false);
+  };
+
   return (
     <button
       style={styles}
-      className={classes + (isSelected ? " submittable" : "  defaultColor")}
+      className={classes + (isGreen ? " submittable" : "  defaultColor")}
       onClick={(e) => {
         e.stopPropagation();
-        isSelected ? setIsSelected(false) : setIsSelected(true);
+      }}
+      onMouseDown={(e) => {
+        setIsButtonPressed(true);
+        if (opponentInfo.isJoinable) {
+          //the client has clicked a player who is joinable
+          //make a match between these two players
+          //bring the client to the arena
+        }
+        //console.log("mouseDownEvent");
+        sendInvitation();
+        e.stopPropagation();
+      }}
+      onMouseUp={() => {
+        if (isButtonPressed) {
+          unSendInvitation();
+          setIsButtonPressed(false);
+        }
+      }}
+      onMouseLeave={() => {
+        if (!opponentInfo.isJoinable) unSendInvitation();
+        setIsButtonPressed(false);
       }}
     >
-      {opponentName}
+      {opponentInfo.name}
     </button>
   );
 }
