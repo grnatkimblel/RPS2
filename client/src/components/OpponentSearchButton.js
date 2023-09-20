@@ -10,51 +10,46 @@ function OpponentSearchButton() {
     dummyOpponents.push({ id: i, name: "Opponent: " + i, isJoinable: false });
   }
   const [opponents, setOpponents] = useState(dummyOpponents);
-  const [opponentDisplayRange, setOpponentDisplayRange] = useState([1, 8]); //idk yet
-  const diff = opponentDisplayRange[1] - opponentDisplayRange[0];
+  const [listStartIndex, setListStartIndex] = useState(0); //idk yet
+  const diff = 7;
+  const listEndIndex = listStartIndex + diff;
 
   const opponentPageSelectorButton = (numOpponents) => {
-    console.log(opponentDisplayRange);
-    console.log(diff);
+    // console.log(listStartIndex);
+    // console.log(listEndIndex);
     if (numOpponents > 8) {
-      if (opponentDisplayRange[0] < diff) {
+      if (listStartIndex < diff) {
         console.log("test");
         return (
           <MoreButton
+            styles={{ marginBottom: "40px" }}
             text="More..."
             OnClick={(e) => {
               e.stopPropagation();
 
-              setOpponentDisplayRange([
-                opponentDisplayRange[0] + diff,
-                opponentDisplayRange[1] + diff,
-              ]);
+              setListStartIndex(listStartIndex + 8);
             }}
           />
         );
-      } else if (opponentDisplayRange[1] < opponents.length) {
+      } else if (listEndIndex < opponents.length) {
         return (
-          <div style={{ display: "flex" }}>
+          <div style={{ display: "flex", marginBottom: "40px" }}>
             <MoreButton
+              styles={{ flex: 1 }}
               text="Back"
               OnClick={(e) => {
                 e.stopPropagation();
 
-                setOpponentDisplayRange([
-                  opponentDisplayRange[0] - diff,
-                  opponentDisplayRange[1] - diff,
-                ]);
+                setListStartIndex(listStartIndex - 8);
               }}
             />
             <MoreButton
+              styles={{ flex: 1 }}
               text="More..."
               OnClick={(e) => {
                 e.stopPropagation();
 
-                setOpponentDisplayRange([
-                  opponentDisplayRange[0] + diff,
-                  opponentDisplayRange[1] + diff,
-                ]);
+                setListStartIndex(listStartIndex + 8);
               }}
               noLeftBorder={true}
             />
@@ -63,14 +58,12 @@ function OpponentSearchButton() {
       } else {
         return (
           <MoreButton
+            styles={{ marginBottom: "40px" }}
             text="Back"
             OnClick={(e) => {
               e.stopPropagation();
 
-              setOpponentDisplayRange([
-                opponentDisplayRange[0] - diff,
-                opponentDisplayRange[1] - diff,
-              ]);
+              setListStartIndex(listStartIndex - 8);
             }}
           />
         );
@@ -92,23 +85,23 @@ function OpponentSearchButton() {
       onClick={() => inputFieldRef.current.focus()}
     >
       {/* im not sure if form is needed */}
-
-      <input className="search" ref={inputFieldRef}></input>
+      <div style={{ flex: 1, justifyContent: "center", display: "flex" }}>
+        <input className="search" ref={inputFieldRef}></input>
+      </div>
       <div
         style={{
+          flex: 7,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          margin: "60px",
+          marginLeft: "60px",
+          marginRight: "60px",
         }}
       >
         {opponents.map((opponent, index) => {
-          if (
-            opponentDisplayRange[0] - 1 <= index &&
-            index <= opponentDisplayRange[1] - 1
-          ) {
+          if (listStartIndex <= index && index <= listEndIndex) {
             let classes = "";
-            if (index == opponentDisplayRange[0] - 1)
+            if (index == listStartIndex)
               //this is why idk yet/\
               classes =
                 "secondary bottomBorder topBorder leftBorder rightBorder";
@@ -128,10 +121,10 @@ function OpponentSearchButton() {
   );
 }
 
-function MoreButton({ text, OnClick, noLeftBorder = false }) {
+function MoreButton({ text, OnClick, styles, noLeftBorder = false }) {
   return (
     <button
-      style={{ flex: 1 }}
+      style={styles}
       className={
         "secondary defaultColor bottomBorder rightBorder " +
         (noLeftBorder ? "" : "leftBorder ")
