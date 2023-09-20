@@ -22,7 +22,6 @@ function OpponentSearchButton() {
         console.log("test");
         return (
           <MoreButton
-            styles={{ marginBottom: "40px" }}
             text="More..."
             OnClick={(e) => {
               e.stopPropagation();
@@ -33,7 +32,7 @@ function OpponentSearchButton() {
         );
       } else if (listEndIndex < opponents.length) {
         return (
-          <div style={{ display: "flex", marginBottom: "40px" }}>
+          <div style={{ display: "flex" }}>
             <MoreButton
               styles={{ flex: 1 }}
               text="Back"
@@ -58,7 +57,6 @@ function OpponentSearchButton() {
       } else {
         return (
           <MoreButton
-            styles={{ marginBottom: "40px" }}
             text="Back"
             OnClick={(e) => {
               e.stopPropagation();
@@ -76,7 +74,7 @@ function OpponentSearchButton() {
       style={{
         cursor: "text",
         flex: 20,
-        display: "flex",
+
         flexDirection: "column",
         justifyContent: "center",
         position: "relative",
@@ -84,13 +82,13 @@ function OpponentSearchButton() {
       className="defaultColor"
       onClick={() => inputFieldRef.current.focus()}
     >
-      {/* im not sure if form is needed */}
-      <div style={{ flex: 1, justifyContent: "center", display: "flex" }}>
-        <input className="search" ref={inputFieldRef}></input>
-      </div>
+      {/* these need to stay in this div, positioning will have to be more explicit, cant really use flex w/out
+      the box moving when it is smaller than its max length */}
+
+      <input className="search" ref={inputFieldRef}></input>
+
       <div
         style={{
-          flex: 7,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
