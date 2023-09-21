@@ -4,22 +4,28 @@ import OpponentSelectButton from "../components/OpponentSelectButton";
 
 function OpponentSearchButton() {
   const inputFieldRef = useRef(null);
-  let i = 0;
-  const dummyOpponents = [];
-  for (i = 1; i <= 70; i++) {
-    dummyOpponents.push({ id: i, name: "Opponent: " + i, isJoinable: false });
-  }
-  const [opponents, setOpponents] = useState(dummyOpponents);
+  const [searchText, setSearchText] = useState("");
   const [listStartIndex, setListStartIndex] = useState(0); //idk yet
   const diff = 7;
   const listEndIndex = listStartIndex + diff;
 
+  let i = 0;
+  let dummyOpponents = [];
+  for (i = 1; i <= 17; i++) {
+    dummyOpponents.push({
+      id: i,
+      name: ` Opponent: ` + i,
+      isJoinable: false,
+    });
+  }
+
+  const [opponents, setOpponents] = useState(dummyOpponents);
   const opponentPageSelectorButton = (numOpponents) => {
-    // console.log(listStartIndex);
-    // console.log(listEndIndex);
+    console.log("opponents length: " + opponents.length);
+    console.log("listEnd Index: " + listEndIndex);
+
     if (numOpponents > 8) {
       if (listStartIndex < diff) {
-        console.log("test");
         return (
           <MoreButton
             styles={{ pointerEvents: "auto" }}
@@ -31,7 +37,7 @@ function OpponentSearchButton() {
             }}
           />
         );
-      } else if (listEndIndex < opponents.length) {
+      } else if (listEndIndex < opponents.length - 1) {
         return (
           <div style={{ display: "flex" }}>
             <MoreButton
@@ -86,7 +92,27 @@ function OpponentSearchButton() {
     >
       {/* these need to stay in this div, positioning will have to be more explicit, cant really use flex w/out
        */}
-      <input className="search" ref={inputFieldRef}></input>
+      <input
+        className="search"
+        ref={inputFieldRef}
+        onChange={(event) => {
+          let inputText = event.target.value;
+          console.log("inputText: " + inputText);
+          setSearchText(inputText);
+          if (inputText !== "") {
+            setOpponents(
+              dummyOpponents.filter((opponent) =>
+                opponent.name.includes(inputText)
+              )
+            );
+          } else if (inputText === "") {
+            console.log("no more search");
+            console.log(dummyOpponents);
+
+            setOpponents(dummyOpponents);
+          }
+        }}
+      ></input>
 
       <div
         style={{

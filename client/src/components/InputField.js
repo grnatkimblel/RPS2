@@ -2,7 +2,6 @@ function InputField({
   classes,
   value,
   hook,
-  // onChange,
   title,
   type,
   minLength,
