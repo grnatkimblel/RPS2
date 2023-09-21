@@ -6,7 +6,7 @@ function OpponentSearchButton() {
   const inputFieldRef = useRef(null);
   let i = 0;
   const dummyOpponents = [];
-  for (i = 1; i <= 20; i++) {
+  for (i = 1; i <= 70; i++) {
     dummyOpponents.push({ id: i, name: "Opponent: " + i, isJoinable: false });
   }
   const [opponents, setOpponents] = useState(dummyOpponents);
@@ -22,6 +22,7 @@ function OpponentSearchButton() {
         console.log("test");
         return (
           <MoreButton
+            styles={{ pointerEvents: "auto" }}
             text="More..."
             OnClick={(e) => {
               e.stopPropagation();
@@ -34,7 +35,7 @@ function OpponentSearchButton() {
         return (
           <div style={{ display: "flex" }}>
             <MoreButton
-              styles={{ flex: 1 }}
+              styles={{ flex: 1, pointerEvents: "auto" }}
               text="Back"
               OnClick={(e) => {
                 e.stopPropagation();
@@ -43,7 +44,7 @@ function OpponentSearchButton() {
               }}
             />
             <MoreButton
-              styles={{ flex: 1 }}
+              styles={{ flex: 1, pointerEvents: "auto" }}
               text="More..."
               OnClick={(e) => {
                 e.stopPropagation();
@@ -57,6 +58,7 @@ function OpponentSearchButton() {
       } else {
         return (
           <MoreButton
+            styles={{ pointerEvents: "auto" }}
             text="Back"
             OnClick={(e) => {
               e.stopPropagation();
@@ -74,7 +76,7 @@ function OpponentSearchButton() {
       style={{
         cursor: "text",
         flex: 20,
-
+        display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         position: "relative",
@@ -83,17 +85,18 @@ function OpponentSearchButton() {
       onClick={() => inputFieldRef.current.focus()}
     >
       {/* these need to stay in this div, positioning will have to be more explicit, cant really use flex w/out
-      the box moving when it is smaller than its max length */}
-
+       */}
       <input className="search" ref={inputFieldRef}></input>
 
       <div
         style={{
+          flex: 20,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           marginLeft: "60px",
           marginRight: "60px",
+          pointerEvents: "none",
         }}
       >
         {opponents.map((opponent, index) => {
@@ -106,6 +109,7 @@ function OpponentSearchButton() {
             else classes = "secondary bottomBorder leftBorder rightBorder";
             return (
               <OpponentSelectButton
+                styles={{ pointerEvents: "auto" }}
                 key={opponent.id}
                 opponentInfo={opponent}
                 classes={classes}

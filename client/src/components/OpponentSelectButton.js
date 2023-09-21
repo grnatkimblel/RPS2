@@ -14,7 +14,7 @@ function OpponentSelectButton({ opponentInfo, styles, classes }) {
 
   return (
     <button
-      //   style={styles}
+      style={styles}
       className={classes + (isGreen ? " submittable" : "  defaultColor")}
       onClick={(e) => {
         e.stopPropagation();

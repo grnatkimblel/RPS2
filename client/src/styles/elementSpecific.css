@@ -15,8 +15,9 @@ input.login {
 }
 
 input.search {
+  flex: 1;
   padding: 10px 60px 10px 60px;
-  margin-top: 20px;
+  margin: 30px 10vh 0px 10vh;
   border: 6px solid red;
   border-radius: 10vh;
   font-size: 30px;
