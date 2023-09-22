@@ -2,7 +2,7 @@ import "../styles/buttonStyles.css";
 import "../styles/texts.css";
 import "../styles/elementSpecific.css";
 
-import pages from "../enums/pages";
+import PAGES from "../enums/pages";
 
 function MainMenu({ navigate, userInfo, onLogout }) {
   return (
@@ -16,7 +16,7 @@ function MainMenu({ navigate, userInfo, onLogout }) {
         <button
           style={{ flex: 1 }}
           className={"defaultColor bottomBorder"}
-          onClick={() => navigate(`/${pages.ACCOUNT}`)}
+          onClick={() => navigate(`/${PAGES.ACCOUNT}`)}
         >
           {userInfo.username}
         </button>
@@ -40,7 +40,7 @@ function MainMenu({ navigate, userInfo, onLogout }) {
         <button
           style={{ flex: 1 }}
           className="defaultColor leftBorder"
-          onClick={() => navigate(`/${pages.ONLINE.INITIAL}`)}
+          onClick={() => navigate(`/${PAGES.ONLINE.INITIAL}`)}
         >
           Online
         </button>

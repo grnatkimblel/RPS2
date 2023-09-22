@@ -5,8 +5,8 @@ import "./styles/buttonStyles.css";
 import "./styles/texts.css";
 import "./styles/elementSpecific.css";
 
-import pages from "./enums/pages";
-import apiRoutes from "./enums/apiRoutes";
+import PAGES from "./enums/pages";
+import API_ROUTES from "./enums/apiRoutes";
 import { getNewAccessToken } from "./helper";
 
 import Root from "./routes/root.js";
@@ -31,7 +31,7 @@ function App() {
 
   const loginHelper = async (credentials) => {
     //authorizes user and returns access tokens and user account info
-    let res = await fetch(apiRoutes.login, {
+    let res = await fetch(API_ROUTES.LOGIN, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -50,7 +50,7 @@ function App() {
         userId: body.user.userId,
         emoji: body.user.emoji,
       });
-      navigate(`/${pages.MAIN_MENU}`);
+      navigate(`/${PAGES.MAIN_MENU}`);
     } else {
       let body = await res.text();
       console.log(body);
@@ -109,37 +109,37 @@ function App() {
   return (
     <Routes>
       <Route
-        path={`/${pages.INITIAL}`}
+        path={`/${PAGES.INITIAL}`}
         element={<Root navigate={navigate} />}
       />
       <Route
-        path={`/${pages.LOGIN}`}
+        path={`/${PAGES.LOGIN}`}
         element={<Login navigate={navigate} login={loginHelper} />}
       />
       <Route
-        path={`/${pages.CREATE_ACCOUNT}`}
+        path={`/${PAGES.CREATE_ACCOUNT}`}
         element={<CreateAccount navigate={navigate} login={loginHelper} />}
       />
       <Route
-        path={`/${pages.MAIN_MENU}`}
+        path={`/${PAGES.MAIN_MENU}`}
         element={
           <MainMenu
             navigate={navigate}
             userInfo={userInfo}
             onLogout={() => {
-              authorizeThenCall(apiRoutes.logout, "DELETE", {
+              authorizeThenCall(API_ROUTES.LOGOUT, "DELETE", {
                 refreshToken: refreshToken,
               });
 
               setAccessToken("");
               setRefreshToken("");
-              navigate(`/${pages.INITIAL}`);
+              navigate(`/${PAGES.INITIAL}`);
             }}
           />
         }
       />
       <Route
-        path={`/${pages.ACCOUNT}`}
+        path={`/${PAGES.ACCOUNT}`}
         element={
           <Account
             navigate={navigate}
@@ -149,8 +149,14 @@ function App() {
         }
       />
       <Route
-        path={`/${pages.ONLINE.INITIAL}`}
-        element={<Online navigate={navigate} />}
+        path={`/${PAGES.ONLINE.INITIAL}`}
+        element={
+          <Online
+            navigate={navigate}
+            userId={userInfo.userId}
+            authHelper={authorizeThenCall}
+          />
+        }
       />
     </Routes>
   );

@@ -2,8 +2,8 @@ import "../styles/buttonStyles.css";
 import "../styles/texts.css";
 import "../styles/elementSpecific.css";
 
-import pages from "../enums/pages";
-import apiRoutes from "../enums/apiRoutes";
+import PAGES from "../enums/pages";
+import API_ROUTES from "../enums/apiRoutes";
 
 import { useEffect, useState } from "react";
 
@@ -13,7 +13,7 @@ function Account({ navigate, userInfo, authHelper }) {
   useEffect(() => {
     let ignore = false;
 
-    authHelper(apiRoutes.getUsers, "GET").then(
+    authHelper(API_ROUTES.GET_USERS, "GET").then(
       (res) => {
         if (res == undefined) return;
         if (!ignore) {
@@ -86,7 +86,7 @@ function Account({ navigate, userInfo, authHelper }) {
         <button
           style={{ flex: 1 }}
           className="defaultColor leftBorder"
-          onClick={() => navigate(`/${pages.MAIN_MENU}`)}
+          onClick={() => navigate(`/${PAGES.MAIN_MENU}`)}
         >
           Back
         </button>

@@ -2,7 +2,7 @@ import "../styles/buttonStyles.css";
 import "../styles/texts.css";
 import "../styles/elementSpecific.css";
 
-import pages from "../enums/pages";
+import PAGES from "../enums/pages";
 
 function Root({ navigate }) {
   return (
@@ -15,14 +15,14 @@ function Root({ navigate }) {
       <button
         style={{ flex: 1 }}
         className="defaultColor redTextBorder smooth-16"
-        onClick={() => navigate(`/${pages.LOGIN}`)}
+        onClick={() => navigate(`/${PAGES.LOGIN}`)}
       >
         Login
       </button>
       <button
         style={{ flex: 1 }}
         className="defaultColor leftBorder redTextBorder smooth-16"
-        onClick={() => navigate(`/${pages.CREATE_ACCOUNT}`)}
+        onClick={() => navigate(`/${PAGES.CREATE_ACCOUNT}`)}
       >
         Create Account
       </button>

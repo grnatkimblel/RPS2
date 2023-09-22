@@ -1,4 +1,4 @@
-const pages = {
+const PAGES = {
   INITIAL: "",
   LOGIN: "login",
   CREATE_ACCOUNT: "create_account",
@@ -12,4 +12,4 @@ const pages = {
   },
 };
 
-export default pages;
+export default PAGES;

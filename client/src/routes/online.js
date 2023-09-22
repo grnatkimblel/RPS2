@@ -3,15 +3,15 @@ import "../styles/texts.css";
 import "../styles/elementSpecific.css";
 
 import GameModeSelector from "../components/GameModeSelector";
-import pages from "../enums/pages";
-import { gameModeTypes } from "../enums/gameEnums";
+import PAGES from "../enums/pages";
+import { GAMEMODE_TYPES } from "../enums/gameEnums";
 import { useState, useRef } from "react";
 
 import OpponentSearchButton from "../components/OpponentSearchButton";
 // import { useLocation } from "react-router-dom";
 
-function Online({ navigate }) {
-  const [currentPage, setCurrentPage] = useState(pages.ONLINE.INITIAL);
+function Online({ navigate, userId, authHelper }) {
+  const [currentPage, setCurrentPage] = useState(PAGES.ONLINE.INITIAL);
   const [currentGameMode, setCurrentGameMode] = useState({
     gameModeType: "",
     gameMode: "",
@@ -22,13 +22,13 @@ function Online({ navigate }) {
       <>
         <GameModeSelector
           gameModeSetter={setCurrentGameMode}
-          gameModeType={gameModeTypes.QUICKPLAY}
+          gameModeType={GAMEMODE_TYPES.QUICKPLAY}
           bonusStyles="bottomBorder"
           pageSetter={setCurrentPage}
         />
         <GameModeSelector
           gameModeSetter={setCurrentGameMode}
-          gameModeType={gameModeTypes.RANKED}
+          gameModeType={GAMEMODE_TYPES.RANKED}
           pageSetter={setCurrentPage}
         />
       </>
@@ -47,14 +47,14 @@ function Online({ navigate }) {
         <button
           style={{ flex: 3 }}
           className="defaultColor bottomBorder"
-          onClick={() => setCurrentPage(pages.ONLINE.SEARCH_OPPONENT)}
+          onClick={() => setCurrentPage(PAGES.ONLINE.SEARCH_OPPONENT)}
         >
           Search Opponent
         </button>
         <button
           style={{ flex: 3 }}
           className="defaultColor"
-          onClick={() => setCurrentPage(pages.ONLINE.RANDOM_OPPONENT)}
+          onClick={() => setCurrentPage(PAGES.ONLINE.RANDOM_OPPONENT)}
         >
           Random Opponent
         </button>
@@ -80,7 +80,7 @@ function Online({ navigate }) {
         <button
           style={{ flex: 3 }}
           className="defaultColor"
-          onClick={() => setCurrentPage(pages.ONLINE.GAMEMODE_CHOSEN)}
+          onClick={() => setCurrentPage(PAGES.ONLINE.GAMEMODE_CHOSEN)}
         >
           Cancel
         </button>
@@ -104,7 +104,7 @@ function Online({ navigate }) {
         >
           Search Opponent
         </button>
-        <OpponentSearchButton />
+        <OpponentSearchButton authHelper={authHelper} userId={userId} />
       </>
     );
   };
@@ -127,7 +127,7 @@ function Online({ navigate }) {
             isBackButtonInteractable ? "defaultColor" : "notInteractableColor"
           }
           onClick={() => {
-            if (previousPage === pages.MAIN_MENU) navigate(`/${previousPage}`);
+            if (previousPage === PAGES.MAIN_MENU) navigate(`/${previousPage}`);
             else setCurrentPage(previousPage);
           }}
         >
@@ -145,14 +145,14 @@ function Online({ navigate }) {
   };
 
   switch (currentPage) {
-    case pages.ONLINE.INITIAL:
-      return getPage(pages.MAIN_MENU, onlineInitial);
-    case pages.ONLINE.GAMEMODE_CHOSEN:
-      return getPage(pages.ONLINE.INITIAL, gameModeChosen);
-    case pages.ONLINE.RANDOM_OPPONENT:
+    case PAGES.ONLINE.INITIAL:
+      return getPage(PAGES.MAIN_MENU, onlineInitial);
+    case PAGES.ONLINE.GAMEMODE_CHOSEN:
+      return getPage(PAGES.ONLINE.INITIAL, gameModeChosen);
+    case PAGES.ONLINE.RANDOM_OPPONENT:
       return getPage(null, randomOpponent, false);
-    case pages.ONLINE.SEARCH_OPPONENT:
-      return getPage(pages.ONLINE.GAMEMODE_CHOSEN, onlineSearchOpponent);
+    case PAGES.ONLINE.SEARCH_OPPONENT:
+      return getPage(PAGES.ONLINE.GAMEMODE_CHOSEN, onlineSearchOpponent);
   }
 }
 

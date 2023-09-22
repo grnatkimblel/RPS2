@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 
 import OpponentSelectButton from "../components/OpponentSelectButton";
+import API_ROUTES from "../enums/apiRoutes";
 
-function OpponentSearchButton() {
+function OpponentSearchButton({ authHelper, userId }) {
   const inputFieldRef = useRef(null);
   const [searchText, setSearchText] = useState("");
   const [listStartIndex, setListStartIndex] = useState(0); //idk yet
@@ -139,6 +140,8 @@ function OpponentSearchButton() {
                 key={opponent.id}
                 opponentInfo={opponent}
                 classes={classes}
+                authHelper={authHelper}
+                userId={userId}
               />
             );
           }

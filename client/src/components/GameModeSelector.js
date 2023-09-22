@@ -1,5 +1,5 @@
-import pages from "../enums/pages";
-import { gameModes, gameModeTypes } from "../enums/gameEnums";
+import PAGES from "../enums/pages";
+import { GAMEMODES, GAMEMODE_TYPES } from "../enums/gameEnums";
 
 import { useState } from "react";
 
@@ -12,7 +12,7 @@ function GameModeSelector({
   let setGameMode = (childGameMode) => {
     //console.log("setGamemode called");
     switch (gameModeType) {
-      case gameModeTypes.QUICKPLAY:
+      case GAMEMODE_TYPES.QUICKPLAY:
         //console.log("quickplay selected");
         gameModeSetter({
           gameModeType: gameModeType,
@@ -20,7 +20,7 @@ function GameModeSelector({
         });
         break;
 
-      case gameModeTypes.RANKED:
+      case GAMEMODE_TYPES.RANKED:
         //console.log("ranked selected");
         gameModeSetter({
           gameModeType: gameModeType,
@@ -30,7 +30,7 @@ function GameModeSelector({
       default:
         console.log("GameModeSelector invalid case in switch");
     }
-    pageSetter(pages.ONLINE.GAMEMODE_CHOSEN);
+    pageSetter(PAGES.ONLINE.GAMEMODE_CHOSEN);
   };
 
   const [pageFlavor, setPageFlavor] = useState("");
@@ -61,7 +61,7 @@ function GameModeSelector({
         <button
           style={{ flex: 1 }}
           className="defaultColor bottomBorder"
-          onClick={() => setGameMode(gameModes.QUICKDRAW)}
+          onClick={() => setGameMode(GAMEMODES.QUICKDRAW)}
         >
           Quickdraw
         </button>
@@ -78,7 +78,7 @@ function GameModeSelector({
             <button
               style={{ width: "100%", height: "100%" }}
               className={"defaultColor " + bonusStyles}
-              onClick={() => setGameMode(gameModes.TDM)}
+              onClick={() => setGameMode(GAMEMODES.TDM)}
             >
               TDM
             </button>
@@ -90,7 +90,7 @@ function GameModeSelector({
               className={
                 "defaultColor redTextBorder smooth-16 leftBorder " + bonusStyles
               }
-              onClick={() => setGameMode(gameModes.SEARCH)}
+              onClick={() => setGameMode(GAMEMODES.SEARCH)}
             >
               S&D
             </button>

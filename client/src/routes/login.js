@@ -5,7 +5,7 @@ import "../styles/elementSpecific.css";
 import LoginButton from "../components/LoginButton";
 import LoginInputButton from "../components/LoginInputButton";
 
-import pages from "../enums/pages";
+import PAGES from "../enums/pages";
 import { useState } from "react";
 
 function Login({ navigate, login }) {
@@ -31,7 +31,7 @@ function Login({ navigate, login }) {
             //send user back and wipe the input fields
             setLoginUsername("");
             setLoginPassword("");
-            navigate(`/${pages.INITIAL}`);
+            navigate(`/${PAGES.INITIAL}`);
           }}
         >
           Back

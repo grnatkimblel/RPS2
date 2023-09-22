@@ -1,9 +1,18 @@
-const apiRoutes = {
-  login: "http://localhost:8100/user/login",
-  logout: "http://localhost:8080/user/logout",
-  register: "http://localhost:8080/user/createUser",
-  refreshAccessToken: "http://localhost:8100/user/token",
-  getUsers: "http://localhost:8080/user/getUsers",
+const API_ROUTES = {
+  LOGIN: "http://localhost:8100/user/login",
+  LOGOUT: "http://localhost:8080/user/logout",
+  REGISTER: "http://localhost:8080/user/createUser",
+  REFRESH_ACCESS_TOKEN: "http://localhost:8100/user/token",
+  GET_USERS: "http://localhost:8080/user/getUsers",
+  MATCHMAKING: {
+    RANDOM: "http://localhost:8080/matchmaking/quickplay/quickdraw/random",
+    SEARCH: {
+      NEW_INVITE:
+        "http://localhost:8080/matchmaking/quickplay/quickdraw/search/newInvite",
+      REMOVE_INVITE:
+        "http://localhost:8080/matchmaking/quickplay/quickdraw/search/removeInvite",
+    },
+  },
 };
 
-export default apiRoutes;
+export default API_ROUTES;

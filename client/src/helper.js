@@ -1,8 +1,8 @@
-import apiRoutes from "./enums/apiRoutes";
+import API_ROUTES from "./enums/apiRoutes";
 
 async function getNewAccessToken(refreshToken) {
   try {
-    let res = await fetch(apiRoutes.refreshAccessToken, {
+    let res = await fetch(API_ROUTES.REFRESH_ACCESS_TOKEN, {
       headers: {
         "Content-Type": "application/json",
       },

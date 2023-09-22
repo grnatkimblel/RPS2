@@ -5,8 +5,8 @@ import "../styles/elementSpecific.css";
 import LoginButton from "../components/LoginButton";
 import LoginInputButton from "../components/LoginInputButton";
 
-import apiRoutes from "../enums/apiRoutes";
-import pages from "../enums/pages";
+import API_ROUTES from "../enums/apiRoutes";
+import PAGES from "../enums/pages";
 
 import { useState } from "react";
 
@@ -38,7 +38,7 @@ function CreateAccount({ navigate, login }) {
             setCreateAccountUsername("");
             setCreateAccountInitialPassword("");
             setCreateAccountConfirmPassword("");
-            navigate(`/${pages.INITIAL}`);
+            navigate(`/${PAGES.INITIAL}`);
           }}
         >
           Back
@@ -61,7 +61,7 @@ function CreateAccount({ navigate, login }) {
           }}
           OnClick={async () => {
             try {
-              let res = await fetch(apiRoutes.register, {
+              let res = await fetch(API_ROUTES.REGISTER, {
                 headers: {
                   "Content-Type": "application/json",
                 },
