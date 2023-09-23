@@ -4,6 +4,7 @@ import "../styles/elementSpecific.css";
 
 import GameModeSelector from "../components/GameModeSelector";
 import PAGES from "../enums/pages";
+import API_ROUTES from "../enums/apiRoutes";
 import { GAMEMODE_TYPES } from "../enums/gameEnums";
 import { useState, useRef } from "react";
 
@@ -61,7 +62,18 @@ function Online({ navigate, userId, authHelper }) {
       </>
     );
   };
+
   const randomOpponent = () => {
+    authHelper(API_ROUTES.MATCHMAKING.RANDOM, "POST", {
+      client_id: userId,
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((roster) => {
+        console.log(roster);
+      });
+
     return (
       <>
         <div className="gamemode-smalltext">{currentGameMode.gameModeType}</div>

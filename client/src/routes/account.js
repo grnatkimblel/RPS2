@@ -13,7 +13,10 @@ function Account({ navigate, userInfo, authHelper }) {
   useEffect(() => {
     let ignore = false;
 
-    authHelper(API_ROUTES.GET_USERS, "GET").then(
+    authHelper(API_ROUTES.GET_USERS, "POST", {
+      searchText: "",
+      listOfPlayers: [userInfo.id],
+    }).then(
       (res) => {
         if (res == undefined) return;
         if (!ignore) {

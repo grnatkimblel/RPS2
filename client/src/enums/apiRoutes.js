@@ -11,6 +11,8 @@ const API_ROUTES = {
         "http://localhost:8080/matchmaking/quickplay/quickdraw/search/newInvite",
       REMOVE_INVITE:
         "http://localhost:8080/matchmaking/quickplay/quickdraw/search/removeInvite",
+      CHECK_INVITE:
+        "http://localhost:8080/matchmaking/quickplay/quickdraw/search/checkInvite",
     },
   },
 };

@@ -79,6 +79,8 @@ router.post("/token", async (req, res) => {
       //must pass a user without timestamps
       username: user.username,
       hashed_password: user.hashed_password,
+      id: user.id,
+      emoji: user.player_emoji,
     });
     res.json({ accessToken: accessToken });
   });

@@ -61,7 +61,7 @@ function OpponentSelectButton({
         setIsButtonPressed(false);
       }}
     >
-      {opponentInfo.name}
+      {opponentInfo.username}
     </button>
   );
 }

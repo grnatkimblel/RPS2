@@ -8,6 +8,7 @@ const { Op } = require("sequelize");
 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { matchmakingEventEmitter } = require("../MatchmakingService");
 
 //POSTS
 router.post("/createUser", async (req, res) => {
@@ -33,11 +34,47 @@ router.post("/createUser", async (req, res) => {
   }
 });
 
-//GETS
-router.get("/getUsers", authenticateToken, async (req, res) => {
-  const listOfUsers = await User.findAll();
-  res.json(listOfUsers);
+router.post("/getUsers", authenticateToken, async (req, res) => {
+  // console.log(req.body);
+  const searchText = req.body.searchText;
+  const listOfPlayers = req.body.listOfPlayers;
+  // console.log(searchText === "");
+  if (searchText === "") {
+    //return list of players
+    // console.log("listOfPlayers: ", listOfPlayers);
+    if (listOfPlayers != null && listOfPlayers.length > 0) {
+      console.log("returning list of players");
+      const responseObject = await Promise.all(
+        listOfPlayers.map(async (player_id) => {
+          return await User.findByPk(player_id);
+        })
+      );
+      // console.log("list resObj");
+      // console.log(responseObject);
+      res.json(responseObject);
+    } else {
+      res.sendStatus(400);
+    }
+  } else {
+    //search opponent by searchTerm
+    console.log("searchTerm ", searchTerm);
+    const responseObject = await User.findAll({
+      where: {
+        username: {
+          [Op.like]: `%${searchTerm}%`,
+        },
+      },
+    });
+    console.log("search resObj");
+    console.log(responseObject);
+    res.json(responseObject);
+  }
+  /* 
+  accepts an array of player_ids or an opponents username
+  */
 });
+
+//GETS
 
 //DELETES
 router.delete("/logout", authenticateToken, async (req, res) => {

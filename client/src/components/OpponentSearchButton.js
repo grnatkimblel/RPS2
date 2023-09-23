@@ -1,10 +1,13 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 import OpponentSelectButton from "../components/OpponentSelectButton";
 import API_ROUTES from "../enums/apiRoutes";
 
 function OpponentSearchButton({ authHelper, userId }) {
   const inputFieldRef = useRef(null);
+  const isJoinableCheckInterval = useRef(null);
+  const [opponents, setOpponents] = useState([]);
+  const [opponentsDisplay, setOpponentsDisplay] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [listStartIndex, setListStartIndex] = useState(0); //idk yet
   const diff = 7;
@@ -20,10 +23,75 @@ function OpponentSearchButton({ authHelper, userId }) {
     });
   }
 
-  const [opponents, setOpponents] = useState(dummyOpponents);
+  const updateIsJoinableStatus = useCallback(
+    async (opponentsList) => {
+      let isJoinable = false;
+      if (opponentsList.length == 0) return opponentsList;
+      return await Promise.all(
+        opponentsList.map(async (opponent) => {
+          // console.log(opponent);
+          authHelper(API_ROUTES.MATCHMAKING.SEARCH.CHECK_INVITE, "POST", {
+            client_id: userId,
+            otherPlayer_id: opponent.id,
+          }).then((res) => {
+            res.json().then((data) => {
+              // console.log(data);
+              isJoinable = data;
+            });
+          });
+          // console.log(isJoinable);
+          return { ...opponent, isJoinable: isJoinable };
+        })
+      );
+    },
+    [authHelper, userId]
+  );
+
+  useEffect(() => {
+    let ignore = false;
+    let dummyListOfRecentPlayers = [
+      "9712b392-8f89-4b1f-8e33-8c0bed73d254",
+      "1a839909-6155-48e2-aba5-fcdc4bde6186",
+    ];
+
+    console.log("useEffect Runs");
+    isJoinableCheckInterval.current = setInterval(async () => {
+      console.log("opponents ", opponents);
+      // const opponentsWithInviteData = await updateIsJoinableStatus(opponents);
+      // //console.log(opponentsWithInviteData );
+      // setOpponentsDisplay("opponentsWithInviteData ", opponentsWithInviteData);
+    }, 5000);
+
+    authHelper(API_ROUTES.GET_USERS, "POST", {
+      searchText: searchText,
+      listOfPlayers: dummyListOfRecentPlayers,
+    }).then(
+      (res) => {
+        if (res == undefined) return;
+        if (!ignore) {
+          // console.log(res);
+          res.json().then(async (body) => {
+            console.log("getUsers Response ", body);
+            setOpponents(body);
+            const opponentsWithInviteData = await updateIsJoinableStatus(body);
+            // console.log("set opponents to ", opponentsWithInviteData);
+            setOpponentsDisplay(opponentsWithInviteData);
+          });
+        }
+        return () => {
+          clearInterval(isJoinableCheckInterval.current);
+          ignore = true;
+        };
+      },
+      (error) => {
+        console.error("AuthHelper failed");
+      }
+    );
+  }, [authHelper, opponents, searchText, updateIsJoinableStatus]);
+
   const opponentPageSelectorButton = (numOpponents) => {
-    console.log("opponents length: " + opponents.length);
-    console.log("listEnd Index: " + listEndIndex);
+    // console.log("opponents length: " + opponents.length);
+    // console.log("listEnd Index: " + listEndIndex);
 
     if (numOpponents > 8) {
       if (listStartIndex < diff) {
@@ -100,18 +168,17 @@ function OpponentSearchButton({ authHelper, userId }) {
           let inputText = event.target.value;
           console.log("inputText: " + inputText);
           setSearchText(inputText);
-          if (inputText !== "") {
-            setOpponents(
-              dummyOpponents.filter((opponent) =>
-                opponent.name.includes(inputText)
-              )
-            );
-          } else if (inputText === "") {
-            console.log("no more search");
-            console.log(dummyOpponents);
+          // if (inputText !== "") {
+          //   console.log("searching");
+          //   setOpponents(
+          //     opponents.filter((opponent) => opponent.name.includes(inputText))
+          //   );
+          // } else if (inputText === "") {
+          //   console.log("no more search");
+          //   console.log(opponents);
 
-            setOpponents(dummyOpponents);
-          }
+          //   setOpponents(opponents);
+          // }
         }}
       ></input>
 
@@ -126,7 +193,7 @@ function OpponentSearchButton({ authHelper, userId }) {
           pointerEvents: "none",
         }}
       >
-        {opponents.map((opponent, index) => {
+        {opponentsDisplay.map((opponent, index) => {
           if (listStartIndex <= index && index <= listEndIndex) {
             let classes = "";
             if (index == listStartIndex)
