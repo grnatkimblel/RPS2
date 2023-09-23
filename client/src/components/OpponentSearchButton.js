@@ -1,12 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useInterval } from "../useInterval";
 
 import OpponentSelectButton from "../components/OpponentSelectButton";
 import API_ROUTES from "../enums/apiRoutes";
 
 function OpponentSearchButton({ authHelper, userId }) {
   const inputFieldRef = useRef(null);
-  const isJoinableCheckInterval = useRef(null);
-  const [opponents, setOpponents] = useState([]);
   const [opponentsDisplay, setOpponentsDisplay] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [listStartIndex, setListStartIndex] = useState(0); //idk yet
@@ -22,72 +21,58 @@ function OpponentSearchButton({ authHelper, userId }) {
       isJoinable: false,
     });
   }
+  let dummyListOfRecentPlayers = [
+    "9712b392-8f89-4b1f-8e33-8c0bed73d254",
+    "1a839909-6155-48e2-aba5-fcdc4bde6186",
+  ];
+  const [opponents, setOpponents] = useState([]);
 
   const updateIsJoinableStatus = useCallback(
     async (opponentsList) => {
-      let isJoinable = false;
       if (opponentsList.length == 0) return opponentsList;
+
       return await Promise.all(
         opponentsList.map(async (opponent) => {
-          // console.log(opponent);
-          authHelper(API_ROUTES.MATCHMAKING.SEARCH.CHECK_INVITE, "POST", {
-            client_id: userId,
-            otherPlayer_id: opponent.id,
-          }).then((res) => {
-            res.json().then((data) => {
-              // console.log(data);
-              isJoinable = data;
-            });
-          });
-          // console.log(isJoinable);
+          //console.log("opponent in updateIsJoinableStatus ", opponent);
+          const response = await authHelper(
+            API_ROUTES.MATCHMAKING.SEARCH.CHECK_INVITE,
+            "POST",
+            {
+              client_id: userId,
+              otherPlayer_id: opponent.id,
+            }
+          );
+          const isJoinable = await response.json();
           return { ...opponent, isJoinable: isJoinable };
         })
       );
     },
-    [authHelper, userId]
+    [authHelper]
   );
 
+  useInterval(async () => {
+    //console.log("opponents ", opponents);
+    // //console.log(opponentsWithInviteData );
+    const opponentsWithInviteData = await updateIsJoinableStatus(opponents);
+    setOpponentsDisplay(opponentsWithInviteData);
+    //console.log("set opponentsDisplay to ", opponentsWithInviteData);
+  }, 500);
+
   useEffect(() => {
-    let ignore = false;
-    let dummyListOfRecentPlayers = [
-      "9712b392-8f89-4b1f-8e33-8c0bed73d254",
-      "1a839909-6155-48e2-aba5-fcdc4bde6186",
-    ];
-
-    console.log("useEffect Runs");
-    isJoinableCheckInterval.current = setInterval(async () => {
-      console.log("opponents ", opponents);
-      // const opponentsWithInviteData = await updateIsJoinableStatus(opponents);
-      // //console.log(opponentsWithInviteData );
-      // setOpponentsDisplay("opponentsWithInviteData ", opponentsWithInviteData);
-    }, 5000);
-
     authHelper(API_ROUTES.GET_USERS, "POST", {
       searchText: searchText,
       listOfPlayers: dummyListOfRecentPlayers,
-    }).then(
-      (res) => {
-        if (res == undefined) return;
-        if (!ignore) {
-          // console.log(res);
-          res.json().then(async (body) => {
-            console.log("getUsers Response ", body);
-            setOpponents(body);
-            const opponentsWithInviteData = await updateIsJoinableStatus(body);
-            // console.log("set opponents to ", opponentsWithInviteData);
-            setOpponentsDisplay(opponentsWithInviteData);
-          });
-        }
-        return () => {
-          clearInterval(isJoinableCheckInterval.current);
-          ignore = true;
-        };
-      },
-      (error) => {
-        console.error("AuthHelper failed");
-      }
-    );
-  }, [authHelper, opponents, searchText, updateIsJoinableStatus]);
+    }).then((res) => {
+      if (res == undefined) return;
+      res.json().then(async (body) => {
+        //console.log("getUsers Response ", body);
+        setOpponents(body);
+        const opponentsWithInviteData = await updateIsJoinableStatus(body);
+        //console.log("setting opponentsDisplay to ", opponentsWithInviteData);
+        setOpponentsDisplay(opponentsWithInviteData);
+      });
+    });
+  }, [authHelper, searchText]);
 
   const opponentPageSelectorButton = (numOpponents) => {
     // console.log("opponents length: " + opponents.length);
@@ -194,10 +179,10 @@ function OpponentSearchButton({ authHelper, userId }) {
         }}
       >
         {opponentsDisplay.map((opponent, index) => {
+          //console.log("opponentDisplay entry ", opponent);
           if (listStartIndex <= index && index <= listEndIndex) {
             let classes = "";
             if (index == listStartIndex)
-              //this is why idk yet/\
               classes =
                 "secondary bottomBorder topBorder leftBorder rightBorder";
             else classes = "secondary bottomBorder leftBorder rightBorder";

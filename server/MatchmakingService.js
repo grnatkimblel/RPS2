@@ -60,6 +60,7 @@ matchmakingEventEmitter.on(
     //if the other player doesnt have pending invites to the client, the client needs
     //to create an invite in the list
     playerQueue.quickplay_Quickdraw_Search.set(client_id, chosenOne_id);
+    // console.log("Invite from ", client_id, "to", chosenOne_id);
   }
 );
 
@@ -73,14 +74,23 @@ matchmakingEventEmitter.on(
 matchmakingEventEmitter.on(
   "Quickplay:Quickdraw:Search:checkInviteToClient",
   (client_id, otherPlayer_id) => {
+    if (client_id === otherPlayer_id)
+      matchmakingEventEmitter.emit(client_id, false);
+
+    // console.log("Invite checked from ", client_id, "to", otherPlayer_id);
+    // console.log("playerQueue ", playerQueue.quickplay_Quickdraw_Search);
     //check if other player is inviting client
     if (playerQueue.quickplay_Quickdraw_Search.has(otherPlayer_id)) {
+      // console.log("   playerQueue has ", otherPlayer_id);
       const otherPlayerInvitee =
         playerQueue.quickplay_Quickdraw_Search.get(otherPlayer_id);
+      // console.log("   otherPlayerInvitee is ", otherPlayerInvitee);
       if (otherPlayerInvitee == client_id) {
+        // console.log("   there is an invite for client from chosenOne");
         matchmakingEventEmitter.emit(client_id, true);
       } else {
         matchmakingEventEmitter.emit(client_id, false);
+        // console.log("   there is not an invite for client from chosenOne");
       }
     } else matchmakingEventEmitter.emit(client_id, false);
   }

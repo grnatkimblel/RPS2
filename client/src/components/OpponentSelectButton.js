@@ -6,7 +6,7 @@ function OpponentSelectButton({
   styles,
   classes,
   authHelper,
-  UserId,
+  userId,
 }) {
   const [isGreen, setIsGreen] = useState(opponentInfo.isJoinable);
   const [isButtonPressed, setIsButtonPressed] = useState(false);
@@ -15,26 +15,39 @@ function OpponentSelectButton({
   const sendInvitation = () => {
     setIsGreen(true);
     authHelper(API_ROUTES.MATCHMAKING.SEARCH.NEW_INVITE, "POST", {
-      client_id: UserId,
+      client_id: userId,
       chosenOne_id: opponentInfo.id,
     });
     setInvitationSent(true);
   };
 
   const unSendInvitation = (e) => {
+    //console.log("**unsendInvitation**");
     setIsGreen(false);
     if (invitationSent) {
       authHelper(API_ROUTES.MATCHMAKING.SEARCH.REMOVE_INVITE, "POST", {
-        client_id: UserId,
+        client_id: userId,
       });
       setInvitationSent(false);
     }
   };
 
+  // console.log("OpponentSelectButton: ");
+  // console.log(
+  //   "     opponentName: ",
+  //   opponentInfo.username,
+  //   " isJoinable: ",
+  //   opponentInfo.isJoinable
+  // );
+  // console.log("     isGreen: ", isGreen);
+
   return (
     <button
       style={styles}
-      className={classes + (isGreen ? " submittable" : "  defaultColor")}
+      className={
+        classes +
+        (isGreen || opponentInfo.isJoinable ? " submittable" : "  defaultColor")
+      }
       onClick={(e) => {
         e.stopPropagation();
       }}

@@ -56,10 +56,11 @@ router.post("/quickplay/quickdraw/search/newInvite", async (req, res) => {
 });
 
 router.post("/quickplay/quickdraw/search/checkInvite", async (req, res) => {
-  console.log("Invites Searched for ", req.body.client_id);
+  //console.log("Invites Searched for ", req.body.client_id);
   const client_id = req.body.client_id;
   const otherPlayer_id = req.body.otherPlayer_id;
   matchmakingEventEmitter.once(client_id, (isJoinable) => {
+    //console.log("found Joinable: ", isJoinable);
     res.send(isJoinable);
   });
   matchmakingEventEmitter.emit(
