@@ -15,14 +15,14 @@ function Account({ navigate, userInfo, authHelper }) {
 
     authHelper(API_ROUTES.GET_USERS, "POST", {
       searchText: "",
-      listOfPlayers: [userInfo.id],
+      listOfPlayers: [userInfo.userId],
     }).then(
       (res) => {
         if (res == undefined) return;
         if (!ignore) {
           // console.log(res);
           res.json().then((body) => {
-            // console.log(body);
+            console.log(body);
             setUsers(body);
           });
         }

@@ -3,4 +3,7 @@ Determine where to store refresh tokens so page reloads don't lose them and make
 Determine if refresh tokens should have an expiration, requiring another login.
     If so, implement relogging in the background so as not to interrupt games.
 
-[] Make the Login Button uninteractable while processing fetch requestReceived
+Prevent duplicate refresh token creation, a player can only log in once.
+
+Add the gamemode as an request parameter to the matchmaking service so the same component can service all gamemodes.
+Update checkInvites to only show invites in the same gamemode.
