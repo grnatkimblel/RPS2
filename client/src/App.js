@@ -16,6 +16,7 @@ import CreateAccount from "./routes/createAccount";
 import MainMenu from "./routes/mainMenu.js";
 import Online from "./routes/online";
 import Account from "./routes/account";
+import QuickdrawArena from "./routes/quickdrawArena";
 
 function App() {
   const navigate = useNavigate();
@@ -157,6 +158,10 @@ function App() {
             authHelper={authorizeThenCall}
           />
         }
+      />
+      <Route
+        path={`/${PAGES.ONLINE.QUICKDRAW_ARENA}`}
+        element={<QuickdrawArena />}
       />
     </Routes>
   );

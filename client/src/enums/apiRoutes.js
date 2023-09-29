@@ -5,7 +5,12 @@ const API_ROUTES = {
   REFRESH_ACCESS_TOKEN: "http://localhost:8100/user/token",
   GET_USERS: "http://localhost:8080/user/getUsers",
   MATCHMAKING: {
-    RANDOM: "http://localhost:8080/matchmaking/quickplay/quickdraw/random",
+    RANDOM: {
+      NEW_PLAYER:
+        "http://localhost:8080/matchmaking/quickplay/quickdraw/newRandom",
+      REMOVE_PLAYER:
+        "http://localhost:8080/matchmaking/quickplay/quickdraw/removeRandom",
+    },
     SEARCH: {
       NEW_INVITE:
         "http://localhost:8080/matchmaking/quickplay/quickdraw/search/newInvite",

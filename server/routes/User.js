@@ -1,5 +1,5 @@
-const { authenticateToken } = require("../helper");
-
+const authenticateToken = require("../helper/authenticateToken");
+const { getUsersByList, getUsersByName } = require("../helper/getUsers");
 const express = require("express");
 const router = express.Router();
 
@@ -41,14 +41,10 @@ router.post("/getUsers", authenticateToken, async (req, res) => {
   // console.log(searchText === "");
   if (searchText === "") {
     //return list of players
-    // console.log("listOfPlayers: ", listOfPlayers);
+    console.log("listOfPlayers: ", listOfPlayers);
     if (listOfPlayers != null && listOfPlayers.length > 0) {
-      console.log("returning list of players");
-      const responseObject = await Promise.all(
-        listOfPlayers.map(async (player_id) => {
-          return await User.findByPk(player_id);
-        })
-      );
+      const responseObject = await getUsersByList(listOfPlayers);
+
       // console.log("list resObj");
       // console.log(responseObject);
       res.json(responseObject);
@@ -57,17 +53,11 @@ router.post("/getUsers", authenticateToken, async (req, res) => {
     }
   } else {
     //search opponent by searchTerm
-    console.log("searchTerm ", searchTerm);
-    const responseObject = await User.findAll({
-      where: {
-        username: {
-          [Op.like]: `%${searchTerm}%`,
-        },
-      },
-    });
-    console.log("search resObj");
-    console.log(responseObject);
-    res.json(responseObject);
+    // console.log("searchText ", searchText);
+    const response = await getUsersByName(searchText);
+    // console.log("search response");
+    // console.log(response);
+    res.json(response);
   }
   /* 
   accepts an array of player_ids or an opponents username

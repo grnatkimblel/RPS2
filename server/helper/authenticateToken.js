@@ -1,12 +1,13 @@
 const dotenv = require("dotenv");
 const path = require("path");
-dotenv.config({ path: path.join(__dirname, "./config", ".env") });
+dotenv.config({ path: path.join(__dirname, "../config", ".env") });
 
 const jwt = require("jsonwebtoken");
 
 //MIDDLEWARE
 function authenticateToken(req, res, next) {
   console.log("middleware in use");
+
   const authHeader = req.headers["authorization"];
   //console.log(req.headers);
   const token = authHeader && authHeader.split(" ")[1];
@@ -20,4 +21,4 @@ function authenticateToken(req, res, next) {
   });
 }
 
-module.exports.authenticateToken = authenticateToken;
+module.exports = authenticateToken;

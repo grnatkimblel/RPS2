@@ -14,14 +14,14 @@ function Root({ navigate }) {
     >
       <button
         style={{ flex: 1 }}
-        className="defaultColor redTextBorder smooth-16"
+        className="defaultColor"
         onClick={() => navigate(`/${PAGES.LOGIN}`)}
       >
         Login
       </button>
       <button
         style={{ flex: 1 }}
-        className="defaultColor leftBorder redTextBorder smooth-16"
+        className="defaultColor leftBorder"
         onClick={() => navigate(`/${PAGES.CREATE_ACCOUNT}`)}
       >
         Create Account

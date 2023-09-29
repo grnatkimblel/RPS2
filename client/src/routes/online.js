@@ -64,7 +64,8 @@ function Online({ navigate, userId, authHelper }) {
   };
 
   const randomOpponent = () => {
-    authHelper(API_ROUTES.MATCHMAKING.RANDOM, "POST", {
+    //console.log("isrunning twicea?");
+    authHelper(API_ROUTES.MATCHMAKING.RANDOM.NEW_PLAYER, "POST", {
       client_id: userId,
     })
       .then((res) => {
@@ -92,7 +93,13 @@ function Online({ navigate, userId, authHelper }) {
         <button
           style={{ flex: 3 }}
           className="defaultColor"
-          onClick={() => setCurrentPage(PAGES.ONLINE.GAMEMODE_CHOSEN)}
+          onClick={() => {
+            //console.log("isrunning twiceb?");
+            authHelper(API_ROUTES.MATCHMAKING.RANDOM.REMOVE_PLAYER, "POST", {
+              client_id: userId,
+            });
+            setCurrentPage(PAGES.ONLINE.GAMEMODE_CHOSEN);
+          }}
         >
           Cancel
         </button>

@@ -34,7 +34,11 @@ function MainMenu({ navigate, userInfo, onLogout }) {
           height: "88%",
         }}
       >
-        <button style={{ flex: 1 }} className="notInteractableColor">
+        <button
+          style={{ flex: 1 }}
+          className="defaultColor"
+          onClick={() => navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`)}
+        >
           Local
         </button>
         <button

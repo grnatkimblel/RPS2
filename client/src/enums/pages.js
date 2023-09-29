@@ -9,6 +9,7 @@ const PAGES = {
     GAMEMODE_CHOSEN: "online.gameMode_chosen",
     RANDOM_OPPONENT: "online.random_opponent",
     SEARCH_OPPONENT: "online.search_opponent",
+    QUICKDRAW_ARENA: "online.quickdraw_arena",
   },
 };
 

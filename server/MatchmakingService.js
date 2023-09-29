@@ -1,5 +1,6 @@
 const EventEmitter = require("events");
 const matchmakingEventEmitter = new EventEmitter();
+const { v4: uuidv4 } = require("uuid");
 
 let playerQueue = {
   quickplay_Quickdraw_Random: [],
@@ -12,6 +13,7 @@ matchmakingEventEmitter.on(
     console.log("new player added");
     console.log(client_id);
     console.log("");
+    if (playerQueue.quickplay_Quickdraw_Random.includes(client_id)) return;
     playerQueue.quickplay_Quickdraw_Random.push(client_id);
     if (matchMaker == null)
       matchMaker = setInterval(() => {
@@ -37,6 +39,17 @@ matchmakingEventEmitter.on(
           matchMaker = null;
         }
       }, 2000);
+  }
+);
+
+matchmakingEventEmitter.on(
+  "Quickplay:Quickdraw:Random:removePlayer",
+  (client_id) => {
+    removeRosterFromList([client_id], playerQueue.quickplay_Quickdraw_Random);
+    if (playerQueue.quickplay_Quickdraw_Random.length == 0) {
+      clearInterval(matchMaker);
+      matchMaker = null;
+    }
   }
 );
 
@@ -97,6 +110,7 @@ matchmakingEventEmitter.on(
 );
 
 function createQuickDrawRoster(player1_id, player2_id) {
+  //figure out sessionID
   return {
     player_1: player1_id,
     player_2: player2_id,
