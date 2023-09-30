@@ -7,6 +7,7 @@ function OpponentSelectButton({
   classes,
   authHelper,
   userId,
+  gameInfoSetter,
 }) {
   const [isGreen, setIsGreen] = useState(opponentInfo.isJoinable);
   const [isButtonPressed, setIsButtonPressed] = useState(false);
@@ -17,6 +18,13 @@ function OpponentSelectButton({
     authHelper(API_ROUTES.MATCHMAKING.SEARCH.NEW_INVITE, "POST", {
       client_id: userId,
       chosenOne_id: opponentInfo.id,
+    }).then(async (res) => {
+      const data = await res.json();
+      console.log(
+        "OpponentSelectButton received response from Search:NewInvite Endpoint"
+      );
+      console.log(data);
+      gameInfoSetter(data);
     });
     setInvitationSent(true);
   };

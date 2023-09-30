@@ -31,14 +31,20 @@ input[type="password"]:focus-visible {
   outline: none;
 }
 
-.flex-container > div {
-  margin: 40px;
+.topRow > div {
   letter-spacing: 15px;
   font-family: "ComicSans";
   font-size: 60px;
-  text-align: left;
 }
 
 div.noHover:hover {
   pointer-events: none;
+}
+
+.scoreCards {
+  width: 10%;
+}
+
+span.submittable {
+  background-color: transparent;
 }

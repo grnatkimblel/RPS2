@@ -30,6 +30,8 @@ function App() {
     emoji: "",
   });
 
+  const [currentGameInfo, setCurrentGameInfo] = useState("");
+
   const loginHelper = async (credentials) => {
     //authorizes user and returns access tokens and user account info
     let res = await fetch(API_ROUTES.LOGIN, {
@@ -156,12 +158,18 @@ function App() {
             navigate={navigate}
             userId={userInfo.userId}
             authHelper={authorizeThenCall}
+            gameInfoSetter={setCurrentGameInfo}
           />
         }
       />
       <Route
         path={`/${PAGES.ONLINE.QUICKDRAW_ARENA}`}
-        element={<QuickdrawArena />}
+        element={
+          <QuickdrawArena
+            navigate={navigate}
+            currentGameInfo={currentGameInfo}
+          />
+        }
       />
     </Routes>
   );

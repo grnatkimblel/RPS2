@@ -4,7 +4,7 @@ import { useInterval } from "../useInterval";
 import OpponentSelectButton from "../components/OpponentSelectButton";
 import API_ROUTES from "../enums/apiRoutes";
 
-function OpponentSearchButton({ authHelper, userId }) {
+function OpponentSearchButton({ authHelper, userId, gameInfoSetter }) {
   const inputFieldRef = useRef(null);
   const [opponentsDisplay, setOpponentsDisplay] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -153,17 +153,6 @@ function OpponentSearchButton({ authHelper, userId }) {
           let inputText = event.target.value;
           console.log("inputText: " + inputText);
           setSearchText(inputText);
-          // if (inputText !== "") {
-          //   console.log("searching");
-          //   setOpponents(
-          //     opponents.filter((opponent) => opponent.name.includes(inputText))
-          //   );
-          // } else if (inputText === "") {
-          //   console.log("no more search");
-          //   console.log(opponents);
-
-          //   setOpponents(opponents);
-          // }
         }}
       ></input>
 
@@ -194,6 +183,7 @@ function OpponentSearchButton({ authHelper, userId }) {
                 classes={classes}
                 authHelper={authHelper}
                 userId={userId}
+                gameInfoSetter={gameInfoSetter}
               />
             );
           }

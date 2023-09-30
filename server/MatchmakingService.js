@@ -8,7 +8,7 @@ let playerQueue = {
 };
 let matchMaker = null;
 matchmakingEventEmitter.on(
-  "Quickplay:Quickdraw:Random:newPlayer",
+  "Quickplay:Quickdraw:Random:newRandom",
   (client_id) => {
     console.log("new player added");
     console.log(client_id);
@@ -29,8 +29,10 @@ matchmakingEventEmitter.on(
                 roster,
                 playerQueue.quickplay_Quickdraw_Random
               );
-              matchmakingEventEmitter.emit(client_id, roster);
-              matchmakingEventEmitter.emit(player_id, roster);
+              const clientEventName = client_id + "Q:Q:R:NR";
+              const playerEventName = player_id + "Q:Q:R:NR";
+              matchmakingEventEmitter.emit(clientEventName, roster);
+              matchmakingEventEmitter.emit(playerEventName, roster);
             }
           });
         }
@@ -65,9 +67,10 @@ matchmakingEventEmitter.on(
 
         //remove player from list
         playerQueue.quickplay_Quickdraw_Search.delete(chosenOne_id);
-
-        matchmakingEventEmitter.emit(client_id, roster);
-        matchmakingEventEmitter.emit(chosenOne_id, roster);
+        const clientEventName = client_id + "Q:Q:S:NI";
+        const chosenOneEventName = chosenOne_id + "Q:Q:S:NI";
+        matchmakingEventEmitter.emit(clientEventName, roster);
+        matchmakingEventEmitter.emit(chosenOneEventName, roster);
       }
     }
     //if the other player doesnt have pending invites to the client, the client needs
@@ -87,8 +90,9 @@ matchmakingEventEmitter.on(
 matchmakingEventEmitter.on(
   "Quickplay:Quickdraw:Search:checkInviteToClient",
   (client_id, otherPlayer_id) => {
+    const clientEventName = client_id + "Q:Q:S:CI";
     if (client_id === otherPlayer_id)
-      matchmakingEventEmitter.emit(client_id, false);
+      matchmakingEventEmitter.emit(clientEventName, false);
 
     // console.log("Invite checked from ", client_id, "to", otherPlayer_id);
     // console.log("playerQueue ", playerQueue.quickplay_Quickdraw_Search);
@@ -100,12 +104,12 @@ matchmakingEventEmitter.on(
       // console.log("   otherPlayerInvitee is ", otherPlayerInvitee);
       if (otherPlayerInvitee == client_id) {
         // console.log("   there is an invite for client from chosenOne");
-        matchmakingEventEmitter.emit(client_id, true);
+        matchmakingEventEmitter.emit(clientEventName, true);
       } else {
-        matchmakingEventEmitter.emit(client_id, false);
+        matchmakingEventEmitter.emit(clientEventName, false);
         // console.log("   there is not an invite for client from chosenOne");
       }
-    } else matchmakingEventEmitter.emit(client_id, false);
+    } else matchmakingEventEmitter.emit(clientEventName, false);
   }
 );
 

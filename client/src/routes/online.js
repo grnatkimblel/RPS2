@@ -11,7 +11,7 @@ import { useState, useRef } from "react";
 import OpponentSearchButton from "../components/OpponentSearchButton";
 // import { useLocation } from "react-router-dom";
 
-function Online({ navigate, userId, authHelper }) {
+function Online({ navigate, userId, authHelper, gameInfoSetter }) {
   const [currentPage, setCurrentPage] = useState(PAGES.ONLINE.INITIAL);
   const [currentGameMode, setCurrentGameMode] = useState({
     gameModeType: "",
@@ -35,6 +35,7 @@ function Online({ navigate, userId, authHelper }) {
       </>
     );
   };
+
   const gameModeChosen = () => {
     return (
       <>
@@ -72,6 +73,7 @@ function Online({ navigate, userId, authHelper }) {
         return res.json();
       })
       .then((roster) => {
+        gameInfoSetter(roster);
         console.log(roster);
       });
 
@@ -123,7 +125,11 @@ function Online({ navigate, userId, authHelper }) {
         >
           Search Opponent
         </button>
-        <OpponentSearchButton authHelper={authHelper} userId={userId} />
+        <OpponentSearchButton
+          authHelper={authHelper}
+          userId={userId}
+          gameInfoSetter={gameInfoSetter}
+        />
       </>
     );
   };

@@ -8,12 +8,13 @@ router.use(authenticateToken);
 
 router.post("/quickplay/quickdraw/newRandom", async (req, res) => {
   const client_id = req.body.client_id;
-  matchmakingEventEmitter.once(client_id, async (roster) => {
+  const eventName = client_id + "Q:Q:R:NR";
+  matchmakingEventEmitter.once(eventName, async (roster) => {
     const gameDetails = await beginGame(roster);
     res.json(gameDetails);
   });
   matchmakingEventEmitter.emit(
-    "Quickplay:Quickdraw:Random:newPlayer",
+    "Quickplay:Quickdraw:Random:newRandom",
     client_id
   );
 });
@@ -30,7 +31,8 @@ router.post("/quickplay/quickdraw/removeRandom", async (req, res) => {
 router.post("/quickplay/quickdraw/search/newInvite", async (req, res) => {
   const client_id = req.body.client_id;
   const chosenOne_id = req.body.chosenOne_id;
-  matchmakingEventEmitter.once(client_id, async (roster) => {
+  const eventName = client_id + "Q:Q:S:NI";
+  matchmakingEventEmitter.once(eventName, async (roster) => {
     if (roster == null) {
       res.sendStatus(409);
     } else {
@@ -60,7 +62,8 @@ router.post("/quickplay/quickdraw/search/checkInvite", async (req, res) => {
   //console.log("Invites Searched for ", req.body.client_id);
   const client_id = req.body.client_id;
   const otherPlayer_id = req.body.otherPlayer_id;
-  matchmakingEventEmitter.once(client_id, (isJoinable) => {
+  const eventName = client_id + "Q:Q:S:CI";
+  matchmakingEventEmitter.once(eventName, (isJoinable) => {
     //console.log("found Joinable: ", isJoinable);
     res.send(isJoinable);
   });
@@ -77,7 +80,8 @@ router.post("/quickplay/quickdraw/search/removeInvite", async (req, res) => {
     "Quickplay:Quickdraw:Search:removeInvite",
     client_id
   );
-  matchmakingEventEmitter.emit(client_id, null);
+  const eventName = client_id + "Q:Q:S:NI";
+  matchmakingEventEmitter.emit(eventName, null);
   res.sendStatus(200);
 });
 
