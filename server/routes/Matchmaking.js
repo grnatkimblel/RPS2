@@ -80,8 +80,8 @@ router.post("/quickplay/quickdraw/search/removeInvite", async (req, res) => {
     "Quickplay:Quickdraw:Search:removeInvite",
     client_id
   );
-  const eventName = client_id + "Q:Q:S:NI";
-  matchmakingEventEmitter.emit(eventName, null);
+  // const eventName = client_id + "Q:Q:S:NI";
+  // matchmakingEventEmitter.emit(eventName, null);
   res.sendStatus(200);
 });
 
