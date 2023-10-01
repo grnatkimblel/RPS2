@@ -6,7 +6,6 @@ body,
 
 input.login {
   position: relative;
-  bottom: 5vh;
   z-index: 2;
   padding: 20px 40px 20px 40px;
   border: 6px solid red;

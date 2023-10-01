@@ -11,8 +11,15 @@ function LoginInputButton({ fieldName, fieldType, tabIndex, stateVar, hook }) {
 
   const borders = tabIndex === 1 ? "" : "leftBorder";
   return (
-    <button
-      style={{ cursor: "text", flex: 1 }}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        cursor: "text",
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
       className={"defaultColor " + borders}
       onClick={() => inputFieldRef.current.focus()}
     >
@@ -27,7 +34,7 @@ function LoginInputButton({ fieldName, fieldType, tabIndex, stateVar, hook }) {
         inputRef={inputFieldRef}
         tabIndex={tabIndex}
       />
-    </button>
+    </div>
   );
 }
 

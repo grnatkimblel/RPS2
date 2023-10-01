@@ -10,7 +10,8 @@ let matchMaker = null;
 matchmakingEventEmitter.on(
   "Quickplay:Quickdraw:Random:newRandom",
   (client_id) => {
-    console.log("new player added");
+    console.log("Q:Q:R: Add Player");
+
     console.log(client_id);
     console.log("");
     if (playerQueue.quickplay_Quickdraw_Random.includes(client_id)) return;
@@ -47,6 +48,7 @@ matchmakingEventEmitter.on(
 matchmakingEventEmitter.on(
   "Quickplay:Quickdraw:Random:removePlayer",
   (client_id) => {
+    console.log("Q:Q:R: Remove Player");
     removeRosterFromList([client_id], playerQueue.quickplay_Quickdraw_Random);
     if (playerQueue.quickplay_Quickdraw_Random.length == 0) {
       clearInterval(matchMaker);
@@ -58,6 +60,7 @@ matchmakingEventEmitter.on(
 matchmakingEventEmitter.on(
   "Quickplay:Quickdraw:Search:newInvite",
   (client_id, chosenOne_id) => {
+    console.log("Q:Q:S: New Invite");
     //if the other player already has invites pending, check them for the client
     if (playerQueue.quickplay_Quickdraw_Search.has(chosenOne_id)) {
       const chosenOneInvitee =
@@ -84,12 +87,14 @@ matchmakingEventEmitter.on(
   "Quickplay:Quickdraw:Search:removeInvite",
   (client_id) => {
     playerQueue.quickplay_Quickdraw_Search.delete(client_id);
+    console.log("Q:Q:S: Remove Invite");
   }
 );
 
 matchmakingEventEmitter.on(
   "Quickplay:Quickdraw:Search:checkInviteToClient",
   (client_id, otherPlayer_id) => {
+    console.log("Q:Q:S: Check Invite");
     const clientEventName = client_id + "Q:Q:S:CI";
     if (client_id === otherPlayer_id)
       matchmakingEventEmitter.emit(clientEventName, false);

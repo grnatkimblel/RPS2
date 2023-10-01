@@ -17,11 +17,11 @@ function Login({ navigate, login }) {
     password: loginPassword,
   };
   return (
-    <>
+    <div style={{ display: "flex", height: "100%", flexDirection: "column" }}>
       <div
         style={{
           display: "flex",
-          height: "12%",
+          flex: 1,
         }}
       >
         <button
@@ -55,7 +55,7 @@ function Login({ navigate, login }) {
       <div
         style={{
           display: "flex",
-          height: "88%",
+          flex: 7,
         }}
       >
         <LoginInputButton
@@ -74,7 +74,7 @@ function Login({ navigate, login }) {
         />
       </div>
       <div className="title">RPS</div>
-    </>
+    </div>
   );
 }
 

@@ -23,11 +23,11 @@ function CreateAccount({ navigate, login }) {
   };
 
   return (
-    <>
+    <div style={{ display: "flex", height: "100%", flexDirection: "column" }}>
       <div
         style={{
           display: "flex",
-          height: "12%",
+          flex: 1,
         }}
       >
         <button
@@ -86,32 +86,32 @@ function CreateAccount({ navigate, login }) {
       <div
         style={{
           display: "flex",
-          height: "88%",
+          flex: 7,
         }}
       >
         <LoginInputButton
-          fieldName={"Create Username"}
+          fieldName={"Create\nUsername"}
           fieldType="text"
           tabIndex={1}
           stateVar={createAccountUsername}
           hook={setCreateAccountUsername}
         />
         <LoginInputButton
-          fieldName={"Create Password"}
+          fieldName={"Create\nPassword"}
           fieldType="password"
           tabIndex={2}
           stateVar={createAccountInitialPassword}
           hook={setCreateAccountInitialPassword}
         />
         <LoginInputButton
-          fieldName={"Confirm Password"}
+          fieldName={"Confirm\nPassword"}
           fieldType="password"
           tabIndex={3}
           stateVar={createAccountConfirmPassword}
           hook={setCreateAccountConfirmPassword}
         />
       </div>
-    </>
+    </div>
   );
 }
 

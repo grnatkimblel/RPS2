@@ -25,10 +25,13 @@
 }
 
 p.loginInputFieldName {
-  color: white;
   text-align: center;
   position: relative;
-  bottom: 19vh;
+  letter-spacing: 10px;
+  font-family: "ComicSans";
+  font-size: 60px;
+  white-space: pre-wrap;
+  bottom: 10%;
 }
 
 div.account-username {
