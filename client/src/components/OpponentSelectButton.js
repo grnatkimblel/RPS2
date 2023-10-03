@@ -25,6 +25,7 @@ function OpponentSelectButton({
       );
       console.log(data);
       gameInfoSetter(data);
+      // navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
     });
     setInvitationSent(true);
   };

@@ -4,23 +4,52 @@ const router = express.Router();
 const authenticateToken = require("../helper/authenticateToken");
 const { matchmakingEventEmitter } = require("../MatchmakingService");
 const { beginGame } = require("../QuickdrawGameController");
+const { getUsersByList } = require("../helper/getUsers");
 router.use(authenticateToken);
+
+const debug = {
+  Q_Q_R_NR: false,
+  Q_Q_R_RR: false,
+  Q_Q_S_NI: false,
+  Q_Q_S_CI: false,
+  Q_Q_S_RI: false,
+};
 
 router.post("/quickplay/quickdraw/newRandom", async (req, res) => {
   const client_id = req.body.client_id;
+  if (debug.Q_Q_R_NR) {
+    const playerName = await getPlayerName(client_id);
+    console.log(`${playerName} called Q:Q:R:NR`);
+  }
   const eventName = client_id + "Q:Q:R:NR";
   matchmakingEventEmitter.once(eventName, async (roster) => {
-    const gameDetails = await beginGame(roster);
-    res.json(gameDetails);
+    console.log("NR response from MatchmakingService");
+    console.log("Roster ", roster);
+    if (roster == false) {
+      res.json({
+        wasCancelled: true,
+        gameDetails: roster,
+      });
+    } else {
+      const gameDetails = await beginGame(roster);
+      res.json({
+        wasCancelled: false,
+        gameDetails: gameDetails,
+      });
+    }
   });
   matchmakingEventEmitter.emit(
-    "Quickplay:Quickdraw:Random:newRandom",
+    "Quickplay:Quickdraw:Random:newPlayer",
     client_id
   );
 });
 
 router.post("/quickplay/quickdraw/removeRandom", async (req, res) => {
   const client_id = req.body.client_id;
+  if (debug.Q_Q_R_RR) {
+    const playerName = await getPlayerName(client_id);
+    console.log(`${playerName} called Q:Q:R:RR`);
+  }
   matchmakingEventEmitter.emit(
     "Quickplay:Quickdraw:Random:removePlayer",
     client_id
@@ -30,6 +59,10 @@ router.post("/quickplay/quickdraw/removeRandom", async (req, res) => {
 
 router.post("/quickplay/quickdraw/search/newInvite", async (req, res) => {
   const client_id = req.body.client_id;
+  if (debug.Q_Q_S_NI) {
+    const playerName = await getPlayerName(client_id);
+    console.log(`${playerName} called Q:Q:R:RR`);
+  }
   const chosenOne_id = req.body.chosenOne_id;
   const eventName = client_id + "Q:Q:S:NI";
   matchmakingEventEmitter.once(eventName, async (roster) => {
@@ -61,6 +94,10 @@ router.post("/quickplay/quickdraw/search/newInvite", async (req, res) => {
 router.post("/quickplay/quickdraw/search/checkInvite", async (req, res) => {
   //console.log("Invites Searched for ", req.body.client_id);
   const client_id = req.body.client_id;
+  if (debug.Q_Q_S_CI) {
+    const playerName = await getPlayerName(client_id);
+    console.log(`${playerName} called Q:Q:R:RR`);
+  }
   const otherPlayer_id = req.body.otherPlayer_id;
   const eventName = client_id + "Q:Q:S:CI";
   matchmakingEventEmitter.once(eventName, (isJoinable) => {
@@ -76,13 +113,20 @@ router.post("/quickplay/quickdraw/search/checkInvite", async (req, res) => {
 
 router.post("/quickplay/quickdraw/search/removeInvite", async (req, res) => {
   const client_id = req.body.client_id;
-  matchmakingEventEmitter.emit(
-    "Quickplay:Quickdraw:Search:removeInvite",
-    client_id
-  );
+  const eventName = client_id + "Q:Q:S:NI";
+  if (debug.Q_Q_S_RI) {
+    const playerName = await getPlayerName(client_id);
+    console.log(`${playerName} called Q:Q:R:RR`);
+  }
+  matchmakingEventEmitter.emit(eventName, client_id);
   // const eventName = client_id + "Q:Q:S:NI";
   // matchmakingEventEmitter.emit(eventName, null);
   res.sendStatus(200);
 });
+
+async function getPlayerName(player_id) {
+  const player = await getUsersByList([player_id]);
+  return player[0].username;
+}
 
 module.exports = router;

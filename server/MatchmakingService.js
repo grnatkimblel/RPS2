@@ -8,7 +8,7 @@ let playerQueue = {
 };
 let matchMaker = null;
 matchmakingEventEmitter.on(
-  "Quickplay:Quickdraw:Random:newRandom",
+  "Quickplay:Quickdraw:Random:newPlayer",
   (client_id) => {
     console.log("Q:Q:R: Add Player");
 
@@ -16,10 +16,13 @@ matchmakingEventEmitter.on(
     console.log("");
     if (playerQueue.quickplay_Quickdraw_Random.includes(client_id)) return;
     playerQueue.quickplay_Quickdraw_Random.push(client_id);
+    console.log("Q:Q:R: Player Added");
+    console.log(playerQueue.quickplay_Quickdraw_Random);
+
     if (matchMaker == null)
       matchMaker = setInterval(() => {
         //this will need to change
-        console.log("matchmaking sweep");
+        console.log("Q:Q:R: matchmaking sweep");
         if (playerQueue.quickplay_Quickdraw_Random.length > 1) {
           playerQueue.quickplay_Quickdraw_Random.forEach((player_id) => {
             //console.log(playerQueue.quickplay_Quickdraw_Random);
@@ -37,6 +40,7 @@ matchmakingEventEmitter.on(
             }
           });
         }
+        //if( playerQueue.length) == 1, { nothing }
         if (playerQueue.quickplay_Quickdraw_Random.length == 0) {
           clearInterval(matchMaker);
           matchMaker = null;
@@ -50,10 +54,14 @@ matchmakingEventEmitter.on(
   (client_id) => {
     console.log("Q:Q:R: Remove Player");
     removeRosterFromList([client_id], playerQueue.quickplay_Quickdraw_Random);
+    console.log("QQR Queue after removal");
+    console.log(playerQueue.quickplay_Quickdraw_Random);
     if (playerQueue.quickplay_Quickdraw_Random.length == 0) {
       clearInterval(matchMaker);
       matchMaker = null;
     }
+    const eventName = client_id + "Q:Q:R:NR";
+    matchmakingEventEmitter.emit(eventName, false);
   }
 );
 

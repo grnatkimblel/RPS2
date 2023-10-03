@@ -6,14 +6,40 @@ import PAGES from "../enums/pages";
 import API_ROUTES from "../enums/apiRoutes";
 
 import { useEffect, useState } from "react";
+import { useTimeout } from "../useTimeout";
 
-function QuickdrawArena({ navigate }) {
-  const [titleText, setTitleText] = useState("RPS");
+function QuickdrawArena({ navigate, gameInfo }) {
+  const [titleText, setTitleText] = useState(
+    Math.floor((gameInfo.roundStartTime - Date.now()) / 1000)
+  );
   const [numRounds, setNumRounds] = useState(3);
   const [player1_score, setPlayer1_score] = useState(0);
   const [player1_CBM, setPlayer1_CBM] = useState(0);
   const [player2_score, setPlayer2_score] = useState(0);
   const [player2_CBM, setPlayer2_CBM] = useState(0);
+
+  // useTimeout(() => {
+  //   setTitleText("RPS");
+  // }, gameInfo.roundStartTime - Date.now());
+
+  // useEffect(() => {
+  //   let timeElapsed = 0;
+  //   let countdown;
+  //   const latencyOffset = setTimeout(() => {
+  //     setTitleText((s) => s - 1);
+  //     timeElapsed++;
+  //     while (gameInfo.roundStartTime - Date.now() > 1) {
+  //       countdown = setTimeout(() => {
+  //         setTitleText((s) => s - 1);
+  //         timeElapsed++;
+  //       }, (gameInfo.roundStartTime - Date.now()) % 1000);
+  //     }
+  //   }, (gameInfo.roundStartTime - Date.now()) % 1000);
+
+  //   return () => {
+  //     clearInterval(latencyOffset);
+  //   };
+  // });
 
   const getScoreCards = (playerScore, isLeft) => {
     const border = isLeft ? "leftBorder" : "rightBorder";
@@ -82,7 +108,7 @@ function QuickdrawArena({ navigate }) {
               style={{ marginLeft: "20px", marginTop: "-20px" }}
               className="notInteractableColor"
             >
-              grant
+              {gameInfo.player1.username}
             </button>
 
             <div
@@ -107,7 +133,7 @@ function QuickdrawArena({ navigate }) {
               style={{ marginRight: "20px", marginTop: "-20px" }}
               className="notInteractableColor"
             >
-              jake
+              {gameInfo.player2.username}
             </button>
           </div>
         </div>
@@ -137,7 +163,7 @@ function QuickdrawArena({ navigate }) {
                 justifyContent: "space-between",
               }}
             >
-              <div className="arenaEmoji">🤔</div>
+              <div className="arenaEmoji">{gameInfo.player1.emoji}</div>
               <div className="arenaEmoji">🗿</div>
             </div>
           </div>
@@ -161,7 +187,7 @@ function QuickdrawArena({ navigate }) {
               }}
             >
               <div className="arenaEmoji">🗿</div>
-              <div className="arenaEmoji">🤔</div>
+              <div className="arenaEmoji">{gameInfo.player2.emoji}</div>
             </div>
           </div>
         </div>

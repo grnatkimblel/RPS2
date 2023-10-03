@@ -65,16 +65,22 @@ function Online({ navigate, userId, authHelper, gameInfoSetter }) {
   };
 
   const randomOpponent = () => {
-    //console.log("isrunning twicea?");
+    console.log("isrunning twicea?");
     authHelper(API_ROUTES.MATCHMAKING.RANDOM.NEW_PLAYER, "POST", {
       client_id: userId,
     })
       .then((res) => {
         return res.json();
       })
-      .then((roster) => {
-        gameInfoSetter(roster);
-        console.log(roster);
+      .then((data) => {
+        console.log(data);
+        if (data.wasCancelled) {
+          return;
+        } else {
+          gameInfoSetter(data.gameDetails);
+          console.log(data.gameDetails);
+          navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
+        }
       });
 
     return (
@@ -96,7 +102,7 @@ function Online({ navigate, userId, authHelper, gameInfoSetter }) {
           style={{ flex: 3 }}
           className="defaultColor"
           onClick={() => {
-            //console.log("isrunning twiceb?");
+            console.log("isrunning twiceb?");
             authHelper(API_ROUTES.MATCHMAKING.RANDOM.REMOVE_PLAYER, "POST", {
               client_id: userId,
             });

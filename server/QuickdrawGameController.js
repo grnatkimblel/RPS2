@@ -22,7 +22,7 @@ async function beginGame(roster) {
     roster.player_1,
     roster.player_2,
   ]);
-  console.log(fullPlayerInfo);
+  // console.log(fullPlayerInfo);
   const player_1_info = {
     username: fullPlayerInfo[0].username,
     userId: fullPlayerInfo[0].id,
