@@ -9,41 +9,44 @@ import { useEffect, useState } from "react";
 import { useTimeout } from "../useTimeout";
 
 function QuickdrawArena({ navigate, gameInfo }) {
-  const [titleText, setTitleText] = useState(
-    Math.floor((gameInfo.roundStartTime - Date.now()) / 1000)
-  );
-  const [numRounds, setNumRounds] = useState(3);
-  const [player1_score, setPlayer1_score] = useState(0);
-  const [player1_CBM, setPlayer1_CBM] = useState(0);
-  const [player2_score, setPlayer2_score] = useState(0);
-  const [player2_CBM, setPlayer2_CBM] = useState(0);
+  const initialGameState = {
+    titleText: Math.ceil((gameInfo.roundStartTime - Date.now()) / 1000),
+    isCountdownOver: false,
+    numRoundsToWin: 3,
+    player1_score: 0,
+    player1_CBM: 0,
+    player2_score: 0,
+    player2_CBM: 0,
+  };
 
-  // useTimeout(() => {
-  //   setTitleText("RPS");
-  // }, gameInfo.roundStartTime - Date.now());
+  const [gameState, setGameState] = useState(initialGameState);
 
-  // useEffect(() => {
-  //   let timeElapsed = 0;
-  //   let countdown;
-  //   const latencyOffset = setTimeout(() => {
-  //     setTitleText((s) => s - 1);
-  //     timeElapsed++;
-  //     while (gameInfo.roundStartTime - Date.now() > 1) {
-  //       countdown = setTimeout(() => {
-  //         setTitleText((s) => s - 1);
-  //         timeElapsed++;
-  //       }, (gameInfo.roundStartTime - Date.now()) % 1000);
-  //     }
-  //   }, (gameInfo.roundStartTime - Date.now()) % 1000);
+  useTimeout(() => {
+    setGameState({ ...gameState, titleText: "RPS" });
+    //request on api that starts the game.
+  }, gameInfo.roundStartTime - Date.now());
 
-  //   return () => {
-  //     clearInterval(latencyOffset);
-  //   };
-  // });
+  useEffect(() => {
+    let countdown;
+    if (gameInfo.roundStartTime - Date.now() > 1000) {
+      let timeElapsed = 0;
+      countdown = setTimeout(() => {
+        setGameState((prev) => {
+          return { ...prev, titleText: prev.titleText - 1 };
+        });
+
+        timeElapsed++;
+      }, 1000);
+    }
+
+    return () => {
+      clearInterval(countdown);
+    };
+  }, [gameState.titleText]);
 
   const getScoreCards = (playerScore, isLeft) => {
     const border = isLeft ? "leftBorder" : "rightBorder";
-    const cards = Array(numRounds)
+    const cards = Array(gameState.numRounds)
       .fill(1)
       .map((el, i) => {
         const scoreColor =
@@ -81,7 +84,7 @@ function QuickdrawArena({ navigate, gameInfo }) {
 
   return (
     <>
-      <div className="title">{titleText}</div>
+      <div className="title">{gameState.titleText}</div>
       <div
         style={{
           display: "flex",
@@ -114,7 +117,7 @@ function QuickdrawArena({ navigate, gameInfo }) {
             <div
               style={{ display: "flex", width: "60%", justifyContent: "end" }}
             >
-              {getScoreCards(player1_score, true)}
+              {getScoreCards(gameState.player1_score, true)}
             </div>
           </div>
           <div
@@ -126,7 +129,7 @@ function QuickdrawArena({ navigate, gameInfo }) {
             className="notInteractableColor bottomBorder leftBorder topRow"
           >
             <div style={{ display: "flex", width: "60%" }}>
-              {getScoreCards(player2_score, false)}
+              {getScoreCards(gameState.player2_score, false)}
             </div>
 
             <button
@@ -153,7 +156,9 @@ function QuickdrawArena({ navigate, gameInfo }) {
           >
             <div style={{ position: "absolute" }}>
               {/* <StatsButton /> */}
-              <span style={{ marginLeft: "15px" }}>{getCBM(player1_CBM)}</span>
+              <span style={{ marginLeft: "15px" }}>
+                {getCBM(gameState.player1_CBM)}
+              </span>
             </div>
             <div
               style={{
@@ -175,7 +180,9 @@ function QuickdrawArena({ navigate, gameInfo }) {
             className="notInteractableColor bottomBorder leftBorder"
           >
             <div style={{ position: "absolute", right: "0" }}>
-              <span style={{ marginRight: "5px" }}>{getCBM(player2_CBM)}</span>
+              <span style={{ marginRight: "5px" }}>
+                {getCBM(gameState.player2_CBM)}
+              </span>
               {/* <StatsButton /> */}
             </div>
             <div
