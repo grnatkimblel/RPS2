@@ -66,7 +66,10 @@ function Online({ navigate, userId, authHelper, gameInfoSetter }) {
 
   const randomOpponent = () => {
     console.log("isrunning twicea?");
-    authHelper(API_ROUTES.MATCHMAKING.RANDOM.NEW_PLAYER, "POST", {
+    authHelper(API_ROUTES.MATCHMAKING.ADD_PLAYER, "POST", {
+      gameType: currentGameMode.gameModeType.toLowerCase(),
+      gameMode: currentGameMode.gameMode.toLowerCase(),
+      matchmakingType: "random",
       client_id: userId,
     })
       .then((res) => {
@@ -103,7 +106,10 @@ function Online({ navigate, userId, authHelper, gameInfoSetter }) {
           className="defaultColor"
           onClick={() => {
             console.log("isrunning twiceb?");
-            authHelper(API_ROUTES.MATCHMAKING.RANDOM.REMOVE_PLAYER, "POST", {
+            authHelper(API_ROUTES.MATCHMAKING.REMOVE_PLAYER, "POST", {
+              gameType: currentGameMode.gameModeType.toLowerCase(),
+              gameMode: currentGameMode.gameMode.toLowerCase(),
+              matchmakingType: "random",
               client_id: userId,
             });
             setCurrentPage(PAGES.ONLINE.GAMEMODE_CHOSEN);
@@ -135,6 +141,7 @@ function Online({ navigate, userId, authHelper, gameInfoSetter }) {
           authHelper={authHelper}
           userId={userId}
           gameInfoSetter={gameInfoSetter}
+          currentGameMode={currentGameMode}
         />
       </>
     );

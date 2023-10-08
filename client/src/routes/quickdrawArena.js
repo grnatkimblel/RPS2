@@ -29,13 +29,10 @@ function QuickdrawArena({ navigate, gameInfo }) {
   useEffect(() => {
     let countdown;
     if (gameInfo.roundStartTime - Date.now() > 1000) {
-      let timeElapsed = 0;
       countdown = setTimeout(() => {
         setGameState((prev) => {
           return { ...prev, titleText: prev.titleText - 1 };
         });
-
-        timeElapsed++;
       }, 1000);
     }
 

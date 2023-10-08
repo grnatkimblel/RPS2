@@ -4,7 +4,12 @@ import { useInterval } from "../useInterval";
 import OpponentSelectButton from "../components/OpponentSelectButton";
 import API_ROUTES from "../enums/apiRoutes";
 
-function OpponentSearchButton({ authHelper, userId, gameInfoSetter }) {
+function OpponentSearchButton({
+  authHelper,
+  userId,
+  gameInfoSetter,
+  currentGameMode,
+}) {
   const inputFieldRef = useRef(null);
   const [opponentsDisplay, setOpponentsDisplay] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -22,8 +27,8 @@ function OpponentSearchButton({ authHelper, userId, gameInfoSetter }) {
     });
   }
   let dummyListOfRecentPlayers = [
-    "9712b392-8f89-4b1f-8e33-8c0bed73d254",
-    "1a839909-6155-48e2-aba5-fcdc4bde6186",
+    "881ff655-2ce3-4de4-9d2d-79ac25b45842",
+    "447a2806-e6a5-4d74-afff-e86cde8fe8a0",
   ];
   const [opponents, setOpponents] = useState([]);
 
@@ -33,7 +38,7 @@ function OpponentSearchButton({ authHelper, userId, gameInfoSetter }) {
 
       return await Promise.all(
         opponentsList.map(async (opponent) => {
-          //console.log("opponent in updateIsJoinableStatus ", opponent);
+          // console.log("opponent in updateIsJoinableStatus ", opponent);
           const response = await authHelper(
             API_ROUTES.MATCHMAKING.SEARCH.CHECK_INVITE,
             "POST",
@@ -65,9 +70,12 @@ function OpponentSearchButton({ authHelper, userId, gameInfoSetter }) {
     }).then((res) => {
       if (res == undefined) return;
       res.json().then(async (body) => {
-        //console.log("getUsers Response ", body);
-        setOpponents(body);
-        const opponentsWithInviteData = await updateIsJoinableStatus(body);
+        // console.log("getUsers Response ", body);
+        const nonNullOpponents = body.filter((x) => x != null);
+        setOpponents(nonNullOpponents);
+        const opponentsWithInviteData = await updateIsJoinableStatus(
+          nonNullOpponents
+        );
         //console.log("setting opponentsDisplay to ", opponentsWithInviteData);
         setOpponentsDisplay(opponentsWithInviteData);
       });
@@ -183,6 +191,7 @@ function OpponentSearchButton({ authHelper, userId, gameInfoSetter }) {
                 classes={classes}
                 authHelper={authHelper}
                 userId={userId}
+                currentGameMode={currentGameMode}
                 gameInfoSetter={gameInfoSetter}
               />
             );

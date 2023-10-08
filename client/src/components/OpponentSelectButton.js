@@ -7,6 +7,7 @@ function OpponentSelectButton({
   classes,
   authHelper,
   userId,
+  currentGameMode,
   gameInfoSetter,
 }) {
   const [isGreen, setIsGreen] = useState(opponentInfo.isJoinable);
@@ -15,7 +16,10 @@ function OpponentSelectButton({
 
   const sendInvitation = () => {
     setIsGreen(true);
-    authHelper(API_ROUTES.MATCHMAKING.SEARCH.NEW_INVITE, "POST", {
+    authHelper(API_ROUTES.MATCHMAKING.ADD_PLAYER, "POST", {
+      gameType: currentGameMode.gameModeType.toLowerCase(),
+      gameMode: currentGameMode.gameMode.toLowerCase(),
+      matchmakingType: "search",
       client_id: userId,
       chosenOne_id: opponentInfo.id,
     }).then(async (res) => {
@@ -34,7 +38,10 @@ function OpponentSelectButton({
     //console.log("**unsendInvitation**");
     setIsGreen(false);
     if (invitationSent) {
-      authHelper(API_ROUTES.MATCHMAKING.SEARCH.REMOVE_INVITE, "POST", {
+      authHelper(API_ROUTES.MATCHMAKING.REMOVE_PLAYER, "POST", {
+        gameType: currentGameMode.gameModeType.toLowerCase(),
+        gameMode: currentGameMode.gameMode.toLowerCase(),
+        matchmakingType: "search",
         client_id: userId,
       });
       setInvitationSent(false);

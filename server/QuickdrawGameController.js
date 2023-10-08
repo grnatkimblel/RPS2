@@ -2,8 +2,9 @@
 this needs a method to be called by the Matchmaking service that will take in the roster as input
 and output the following:
 
-    SessionID: a JWT the player will use to respond with. This will contain the round of the game,
-        the hand of the player, and other info the server needs from the client
+    SessionID: a JWT the player will use to respond with. The api has no memory and gamestate will need to be persisted in this token.
+    The GameHeader id, the round, and the playerid will be included in the body to be read by the server when a hand is played.
+        
     RoundStartTime: A time in the future when the players will respond to the server if neither players
         have decided to run
     player1:

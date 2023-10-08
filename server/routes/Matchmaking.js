@@ -7,94 +7,98 @@ const { beginGame } = require("../QuickdrawGameController");
 const { getUsersByList } = require("../helper/getUsers");
 router.use(authenticateToken);
 
-const debug = {
-  Q_Q_R_NR: false,
-  Q_Q_R_RR: false,
-  Q_Q_S_NI: false,
-  Q_Q_S_CI: false,
-  Q_Q_S_RI: false,
-};
+const validGameTypes = ["quickplay", "ranked"];
+const validGameModes = ["quickdraw", "tdm", "s&d"];
+const validMatchmakingTypes = ["random", "search"];
 
-router.post("/quickplay/quickdraw/newRandom", async (req, res) => {
-  const client_id = req.body.client_id;
-  if (debug.Q_Q_R_NR) {
-    const playerName = await getPlayerName(client_id);
-    console.log(`${playerName} called Q:Q:R:NR`);
+router.post("/addPlayer", async (req, res) => {
+  const gameType = req.body.gameType;
+  const gameMode = req.body.gameMode;
+  const matchmakingType = req.body.matchmakingType;
+  try {
+    validateRequestsGameDetails(gameType, gameMode, matchmakingType);
+  } catch (error) {
+    console.log(error);
+    req.sendStatus(400);
   }
-  const eventName = client_id + "Q:Q:R:NR";
-  matchmakingEventEmitter.once(eventName, async (roster) => {
-    console.log("NR response from MatchmakingService");
+
+  const client_id = req.body.client_id;
+  const chosenOne_id = req.body.chosenOne_id;
+  const playerName = await getPlayerName(client_id);
+  if (true) {
+    console.log(
+      `${playerName} called addPlayer on ${gameType}:${gameMode}:${matchmakingType}`
+    );
+  }
+
+  let requestEventName, responseEventName;
+  try {
+    ({ requestEventName, responseEventName } = getEventNamesForAddingPlayers(
+      client_id,
+      gameType,
+      gameMode,
+      matchmakingType
+    ));
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(400);
+  }
+
+  console.log("requestEventName ", requestEventName);
+  console.log("responseEventName ", responseEventName);
+
+  matchmakingEventEmitter.once(responseEventName, async (roster) => {
+    console.log(`MatchmakingService response to AddPlayer from ${playerName}`);
     console.log("Roster ", roster);
     if (roster == false) {
       res.json({
         wasCancelled: true,
-        gameDetails: roster,
+        roster: roster,
       });
     } else {
-      const gameDetails = await beginGame(roster);
       res.json({
         wasCancelled: false,
-        gameDetails: gameDetails,
+        roster: roster,
       });
     }
   });
-  matchmakingEventEmitter.emit(
-    "Quickplay:Quickdraw:Random:newPlayer",
-    client_id
-  );
+
+  matchmakingEventEmitter.emit(requestEventName, client_id, chosenOne_id);
 });
 
-router.post("/quickplay/quickdraw/removeRandom", async (req, res) => {
-  const client_id = req.body.client_id;
-  if (debug.Q_Q_R_RR) {
-    const playerName = await getPlayerName(client_id);
-    console.log(`${playerName} called Q:Q:R:RR`);
+router.post("/removePlayer", async (req, res) => {
+  const gameType = req.body.gameType;
+  const gameMode = req.body.gameMode;
+  const matchmakingType = req.body.matchmakingType;
+  try {
+    validateRequestsGameDetails(gameType, gameMode, matchmakingType);
+  } catch (error) {
+    console.log(error);
+    req.sendStatus(400);
   }
-  matchmakingEventEmitter.emit(
-    "Quickplay:Quickdraw:Random:removePlayer",
-    client_id
-  );
+
+  const client_id = req.body.client_id;
+  if (true) {
+    const playerName = await getPlayerName(client_id);
+    console.log(
+      `${playerName} called removePlayer on ${gameType}:${gameMode}:${matchmakingType}`
+    );
+  }
+
+  let requestEventName = `${capitalizeFirstLetter(
+    gameType
+  )}:${capitalizeFirstLetter(gameMode)}:${capitalizeFirstLetter(
+    matchmakingType
+  )}:${matchmakingType == "random" ? "removePlayer" : "removeInvite"}`;
+
+  matchmakingEventEmitter.emit(requestEventName, client_id);
   res.sendStatus(200);
-});
-
-router.post("/quickplay/quickdraw/search/newInvite", async (req, res) => {
-  const client_id = req.body.client_id;
-  if (debug.Q_Q_S_NI) {
-    const playerName = await getPlayerName(client_id);
-    console.log(`${playerName} called Q:Q:R:RR`);
-  }
-  const chosenOne_id = req.body.chosenOne_id;
-  const eventName = client_id + "Q:Q:S:NI";
-  matchmakingEventEmitter.once(eventName, async (roster) => {
-    if (roster == null) {
-      res.sendStatus(409);
-    } else {
-      const fullGameDetails = await beginGame(roster);
-      //limit info and include session jwt
-      res.json(fullGameDetails);
-    }
-  });
-  matchmakingEventEmitter.emit(
-    "Quickplay:Quickdraw:Search:newInvite",
-    client_id,
-    chosenOne_id
-  );
-  /*
-  
-  record the supplied players information in the playerQueue
-  determine if a suitable other player exists according to priority.
-  if so
-    forward their information to the GameController 
-    else
-    wait until another player is added to the queue and run this redetermination
-  
-  */
 });
 
 router.post("/quickplay/quickdraw/search/checkInvite", async (req, res) => {
   //console.log("Invites Searched for ", req.body.client_id);
   const client_id = req.body.client_id;
-  if (debug.Q_Q_S_CI) {
+  if (false) {
     const playerName = await getPlayerName(client_id);
     console.log(`${playerName} called Q:Q:R:RR`);
   }
@@ -111,22 +115,75 @@ router.post("/quickplay/quickdraw/search/checkInvite", async (req, res) => {
   );
 });
 
-router.post("/quickplay/quickdraw/search/removeInvite", async (req, res) => {
-  const client_id = req.body.client_id;
-  const eventName = client_id + "Q:Q:S:NI";
-  if (debug.Q_Q_S_RI) {
-    const playerName = await getPlayerName(client_id);
-    console.log(`${playerName} called Q:Q:R:RR`);
-  }
-  matchmakingEventEmitter.emit(eventName, client_id);
-  // const eventName = client_id + "Q:Q:S:NI";
-  // matchmakingEventEmitter.emit(eventName, null);
-  res.sendStatus(200);
-});
-
 async function getPlayerName(player_id) {
   const player = await getUsersByList([player_id]);
   return player[0].username;
+}
+
+function validateRequestsGameDetails(gameType, gameMode, matchmakingType) {
+  if (!validGameTypes.includes(gameType)) {
+    throw new Error("/addPlayer called with bad gameType:", gameType);
+  }
+  if (!validGameModes.includes(gameMode)) {
+    throw new Error("/addPlayer called with bad gameMode:", gameMode);
+  }
+  if (!validMatchmakingTypes.includes(matchmakingType)) {
+    throw new Error(
+      "/addPlayer called with bad matchmakingType:",
+      matchmakingType
+    );
+  }
+}
+
+function getEventNamesForAddingPlayers(
+  client_id,
+  gameType,
+  gameMode,
+  matchmakingType
+) {
+  let requestEventName;
+  let responseEventName;
+
+  if (gameType == "ranked") {
+    if (matchmakingType == "search") {
+      throw new Error(
+        "Invalid addPlayer request. Ranked Search is an invalid gameType matchmakingType combo"
+      );
+    }
+  }
+
+  requestEventName = `${capitalizeFirstLetter(
+    gameType
+  )}:${capitalizeFirstLetter(gameMode)}:${capitalizeFirstLetter(
+    matchmakingType
+  )}:${matchmakingType == "random" ? "newPlayer" : "newInvite"}`;
+
+  let responseEventGameModeName =
+    gameMode == "quickdraw"
+      ? gameMode.charAt(0).toUpperCase()
+      : gameMode.toUpperCase();
+
+  responseEventName =
+    client_id +
+    gameType.charAt(0).toUpperCase() +
+    ":" +
+    responseEventGameModeName +
+    ":" +
+    matchmakingType.charAt(0).toUpperCase() +
+    "-New";
+
+  console.log("before returning");
+  console.log({ requestEventName, responseEventName });
+  return { requestEventName, responseEventName };
+}
+
+function capitalizeFirstLetter(text) {
+  let firstLetter = text.charAt(0).toUpperCase();
+  let restOfText = text.slice(1);
+  // console.log(
+  //   `capitalize first letter called on ${text}. first letter is ${firstLetter} and restOfText is ${restOfText}`
+  // );
+  return firstLetter + restOfText;
 }
 
 module.exports = router;

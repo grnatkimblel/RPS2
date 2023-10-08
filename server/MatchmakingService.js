@@ -33,8 +33,8 @@ matchmakingEventEmitter.on(
                 roster,
                 playerQueue.quickplay_Quickdraw_Random
               );
-              const clientEventName = client_id + "Q:Q:R:NR";
-              const playerEventName = player_id + "Q:Q:R:NR";
+              const clientEventName = client_id + "Q:Q:R-New";
+              const playerEventName = player_id + "Q:Q:R-New";
               matchmakingEventEmitter.emit(clientEventName, roster);
               matchmakingEventEmitter.emit(playerEventName, roster);
             }
@@ -60,7 +60,8 @@ matchmakingEventEmitter.on(
       clearInterval(matchMaker);
       matchMaker = null;
     }
-    const eventName = client_id + "Q:Q:R:NR";
+    //respond to the pending queue
+    const eventName = client_id + "Q:Q:R-New";
     matchmakingEventEmitter.emit(eventName, false);
   }
 );
@@ -78,8 +79,8 @@ matchmakingEventEmitter.on(
 
         //remove player from list
         playerQueue.quickplay_Quickdraw_Search.delete(chosenOne_id);
-        const clientEventName = client_id + "Q:Q:S:NI";
-        const chosenOneEventName = chosenOne_id + "Q:Q:S:NI";
+        const clientEventName = client_id + "Q:Q:S-New";
+        const chosenOneEventName = chosenOne_id + "Q:Q:S-New";
         matchmakingEventEmitter.emit(clientEventName, roster);
         matchmakingEventEmitter.emit(chosenOneEventName, roster);
       }
@@ -95,6 +96,8 @@ matchmakingEventEmitter.on(
   "Quickplay:Quickdraw:Search:removeInvite",
   (client_id) => {
     playerQueue.quickplay_Quickdraw_Search.delete(client_id);
+    const clientEventName = client_id + "Q:Q:S-New";
+    matchmakingEventEmitter.emit(clientEventName, false);
     console.log("Q:Q:S: Remove Invite");
   }
 );
