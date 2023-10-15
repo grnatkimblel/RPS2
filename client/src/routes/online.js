@@ -78,12 +78,24 @@ function Online({ navigate, userId, authHelper, gameInfoSetter }) {
       .then((data) => {
         console.log(data);
         if (data.wasCancelled) {
-          return;
+          return null;
         } else {
-          gameInfoSetter(data.gameDetails);
-          console.log(data.gameDetails);
-          navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
+          return data.roster;
         }
+      })
+      .then((roster) => {
+        console.log("roster to be sent to pregame ", roster);
+        authHelper(API_ROUTES.GAME.QUICKDRAW.PREGAME, "POST", {
+          roster,
+        })
+          .then((res) => {
+            return res.json();
+          })
+          .then((data) => {
+            console.log(data);
+            gameInfoSetter(data);
+            navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
+          });
       });
 
     return (

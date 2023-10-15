@@ -131,14 +131,19 @@ matchmakingEventEmitter.on(
 
 function createQuickDrawRoster(player1_id, player2_id) {
   //figure out sessionID
+  const rosterId = uuidv4();
   return {
-    player_1: player1_id,
-    player_2: player2_id,
+    rosterId: rosterId,
+    players: {
+      player_1: player1_id,
+      player_2: player2_id,
+    },
   };
 }
 
 function removeRosterFromList(roster, array) {
-  for (const player in roster) array.splice(array.indexOf(roster[player]), 1);
+  const players = roster.players;
+  for (const player in players) array.splice(array.indexOf(players[player]), 1);
 }
 
 module.exports.matchmakingEventEmitter = matchmakingEventEmitter;

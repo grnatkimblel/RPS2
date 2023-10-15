@@ -36,7 +36,7 @@ router.post("/login", async (req, res) => {
         userFoundInDb,
         process.env.REFRESH_TOKEN_SECRET
       );
-      refreshTokenEntry = await RefreshToken.create({
+      await RefreshToken.create({
         refresh_token: refreshToken,
       });
       res.json({

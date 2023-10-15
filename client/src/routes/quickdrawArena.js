@@ -6,9 +6,10 @@ import PAGES from "../enums/pages";
 import API_ROUTES from "../enums/apiRoutes";
 
 import { useEffect, useState } from "react";
-import { useTimeout } from "../useTimeout";
+import { useTimeout } from "usehooks-ts";
+import { gameControllerSocket as socket } from "../socket";
 
-function QuickdrawArena({ navigate, gameInfo }) {
+function QuickdrawArena({ authHelper, navigate, gameInfo, userInfo }) {
   const initialGameState = {
     titleText: Math.ceil((gameInfo.roundStartTime - Date.now()) / 1000),
     isCountdownOver: false,
@@ -20,11 +21,56 @@ function QuickdrawArena({ navigate, gameInfo }) {
   };
 
   const [gameState, setGameState] = useState(initialGameState);
+  const [isConnected, setIsConnected] = useState(false);
 
-  useTimeout(() => {
-    setGameState({ ...gameState, titleText: "RPS" });
-    //request on api that starts the game.
-  }, gameInfo.roundStartTime - Date.now());
+  // useTimeout(() => {
+  //   // setGameState({ ...gameState, titleText: "RPS" });
+  //   setGameState({ ...gameState, titleText: gameInfo.sessionId });
+  //   //request on api that starts the game.
+  //   console.log("useTimeout executing");
+  //   authHelper(API_ROUTES.GAME.QUICKDRAW.START_GAME, "POST", {
+  //     client_id: userInfo.userId,
+  //     session_id: gameInfo.sessionId,
+  //   })
+  //     .then((res) => {
+  //       console.log("gameCreated");
+  //       return res.json();
+  //     })
+  //     .then((data) => {
+  //       console.log(data);
+  //     });
+  // }, gameInfo.roundStartTime - Date.now());
+
+  useEffect(() => {
+    const startGame = async () => {
+      setGameState({ ...gameState, titleText: "RPS" });
+      //request on api that starts the game.
+      console.log("useTimeout executing");
+      authHelper(API_ROUTES.GAME.QUICKDRAW.START_GAME, "POST", {
+        client_id: userInfo.userId,
+        session_id: gameInfo.sessionId,
+      })
+        .then((res) => {
+          console.log("gameCreated");
+          return res.json();
+        })
+        .then((data) => {
+          console.log(data);
+        });
+    };
+
+    const timer = setTimeout(() => {
+      startGame();
+    }, gameInfo.roundStartTime - Date.now());
+  }, [gameInfo, userInfo]);
+
+  useEffect(() => {
+    if (isConnected) socket.connect();
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [setIsConnected]);
 
   useEffect(() => {
     let countdown;
@@ -43,7 +89,7 @@ function QuickdrawArena({ navigate, gameInfo }) {
 
   const getScoreCards = (playerScore, isLeft) => {
     const border = isLeft ? "leftBorder" : "rightBorder";
-    const cards = Array(gameState.numRounds)
+    const cards = Array(gameState.numRoundsToWin)
       .fill(1)
       .map((el, i) => {
         const scoreColor =
@@ -229,7 +275,10 @@ function QuickdrawArena({ navigate, gameInfo }) {
               <button
                 style={{ flex: 1 }}
                 className="defaultColor"
-                onClick={() => navigate(`/${PAGES.MAIN_MENU}`)}
+                onClick={() => {
+                  navigate(`/${PAGES.MAIN_MENU}`);
+                  setIsConnected(false);
+                }}
               >
                 Run
               </button>

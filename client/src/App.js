@@ -165,7 +165,12 @@ function App() {
       <Route
         path={`/${PAGES.ONLINE.QUICKDRAW_ARENA}`}
         element={
-          <QuickdrawArena navigate={navigate} gameInfo={currentGameInfo} />
+          <QuickdrawArena
+            authHelper={authorizeThenCall}
+            navigate={navigate}
+            userInfo={userInfo}
+            gameInfo={currentGameInfo}
+          />
         }
       />
     </Routes>

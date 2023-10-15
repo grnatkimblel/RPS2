@@ -3,7 +3,7 @@ const router = express.Router();
 
 const authenticateToken = require("../helper/authenticateToken");
 const { matchmakingEventEmitter } = require("../MatchmakingService");
-const { beginGame } = require("../QuickdrawGameController");
+
 const { getUsersByList } = require("../helper/getUsers");
 router.use(authenticateToken);
 
@@ -44,8 +44,8 @@ router.post("/addPlayer", async (req, res) => {
     res.sendStatus(400);
   }
 
-  console.log("requestEventName ", requestEventName);
-  console.log("responseEventName ", responseEventName);
+  // console.log("requestEventName ", requestEventName);
+  // console.log("responseEventName ", responseEventName);
 
   matchmakingEventEmitter.once(responseEventName, async (roster) => {
     console.log(`MatchmakingService response to AddPlayer from ${playerName}`);
@@ -172,8 +172,8 @@ function getEventNamesForAddingPlayers(
     matchmakingType.charAt(0).toUpperCase() +
     "-New";
 
-  console.log("before returning");
-  console.log({ requestEventName, responseEventName });
+  // console.log("before returning");
+  // console.log({ requestEventName, responseEventName });
   return { requestEventName, responseEventName };
 }
 
