@@ -84,6 +84,7 @@ function Online({ navigate, userId, authHelper, gameInfoSetter }) {
         }
       })
       .then((roster) => {
+        if (roster == null) return;
         console.log("roster to be sent to pregame ", roster);
         authHelper(API_ROUTES.GAME.QUICKDRAW.PREGAME, "POST", {
           roster,

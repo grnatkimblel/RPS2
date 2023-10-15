@@ -16,6 +16,7 @@ const API_ROUTES = {
     QUICKDRAW: {
       PREGAME: "http://localhost:8200/game/quickdraw/pregame",
       START_GAME: "http://localhost:8200/game/quickplay/startGame",
+      RUN: "http://localhost:8200/game/quickplay/run",
     },
   },
 };

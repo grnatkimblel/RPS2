@@ -56,7 +56,12 @@ router.post("/quickdraw/pregame", async (req, res) => {
   };
   const roundStartTime = Date.now() + 9000;
 
-  activeGames.push(createPotentialGame(roster));
+  if (
+    !activeGames.some((game) => {
+      return game.rosterId == roster.rosterId;
+    })
+  )
+    activeGames.push(createPotentialGame(roster));
 
   res.json({
     sessionId: roster.rosterId,
@@ -67,23 +72,24 @@ router.post("/quickdraw/pregame", async (req, res) => {
 });
 
 router.post("/quickplay/run", async (req, res) => {
-  const sessionId = req.body.sessionId;
+  const session_id = req.body.session_id;
   const client_id = req.body.client_id;
-  const game = findGameWithPlayer(sessionId, client_id);
+  const game = findGameWithPlayer(session_id, client_id);
 
   if (game) {
     activeGames.splice(activeGames.indexOf(game), 1);
+    console.log("game removed");
+    console.log("new activeGames");
+    console.log(activeGames);
   } else {
     //game doesn't exist or other player already ran
     //do nothing
   }
-  res.send(200);
+  res.sendStatus(200);
 });
 
 router.post("/quickplay/startGame", async (req, res) => {
-  /*
-  Both clients must call this api before any actions are taken
-  */
+  //Both clients must call this api before any actions are taken
   const session_id = req.body.session_id;
   const client_id = req.body.client_id;
   console.log("startGame called");
@@ -94,30 +100,28 @@ router.post("/quickplay/startGame", async (req, res) => {
     } else {
       game.checkInStatus.player_2 == true;
     }
-    /*
-    If both players have checked in, create the GameHeader entry
-    */
+
+    //If both players have checked in, create the GameHeader entry
     if (game.checkInStatus.player_1 && game.checkInStatus.player_2) {
-      //
-      const gameHeader = {
+      await GameHeader.create({
         game_id: session_id,
         winner: null,
         loser: null,
         player_1_id: game.players.player_1,
         player_2_id: game.players.player_2,
-      };
-      await GameHeader.create(gameHeader);
-      res.sendStatus(200);
-    } else {
-      /*
-      If both players havent checked in, poll for the other player
-      */
-      res.json({ test: "oneplayer Responded" });
+      });
     }
+
+    //If both players haven't checked in, just let the socket handle it
+    res.json({
+      gameFound: true,
+    });
   } else {
-    console.log("no game found with player ", client_id);
+    // console.log("no game found with player ", client_id);
     //other player could have ran, response needs to communicate this
-    res.json({});
+    res.json({
+      gameFound: false,
+    });
   }
 });
 
@@ -144,6 +148,7 @@ function findGameWithPlayer(session_id, client_id) {
     return value.rosterId == session_id;
   });
   // console.log(game);
+  if (!game) return false;
   if (
     game.players.player_1 == client_id ||
     game.players.player_2 == client_id

@@ -23,39 +23,26 @@ function QuickdrawArena({ authHelper, navigate, gameInfo, userInfo }) {
   const [gameState, setGameState] = useState(initialGameState);
   const [isConnected, setIsConnected] = useState(false);
 
-  // useTimeout(() => {
-  //   // setGameState({ ...gameState, titleText: "RPS" });
-  //   setGameState({ ...gameState, titleText: gameInfo.sessionId });
-  //   //request on api that starts the game.
-  //   console.log("useTimeout executing");
-  //   authHelper(API_ROUTES.GAME.QUICKDRAW.START_GAME, "POST", {
-  //     client_id: userInfo.userId,
-  //     session_id: gameInfo.sessionId,
-  //   })
-  //     .then((res) => {
-  //       console.log("gameCreated");
-  //       return res.json();
-  //     })
-  //     .then((data) => {
-  //       console.log(data);
-  //     });
-  // }, gameInfo.roundStartTime - Date.now());
-
   useEffect(() => {
     const startGame = async () => {
       setGameState({ ...gameState, titleText: "RPS" });
       //request on api that starts the game.
       console.log("useTimeout executing");
-      authHelper(API_ROUTES.GAME.QUICKDRAW.START_GAME, "POST", {
+      await authHelper(API_ROUTES.GAME.QUICKDRAW.START_GAME, "POST", {
         client_id: userInfo.userId,
         session_id: gameInfo.sessionId,
       })
         .then((res) => {
-          console.log("gameCreated");
           return res.json();
         })
         .then((data) => {
-          console.log(data);
+          console.log("gameFound: ", data.gameFound);
+          if (data.gameFound) {
+            setIsConnected(true);
+          } else {
+            setIsConnected(false);
+            //TODO: opponent ran, display something to tell the player
+          }
         });
     };
 
@@ -86,6 +73,14 @@ function QuickdrawArena({ authHelper, navigate, gameInfo, userInfo }) {
       clearInterval(countdown);
     };
   }, [gameState.titleText]);
+
+  const run = async () => {
+    setIsConnected(false);
+    await authHelper(API_ROUTES.GAME.QUICKDRAW.RUN, "POST", {
+      client_id: userInfo.userId,
+      session_id: gameInfo.sessionId,
+    });
+  };
 
   const getScoreCards = (playerScore, isLeft) => {
     const border = isLeft ? "leftBorder" : "rightBorder";
@@ -275,9 +270,9 @@ function QuickdrawArena({ authHelper, navigate, gameInfo, userInfo }) {
               <button
                 style={{ flex: 1 }}
                 className="defaultColor"
-                onClick={() => {
+                onClick={async () => {
+                  await run();
                   navigate(`/${PAGES.MAIN_MENU}`);
-                  setIsConnected(false);
                 }}
               >
                 Run
