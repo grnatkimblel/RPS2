@@ -9,7 +9,13 @@ import { useEffect, useState } from "react";
 import { useTimeout } from "usehooks-ts";
 import { gameControllerSocket as socket } from "../socket";
 
-function QuickdrawArena({ authHelper, navigate, gameInfo, userInfo }) {
+function QuickdrawArena({
+  authHelper,
+  navigate,
+  gameInfo,
+  userInfo,
+  gameInfoSetter,
+}) {
   const initialGameState = {
     titleText: Math.ceil((gameInfo.roundStartTime - Date.now()) / 1000),
     isCountdownOver: false,
@@ -39,6 +45,7 @@ function QuickdrawArena({ authHelper, navigate, gameInfo, userInfo }) {
           console.log("gameFound: ", data.gameFound);
           if (data.gameFound) {
             setIsConnected(true);
+            registerSocket(gameInfo.sessionId);
           } else {
             setIsConnected(false);
             //TODO: opponent ran, display something to tell the player
@@ -53,11 +60,12 @@ function QuickdrawArena({ authHelper, navigate, gameInfo, userInfo }) {
 
   useEffect(() => {
     if (isConnected) socket.connect();
+    else socket.disconnect();
 
     return () => {
       socket.disconnect();
     };
-  }, [setIsConnected]);
+  }, [isConnected]);
 
   useEffect(() => {
     let countdown;
@@ -80,6 +88,7 @@ function QuickdrawArena({ authHelper, navigate, gameInfo, userInfo }) {
       client_id: userInfo.userId,
       session_id: gameInfo.sessionId,
     });
+    gameInfoSetter({});
   };
 
   const getScoreCards = (playerScore, isLeft) => {
@@ -321,6 +330,14 @@ function StatsButton({ playerStats }) {
       📖
     </button>
   );
+}
+
+function registerSocket(session_id) {
+  socket.emit("register", session_id);
+  socket.on("test", (payload) => {
+    console.log("test");
+    console.log(payload);
+  });
 }
 
 export default QuickdrawArena;

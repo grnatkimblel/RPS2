@@ -8,6 +8,7 @@ router.use(authenticateToken);
 const { getUsersByList } = require("../helper/getUsers");
 const { GameHeader } = require("../models");
 
+const COUNTDOWN_TIME = 3000;
 /*
 
 game = {
@@ -54,7 +55,7 @@ router.post("/quickdraw/pregame", async (req, res) => {
     userId: fullPlayerInfo[1].id,
     emoji: fullPlayerInfo[1].player_emoji,
   };
-  const roundStartTime = Date.now() + 9000;
+  const roundStartTime = Date.now() + COUNTDOWN_TIME;
 
   if (
     !activeGames.some((game) => {
@@ -125,6 +126,19 @@ router.post("/quickplay/startGame", async (req, res) => {
   }
 });
 
+function registerGameControllerHandlers(io, socket) {
+  const register = (session_id) => {
+    socket.join(session_id);
+    const numSocketsInRoom = socket.adapter.rooms.get(session_id).size;
+    console.log(numSocketsInRoom);
+    if (numSocketsInRoom == 2) {
+      socket.to(session_id).emit("test", "dick");
+    }
+  };
+
+  socket.on("register", register);
+}
+
 function createPotentialGame(roster) {
   const potentialGame = {
     ...roster,
@@ -157,4 +171,4 @@ function findGameWithPlayer(session_id, client_id) {
   } else return false;
 }
 
-module.exports = router;
+module.exports = { router, registerGameControllerHandlers };

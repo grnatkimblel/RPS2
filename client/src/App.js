@@ -170,6 +170,7 @@ function App() {
             navigate={navigate}
             userInfo={userInfo}
             gameInfo={currentGameInfo}
+            gameInfoSetter={setCurrentGameInfo}
           />
         }
       />

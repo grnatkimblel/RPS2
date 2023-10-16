@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js",
-    "startAuthServer": "nodemon authServer.js",
-    "startGameServer": "nodemon gameControllerServer.js"
+    "start": "nodemon ./servers/index.js",
+    "startAuthServer": "nodemon ./servers/authServer.js",
+    "startGameServer": "nodemon ./servers/gameControllerServer.js"
   },
   "keywords": [],
   "author": "",
@@ -25,5 +25,9 @@
     "sequelize-cli": "^6.6.1",
     "socket.io": "^4.7.2",
     "uuid": "^9.0.1"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.8",
+    "utf-8-validate": "^5.0.10"
   }
 }
