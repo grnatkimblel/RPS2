@@ -97,20 +97,26 @@ router.post("/quickplay/startGame", async (req, res) => {
   const game = findGameWithPlayer(session_id, client_id);
   if (game) {
     if (isPlayer1(game, client_id)) {
-      game.checkInStatus.player_1 == true;
+      game.checkInStatus.player_1 = true;
     } else {
-      game.checkInStatus.player_2 == true;
+      game.checkInStatus.player_2 = true;
     }
-
+    console.log(game.checkInStatus);
     //If both players have checked in, create the GameHeader entry
     if (game.checkInStatus.player_1 && game.checkInStatus.player_2) {
-      await GameHeader.create({
-        game_id: session_id,
-        winner: null,
-        loser: null,
-        player_1_id: game.players.player_1,
-        player_2_id: game.players.player_2,
+      const createdGameHeader = await GameHeader.findOrCreate({
+        where: {
+          game_id: session_id,
+        },
+        defaults: {
+          winner: null,
+          loser: null,
+          player_1_id: game.players.player_1,
+          player_2_id: game.players.player_2,
+        },
       });
+
+      console.log(createdGameHeader);
     }
 
     //If both players haven't checked in, just let the socket handle it
