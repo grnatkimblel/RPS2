@@ -6,15 +6,17 @@ import PAGES from "../enums/pages";
 import API_ROUTES from "../enums/apiRoutes";
 
 import { useEffect, useState } from "react";
-import { useTimeout } from "usehooks-ts";
-import { gameControllerSocket as socket } from "../socket";
+// import { gameControllerSocket as socket } from "../socket";
+import { getNewAccessToken } from "./helper";
 
 function QuickdrawArena({
   authHelper,
   navigate,
   gameInfo,
-  userInfo,
   gameInfoSetter,
+  setAccessToken,
+  accessToken,
+  refreshToken,
 }) {
   const initialGameState = {
     titleText: Math.ceil((gameInfo.roundStartTime - Date.now()) / 1000),
@@ -29,13 +31,24 @@ function QuickdrawArena({
   const [gameState, setGameState] = useState(initialGameState);
   const [isConnected, setIsConnected] = useState(false);
 
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    const newSocket = io(`http://localhost:3000`, {
+      autoConnect: false,
+      transports: ["websocket"],
+      auth: { token: accessToken },
+    });
+    setSocket(newSocket);
+    return () => newSocket.close();
+  }, [setSocket, accessToken]);
+
   useEffect(() => {
     const startGame = async () => {
       setGameState({ ...gameState, titleText: "RPS" });
       //request on api that starts the game.
       console.log("useTimeout executing");
       await authHelper(API_ROUTES.GAME.QUICKDRAW.START_GAME, "POST", {
-        client_id: userInfo.userId,
         session_id: gameInfo.sessionId,
       })
         .then((res) => {
@@ -56,7 +69,7 @@ function QuickdrawArena({
     const timer = setTimeout(() => {
       startGame();
     }, gameInfo.roundStartTime - Date.now());
-  }, [gameInfo, userInfo]);
+  }, [gameInfo]);
 
   useEffect(() => {
     if (isConnected) socket.connect();
@@ -82,10 +95,24 @@ function QuickdrawArena({
     };
   }, [gameState.titleText]);
 
+  useEffect(() => {
+    socket.on("receive_message", (data) => {
+      alert(data.message);
+    });
+    socket.on("connect_error", async (error) => {
+      console.error("Connection error:", error);
+
+      if (error.message === "Unauthorized") {
+        const newAccessToken = await getNewAccessToken(refreshToken);
+        setAccessToken(newAccessToken);
+        //this may not retry whatever call failed but sockets might be really fast so idk. maybe ensure acknowledgements on all client side calls
+      }
+    });
+  }, [socket, setAccessToken]);
+
   const run = async () => {
     setIsConnected(false);
     await authHelper(API_ROUTES.GAME.QUICKDRAW.RUN, "POST", {
-      client_id: userInfo.userId,
       session_id: gameInfo.sessionId,
     });
     gameInfoSetter({});

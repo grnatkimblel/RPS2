@@ -60,14 +60,8 @@ function App() {
     }
   };
 
-  const authorizeThenCall = useCallback(
+  const authorizeThenCallHttp = useCallback(
     async (url, requestType, body) => {
-      // console.log("From AuthThenCall");
-      // console.log("accessToken");
-      // console.log(accessToken);
-      // console.log("refreshToken");
-      // console.log(refreshToken);
-      // console.log("");
       try {
         if (accessToken == "")
           throw new Error("No AccessToken to authorize against");
@@ -130,7 +124,7 @@ function App() {
             navigate={navigate}
             userInfo={userInfo}
             onLogout={() => {
-              authorizeThenCall(API_ROUTES.LOGOUT, "DELETE", {
+              authorizeThenCallHttp(API_ROUTES.LOGOUT, "DELETE", {
                 refreshToken: refreshToken,
               });
 
@@ -144,11 +138,7 @@ function App() {
       <Route
         path={`/${PAGES.ACCOUNT}`}
         element={
-          <Account
-            navigate={navigate}
-            userInfo={userInfo}
-            authHelper={authorizeThenCall}
-          />
+          <Account navigate={navigate} authHelper={authorizeThenCallHttp} />
         }
       />
       <Route
@@ -156,8 +146,7 @@ function App() {
         element={
           <Online
             navigate={navigate}
-            userId={userInfo.userId}
-            authHelper={authorizeThenCall}
+            authHelper={authorizeThenCallHttp}
             gameInfoSetter={setCurrentGameInfo}
           />
         }
@@ -166,11 +155,13 @@ function App() {
         path={`/${PAGES.ONLINE.QUICKDRAW_ARENA}`}
         element={
           <QuickdrawArena
-            authHelper={authorizeThenCall}
+            authHelper={authorizeThenCallHttp}
             navigate={navigate}
-            userInfo={userInfo}
             gameInfo={currentGameInfo}
             gameInfoSetter={setCurrentGameInfo}
+            setAccessToken={setAccessToken}
+            accessToken={accessToken}
+            refreshToken={refreshToken}
           />
         }
       />

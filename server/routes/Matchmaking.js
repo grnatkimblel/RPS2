@@ -22,9 +22,10 @@ router.post("/addPlayer", async (req, res) => {
     req.sendStatus(400);
   }
 
-  const client_id = req.body.client_id;
+  const client_id = req.authUser.id;
+  console.log("authUser: ", req.authUser);
   const chosenOne_id = req.body.chosenOne_id;
-  const playerName = await getPlayerName(client_id);
+  const playerName = req.authUser.username;
   if (true) {
     console.log(
       `${playerName} called addPlayer on ${gameType}:${gameMode}:${matchmakingType}`
@@ -77,9 +78,9 @@ router.post("/removePlayer", async (req, res) => {
     req.sendStatus(400);
   }
 
-  const client_id = req.body.client_id;
+  const client_id = req.authUser.id;
   if (true) {
-    const playerName = await getPlayerName(client_id);
+    const playerName = req.authUser.username;
     console.log(
       `${playerName} called removePlayer on ${gameType}:${gameMode}:${matchmakingType}`
     );
@@ -97,9 +98,9 @@ router.post("/removePlayer", async (req, res) => {
 
 router.post("/quickplay/quickdraw/search/checkInvite", async (req, res) => {
   //console.log("Invites Searched for ", req.body.client_id);
-  const client_id = req.body.client_id;
+  const client_id = req.authUser.id;
   if (false) {
-    const playerName = await getPlayerName(client_id);
+    const playerName = req.authUser.username;
     console.log(`${playerName} called Q:Q:R:RR`);
   }
   const otherPlayer_id = req.body.otherPlayer_id;
@@ -114,11 +115,6 @@ router.post("/quickplay/quickdraw/search/checkInvite", async (req, res) => {
     otherPlayer_id
   );
 });
-
-async function getPlayerName(player_id) {
-  const player = await getUsersByList([player_id]);
-  return player[0].username;
-}
 
 function validateRequestsGameDetails(gameType, gameMode, matchmakingType) {
   if (!validGameTypes.includes(gameType)) {

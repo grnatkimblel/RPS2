@@ -11,7 +11,7 @@ import { useState, useRef } from "react";
 import OpponentSearchButton from "../components/OpponentSearchButton";
 // import { useLocation } from "react-router-dom";
 
-function Online({ navigate, userId, authHelper, gameInfoSetter }) {
+function Online({ navigate, authHelper, gameInfoSetter }) {
   const [currentPage, setCurrentPage] = useState(PAGES.ONLINE.INITIAL);
   const [currentGameMode, setCurrentGameMode] = useState({
     gameModeType: "",
@@ -70,7 +70,6 @@ function Online({ navigate, userId, authHelper, gameInfoSetter }) {
       gameType: currentGameMode.gameModeType.toLowerCase(),
       gameMode: currentGameMode.gameMode.toLowerCase(),
       matchmakingType: "random",
-      client_id: userId,
     })
       .then((res) => {
         return res.json();
@@ -123,7 +122,6 @@ function Online({ navigate, userId, authHelper, gameInfoSetter }) {
               gameType: currentGameMode.gameModeType.toLowerCase(),
               gameMode: currentGameMode.gameMode.toLowerCase(),
               matchmakingType: "random",
-              client_id: userId,
             });
             setCurrentPage(PAGES.ONLINE.GAMEMODE_CHOSEN);
           }}
@@ -152,7 +150,6 @@ function Online({ navigate, userId, authHelper, gameInfoSetter }) {
         </button>
         <OpponentSearchButton
           authHelper={authHelper}
-          userId={userId}
           gameInfoSetter={gameInfoSetter}
           currentGameMode={currentGameMode}
         />

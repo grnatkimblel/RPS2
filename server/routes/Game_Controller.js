@@ -73,8 +73,8 @@ router.post("/quickdraw/pregame", async (req, res) => {
 });
 
 router.post("/quickplay/run", async (req, res) => {
+  const client_id = req.authUser.id;
   const session_id = req.body.session_id;
-  const client_id = req.body.client_id;
   const game = findGameWithPlayer(session_id, client_id);
 
   if (game) {
@@ -92,7 +92,7 @@ router.post("/quickplay/run", async (req, res) => {
 router.post("/quickplay/startGame", async (req, res) => {
   //Both clients must call this api before any actions are taken
   const session_id = req.body.session_id;
-  const client_id = req.body.client_id;
+  const client_id = req.authUser.id;
   console.log("startGame called");
   const game = findGameWithPlayer(session_id, client_id);
   if (game) {
@@ -116,7 +116,7 @@ router.post("/quickplay/startGame", async (req, res) => {
         },
       });
 
-      console.log(createdGameHeader);
+      // console.log(createdGameHeader);
     }
 
     //If both players haven't checked in, just let the socket handle it
@@ -133,6 +133,10 @@ router.post("/quickplay/startGame", async (req, res) => {
 });
 
 function registerGameControllerHandlers(io, socket) {
+  //CONSIDER HOW AUTH SHOULD BE DONE
+  //authorize the user on connection with middleware
+  //authorize the payload against the rights given by the jwt sent before each round
+
   const register = (session_id) => {
     socket.join(session_id);
     const numSocketsInRoom = socket.adapter.rooms.get(session_id).size;

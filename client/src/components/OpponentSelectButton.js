@@ -6,7 +6,6 @@ function OpponentSelectButton({
   styles,
   classes,
   authHelper,
-  userId,
   currentGameMode,
   gameInfoSetter,
 }) {
@@ -20,7 +19,7 @@ function OpponentSelectButton({
       gameType: currentGameMode.gameModeType.toLowerCase(),
       gameMode: currentGameMode.gameMode.toLowerCase(),
       matchmakingType: "search",
-      client_id: userId,
+
       chosenOne_id: opponentInfo.id,
     }).then(async (res) => {
       const data = await res.json();
@@ -42,7 +41,6 @@ function OpponentSelectButton({
         gameType: currentGameMode.gameModeType.toLowerCase(),
         gameMode: currentGameMode.gameMode.toLowerCase(),
         matchmakingType: "search",
-        client_id: userId,
       });
       setInvitationSent(false);
     }

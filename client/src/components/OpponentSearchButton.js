@@ -4,12 +4,7 @@ import { useInterval } from "../useInterval";
 import OpponentSelectButton from "../components/OpponentSelectButton";
 import API_ROUTES from "../enums/apiRoutes";
 
-function OpponentSearchButton({
-  authHelper,
-  userId,
-  gameInfoSetter,
-  currentGameMode,
-}) {
+function OpponentSearchButton({ authHelper, gameInfoSetter, currentGameMode }) {
   const inputFieldRef = useRef(null);
   const [opponentsDisplay, setOpponentsDisplay] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -43,7 +38,6 @@ function OpponentSearchButton({
             API_ROUTES.MATCHMAKING.SEARCH.CHECK_INVITE,
             "POST",
             {
-              client_id: userId,
               otherPlayer_id: opponent.id,
             }
           );
@@ -190,7 +184,6 @@ function OpponentSearchButton({
                 opponentInfo={opponent}
                 classes={classes}
                 authHelper={authHelper}
-                userId={userId}
                 currentGameMode={currentGameMode}
                 gameInfoSetter={gameInfoSetter}
               />
