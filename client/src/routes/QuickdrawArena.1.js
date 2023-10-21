@@ -1,16 +1,10 @@
-import "../styles/buttonStyles.css";
-import "../styles/texts.css";
-import "../styles/elementSpecific.css";
-
 import PAGES from "../enums/pages";
 import API_ROUTES from "../enums/apiRoutes";
-
 import { useEffect, useState, useCallback } from "react";
 import { io } from "socket.io-client";
-// import { gameControllerSocket as socket } from "../socket";
 import { getNewAccessToken } from "../helper";
 
-function QuickdrawArena({
+export function QuickdrawArena({
   authHelper,
   navigate,
   gameInfo,
@@ -90,25 +84,19 @@ function QuickdrawArena({
     } else return socket;
   }, [socket, accessToken]);
 
+  // useEffect(() => { infinite loop
+  //   const currentSocket = getSocket();
+  //   if (isConnected) {
+  //     setSocket(currentSocket);
+  //     currentSocket.connect();
+  //   } else currentSocket.disconnect();
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, [socket, isConnected]);
   useEffect(() => {
-    const currentSocket = getSocket();
-    if (isConnected) {
-      setSocket(currentSocket);
-      currentSocket.connect();
-      registerSocket(currentSocket, gameInfo.sessionId);
-    } else currentSocket.disconnect();
-
-    return () => {
-      // console.log("isConnected", isConnected);
-      // console.log("socket", socket);
-      if (isConnected) socket.disconnect();
-    };
-  }, [isConnected]);
-
-  useEffect(() => {
-    if (socket == null) return;
-    console.log("isConnected", isConnected);
-    console.log("socket", socket);
+    //
+    if (!isConnected) return;
     async function updateAccessToken() {
       const newAccessToken = await getNewAccessToken(refreshToken);
       setAccessToken(newAccessToken);
@@ -122,14 +110,13 @@ function QuickdrawArena({
     });
     socket.on("connect_error", async (error) => {
       console.error("Connection error:", error);
-      console.error("Connection error message:", error.massage);
 
       if (error.message === "Unauthorized") {
         //this may not retry whatever call failed but sockets might be really fast so idk. maybe ensure acknowledgements on all client side calls
         console.log("Unauthorized socket connection, this fucks everything");
       }
     });
-  }, [socket, refreshToken]);
+  }, [socket, refreshToken, isConnected]);
 
   const run = async () => {
     setIsConnected(false);
@@ -341,51 +328,3 @@ function QuickdrawArena({
     </>
   );
 }
-
-function StatsButton({ playerStats }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  //   console.log(isExpanded);
-  return isExpanded ? (
-    <div className="stats">
-      <div
-        style={{ padding: "20px" }}
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsExpanded(false);
-        }}
-      >
-        <div>Rock</div>
-        <div>Paper</div>
-        <div>Scissors</div>
-        <div>Proactive</div>
-        <div>Reactive</div>
-      </div>
-      <div style={{ pointerEvents: "none" }}>
-        <button
-          style={{ pointerEvents: "auto" }}
-          className="defaultColor topBorder secondary"
-        >
-          All Time
-        </button>
-      </div>
-    </div>
-  ) : (
-    <button
-      style={{ padding: "20px" }}
-      className="stats"
-      onClick={() => setIsExpanded(true)}
-    >
-      📖
-    </button>
-  );
-}
-
-function registerSocket(socket, session_id) {
-  socket.emit("register", session_id);
-  socket.on("test", (payload) => {
-    console.log("test");
-    console.log(payload);
-  });
-}
-
-export default QuickdrawArena;
