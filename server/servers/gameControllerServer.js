@@ -16,6 +16,7 @@ const PORT = 8200;
 const app = express();
 const server = createServer(app);
 const { instrument } = require("@socket.io/admin-ui");
+//io lives here Server side
 const io = new Server(server, {
   cors: {
     origin: ["http://localhost:3000", "https://admin.socket.io"],
@@ -26,13 +27,25 @@ instrument(io, { auth: false, mode: "development" });
 app.use(express.json());
 app.use(cors());
 
+//Socket Authentication Middleware
+/*
+ * the Socket instance is not actually connected when the middleware gets executed,
+ * which means that no disconnect event or connect events will be emitted if the
+ * connection eventually fail.
+ */
+
 io.use((socket, next) => {
+  console.log("Socket Middleware running");
   if (socket.handshake.auth.token) {
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-      if (err) next(new Error("Unauthorized"));
-      socket.authUser = user; //to set req for future functions
-      next();
-    });
+    jwt.verify(
+      socket.handshake.auth.token,
+      process.env.ACCESS_TOKEN_SECRET,
+      (err, user) => {
+        if (err) next(new Error("Unauthorized"));
+        console.log("Socket Authentication Successful");
+        next();
+      }
+    );
   } else {
     next(new Error("no auth token"));
   }
@@ -46,6 +59,9 @@ const { router: gameControllerRouter } = require("../routes/Game_Controller");
 
 app.use("/game", gameControllerRouter);
 
+/*
+
+*/
 io.on("connection", (socket) => {
   console.log(`User ${socket.id} connected`);
 

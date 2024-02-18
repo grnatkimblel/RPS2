@@ -13,7 +13,7 @@ const userRouter = require("../routes/User_Auth");
 
 app.use("/userAuth", userRouter);
 
-db.sequelize.sync().then(() => {
+db.sequelize.sync({}).then(() => {
   app.listen(PORT, () => {
     console.log(`listening on port http://localhost:${PORT}`);
   });

@@ -58,22 +58,28 @@ function OpponentSearchButton({ authHelper, gameInfoSetter, currentGameMode }) {
   }, 500);
 
   useEffect(() => {
+    let ignore = false;
     authHelper(API_ROUTES.GET_USERS, "POST", {
       searchText: searchText,
       listOfPlayers: dummyListOfRecentPlayers,
     }).then((res) => {
       if (res == undefined) return;
       res.json().then(async (body) => {
-        // console.log("getUsers Response ", body);
-        const nonNullOpponents = body.filter((x) => x != null);
-        setOpponents(nonNullOpponents);
-        const opponentsWithInviteData = await updateIsJoinableStatus(
-          nonNullOpponents
-        );
-        //console.log("setting opponentsDisplay to ", opponentsWithInviteData);
-        setOpponentsDisplay(opponentsWithInviteData);
+        if (!ignore) {
+          // console.log("getUsers Response ", body);
+          const nonNullOpponents = body.filter((x) => x != null);
+          setOpponents(nonNullOpponents);
+          const opponentsWithInviteData = await updateIsJoinableStatus(
+            nonNullOpponents
+          );
+          //console.log("setting opponentsDisplay to ", opponentsWithInviteData);
+          setOpponentsDisplay(opponentsWithInviteData);
+        }
       });
     });
+    return () => {
+      ignore = true;
+    };
   }, [authHelper, searchText]);
 
   const opponentPageSelectorButton = (numOpponents) => {

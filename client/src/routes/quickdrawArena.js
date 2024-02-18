@@ -5,8 +5,8 @@ import "../styles/elementSpecific.css";
 import PAGES from "../enums/pages";
 import API_ROUTES from "../enums/apiRoutes";
 
-import { useEffect, useState, useCallback } from "react";
-import { io } from "socket.io-client";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { Socket, io } from "socket.io-client";
 // import { gameControllerSocket as socket } from "../socket";
 import { getNewAccessToken } from "../helper";
 
@@ -32,8 +32,10 @@ function QuickdrawArena({
   const [gameState, setGameState] = useState(initialGameState);
   const [isConnected, setIsConnected] = useState(false);
 
+  const [currentAccessToken, setCurrentAccessToken] = useState(null);
   const [socket, setSocket] = useState(null);
 
+  //STARTS COUNTDOWN
   useEffect(() => {
     //1st the countdown
     let countdown;
@@ -50,12 +52,12 @@ function QuickdrawArena({
     };
   }, [gameState.titleText]);
 
+  //STARTGAME, SET ISCONNECTED TO TRUE OF FALSE, RUNS EXACTLY ONCE
   useEffect(() => {
     //2nd, the game is started. On game found, the socket needs to be setup
     const startGame = async () => {
       setGameState({ ...gameState, titleText: "RPS" });
       //request on api that starts the game.
-      console.log("useTimeout executing");
       await authHelper(API_ROUTES.GAME.QUICKDRAW.START_GAME, "POST", {
         session_id: gameInfo.sessionId,
       })
@@ -65,71 +67,115 @@ function QuickdrawArena({
         .then((data) => {
           console.log("gameFound: ", data.gameFound);
           if (data.gameFound) {
-            setIsConnected(true);
+            beginSocketConnection();
+            // setIsConnected(true);
           } else {
-            setIsConnected(false);
+            // setIsConnected(false);
             //TODO: opponent ran, display something to tell the player
           }
         });
     };
 
+    let ignore = false;
     const timer = setTimeout(() => {
-      startGame();
+      if (!ignore) {
+        console.log("useTimeout executing");
+        startGame(); //this should only run once
+      }
     }, gameInfo.roundStartTime - Date.now());
+    return () => {
+      ignore = true;
+    };
   }, [gameInfo]);
 
-  const getSocket = useCallback(() => {
-    if (socket == null) {
-      const newSocket = io(`http://localhost:3000`, {
-        autoConnect: false,
-        transports: ["websocket"],
-        auth: { token: accessToken },
-      });
+  async function beginSocketConnection() {
+    //maybe this needs to be a hook?
+    //get fresh access token for socket connection
+    const newAccessToken = await getNewAccessToken(refreshToken);
+    setAccessToken(newAccessToken);
 
-      return newSocket;
-    } else return socket;
-  }, [socket, accessToken]);
+    console.log("newAccessToken: ", newAccessToken);
 
-  useEffect(() => {
-    const currentSocket = getSocket();
-    if (isConnected) {
-      setSocket(currentSocket);
-      currentSocket.connect();
-      registerSocket(currentSocket, gameInfo.sessionId);
-    } else currentSocket.disconnect();
+    //get new socket instance with fresh access
+    const newSocket = io(`http://localhost:8200`, {
+      autoConnect: false,
+      transports: ["websocket"],
+      auth: { token: newAccessToken },
+    });
+    console.log("newSocket: ", newSocket);
+    initializeSocket(newSocket);
+    setSocket(newSocket);
+    newSocket.connect();
+  }
 
-    return () => {
-      // console.log("isConnected", isConnected);
-      // console.log("socket", socket);
-      if (isConnected) socket.disconnect();
-    };
-  }, [isConnected]);
+  // const getSocket = useCallback(() => {
+  //   if (!socket || currentAccessToken !== accessToken) {
+  //     const newSocket = io(`http://localhost:3000`, {
+  //       autoConnect: false,
+  //       transports: ["websocket"],
+  //       auth: { token: accessToken },
+  //     });
+  //     setCurrentAccessToken(accessToken);
 
-  useEffect(() => {
-    if (socket == null) return;
-    console.log("isConnected", isConnected);
-    console.log("socket", socket);
-    async function updateAccessToken() {
-      const newAccessToken = await getNewAccessToken(refreshToken);
-      setAccessToken(newAccessToken);
-    }
-    if (socket.disconnected) {
-      updateAccessToken();
-    }
+  //     return newSocket;
+  //   } else return socket;
+  // }, [socket, accessToken]);
 
-    socket.on("test", (data) => {
-      alert(data.message);
+  function registerSocket(socket, session_id) {
+    socket.emit("register", session_id);
+  }
+
+  function initializeSocket(socket) {
+    socket.on("test", (payload) => {
+      console.log("register payload");
+      console.log(payload);
+    });
+    socket.on("connect", () => {
+      console.log("Socket connected To Server");
+      registerSocket(socket, gameInfo.sessionId);
     });
     socket.on("connect_error", async (error) => {
       console.error("Connection error:", error);
       console.error("Connection error message:", error.massage);
-
       if (error.message === "Unauthorized") {
-        //this may not retry whatever call failed but sockets might be really fast so idk. maybe ensure acknowledgements on all client side calls
-        console.log("Unauthorized socket connection, this fucks everything");
+        console.log("Unauthorized socket connection");
+        const newAccessToken = await getNewAccessToken(refreshToken);
+        setAccessToken(newAccessToken);
+        const newSocket = io(`http://localhost:3000`, {
+          autoConnect: false,
+          transports: ["websocket"],
+          auth: { token: newAccessToken },
+        });
+        initializeSocket(newSocket);
+        setSocket(newSocket);
+        newSocket.connect();
       }
     });
-  }, [socket, refreshToken]);
+  }
+
+  // useEffect(() => {
+  //   console.log("isConnected useEffect called");
+  //   console.log("   isConnected: " + isConnected);
+  //   if (isConnected) {
+  //     const currentSocket = getSocket();
+  //     initializeSocket(currentSocket);
+  //     console.log("   current Socket returned as", currentSocket);
+  //     setSocket(currentSocket);
+  //     // console.log("   currentSocket: ", currentSocket);
+  //     console.log("   socket: ", socket);
+  //     currentSocket.connect();
+  //   } //else socket.disconnect();
+
+  //   return () => {
+  //     console.log("isConnected cleanup");
+  //     console.log("   Cleanup: isConnected: " + isConnected);
+  //     if (isConnected) {
+  //       console.log("   socket: ", socket);
+  //       socket.disconnect();
+  //       setSocket(null);
+  //     }
+  //   };
+  // }, [isConnected, getSocket, socket]);
 
   const run = async () => {
     setIsConnected(false);
@@ -378,14 +424,6 @@ function StatsButton({ playerStats }) {
       📖
     </button>
   );
-}
-
-function registerSocket(socket, session_id) {
-  socket.emit("register", session_id);
-  socket.on("test", (payload) => {
-    console.log("test");
-    console.log(payload);
-  });
 }
 
 export default QuickdrawArena;

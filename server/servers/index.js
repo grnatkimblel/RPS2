@@ -18,7 +18,7 @@ app.use("/user", userRouter);
 app.use("/", pingRouter);
 app.use("/matchmaking", matchMakingRouter);
 
-db.sequelize.sync().then(() => {
+db.sequelize.sync({}).then(() => {
   app.listen(PORT, () => {
     console.log(`listening on port http://localhost:${PORT}`);
   });

@@ -12,8 +12,8 @@ const { matchmakingEventEmitter } = require("../MatchmakingService");
 
 //POSTS
 router.post("/createUser", async (req, res) => {
-  console.log("sanity");
-  console.log(req.body);
+  // console.log("sanity");
+  // console.log(req.body);
 
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -28,7 +28,7 @@ router.post("/createUser", async (req, res) => {
     const createdUser = await User.create(user);
     res.json(createdUser.toJSON());
     res.status(201).send();
-    //console.log("Created user: " + createdUser.username);
+    console.log("Created user: " + createdUser.username);
   } catch {
     res.status(500).send();
   }

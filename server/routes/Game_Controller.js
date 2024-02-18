@@ -101,6 +101,7 @@ router.post("/quickplay/startGame", async (req, res) => {
     } else {
       game.checkInStatus.player_2 = true;
     }
+    console.log("checkInStatus");
     console.log(game.checkInStatus);
     //If both players have checked in, create the GameHeader entry
     if (game.checkInStatus.player_1 && game.checkInStatus.player_2) {
@@ -115,7 +116,7 @@ router.post("/quickplay/startGame", async (req, res) => {
           player_2_id: game.players.player_2,
         },
       });
-
+      console.log("Created GameHeader gameId: " + createdGameHeader.game_id);
       // console.log(createdGameHeader);
     }
 
@@ -140,6 +141,9 @@ function registerGameControllerHandlers(io, socket) {
   const register = (session_id) => {
     socket.join(session_id);
     const numSocketsInRoom = socket.adapter.rooms.get(session_id).size;
+    console.log(
+      "Socket Registered on Room: " + session_id + " Size: " + numSocketsInRoom
+    );
     console.log(numSocketsInRoom);
     if (numSocketsInRoom == 2) {
       socket.to(session_id).emit("test", "dick");
