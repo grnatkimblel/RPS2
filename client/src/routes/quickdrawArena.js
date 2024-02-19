@@ -7,8 +7,9 @@ import API_ROUTES from "../enums/apiRoutes";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Socket, io } from "socket.io-client";
-// import { gameControllerSocket as socket } from "../socket";
 import { getNewAccessToken } from "../helper";
+
+import { gameController } from "../gameControllerHandler";
 
 function QuickdrawArena({
   authHelper,
@@ -108,27 +109,16 @@ function QuickdrawArena({
     newSocket.connect();
   }
 
-  // const getSocket = useCallback(() => {
-  //   if (!socket || currentAccessToken !== accessToken) {
-  //     const newSocket = io(`http://localhost:3000`, {
-  //       autoConnect: false,
-  //       transports: ["websocket"],
-  //       auth: { token: accessToken },
-  //     });
-  //     setCurrentAccessToken(accessToken);
-
-  //     return newSocket;
-  //   } else return socket;
-  // }, [socket, accessToken]);
-
   function registerSocket(socket, session_id) {
+    console.log("Socket connected To Server");
     socket.emit("register", session_id);
   }
 
   function initializeSocket(socket) {
-    socket.on("test", (payload) => {
-      console.log("register payload");
-      console.log(payload);
+    socket.on("Change GameState", (payload) => {
+      console.log("GameState Changed to: ", payload);
+
+      //change gamestate and handle the Ready State
     });
     socket.on("connect", () => {
       console.log("Socket connected To Server");
@@ -141,7 +131,7 @@ function QuickdrawArena({
         console.log("Unauthorized socket connection");
         const newAccessToken = await getNewAccessToken(refreshToken);
         setAccessToken(newAccessToken);
-        const newSocket = io(`http://localhost:3000`, {
+        const newSocket = io(`http://localhost:8200`, {
           autoConnect: false,
           transports: ["websocket"],
           auth: { token: newAccessToken },
@@ -152,31 +142,6 @@ function QuickdrawArena({
       }
     });
   }
-
-  // useEffect(() => {
-  //   console.log("isConnected useEffect called");
-  //   console.log("   isConnected: " + isConnected);
-  //   if (isConnected) {
-  //     const currentSocket = getSocket();
-  //     initializeSocket(currentSocket);
-  //     console.log("   current Socket returned as", currentSocket);
-  //     setSocket(currentSocket);
-  //     // console.log("   currentSocket: ", currentSocket);
-  //     console.log("   socket: ", socket);
-  //     currentSocket.connect();
-  //   } //else socket.disconnect();
-
-  //   return () => {
-  //     console.log("isConnected cleanup");
-  //     console.log("   Cleanup: isConnected: " + isConnected);
-  //     if (isConnected) {
-  //       console.log("   socket: ", socket);
-  //       socket.disconnect();
-  //       setSocket(null);
-  //     }
-  //   };
-  // }, [isConnected, getSocket, socket]);
-
   const run = async () => {
     setIsConnected(false);
     await authHelper(API_ROUTES.GAME.QUICKDRAW.RUN, "POST", {

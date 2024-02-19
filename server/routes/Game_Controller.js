@@ -133,6 +133,12 @@ router.post("/quickplay/startGame", async (req, res) => {
   }
 });
 
+const GAME_STATES = {
+  READY: "Ready",
+  DRAW: "Draw",
+  OVER: "Over",
+};
+
 function registerGameControllerHandlers(io, socket) {
   //CONSIDER HOW AUTH SHOULD BE DONE
   //authorize the user on connection with middleware
@@ -144,9 +150,10 @@ function registerGameControllerHandlers(io, socket) {
     console.log(
       "Socket Registered on Room: " + session_id + " Size: " + numSocketsInRoom
     );
-    console.log(numSocketsInRoom);
+
+    io.to(session_id).emit("Change Gamestate", GAME_STATES.READY);
     if (numSocketsInRoom == 2) {
-      socket.to(session_id).emit("test", "dick");
+      io.to(session_id).emit("test", "   Room Full");
     }
   };
 
