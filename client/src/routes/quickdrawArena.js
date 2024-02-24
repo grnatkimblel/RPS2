@@ -31,6 +31,7 @@ function QuickdrawArena({
   };
 
   const [gameState, setGameState] = useState(initialGameState);
+  const [isAcceptingHandsInput, setIsAcceptingHandsInput] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
 
   const [currentAccessToken, setCurrentAccessToken] = useState(null);
@@ -115,11 +116,22 @@ function QuickdrawArena({
   }
 
   function initializeSocket(socket) {
-    socket.on("Change GameState", (payload) => {
-      console.log("GameState Changed to: ", payload);
-
+    socket.on("BeginReadyPhase", (payload) => {
+      console.log(`ReadyPhase Begun, ${payload} seconds till Draw`);
+      setGameState((prev) => {
+        return { ...prev, titleText: "🧨" };
+      });
+      setIsAcceptingHandsInput(true);
       //change gamestate and handle the Ready State
     });
+    socket.on("BeginDrawPhase", (payload) => {
+      console.log(`DrawPhase Begun`);
+      setGameState((prev) => {
+        return { ...prev, titleText: "💥" };
+      });
+      //change gamestate and handle the Ready State
+    });
+
     socket.on("connect", () => {
       console.log("Socket connected To Server");
       registerSocket(socket, gameInfo.sessionId);
@@ -321,10 +333,24 @@ function QuickdrawArena({
           </div>
           <div style={{ flex: 1, display: "flex" }} className="leftBorder">
             <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-              <button style={{ flex: 1 }} className="defaultColor bottomBorder">
+              <button
+                style={{ flex: 1 }}
+                className={
+                  (isAcceptingHandsInput
+                    ? "defaultColor "
+                    : "notInteractableColor ") + "bottomBorder"
+                }
+              >
                 Rock
               </button>
-              <button style={{ flex: 1 }} className="defaultColor">
+              <button
+                style={{ flex: 1 }}
+                className={
+                  isAcceptingHandsInput
+                    ? "defaultColor "
+                    : "notInteractableColor "
+                }
+              >
                 Paper
               </button>
             </div>
@@ -332,7 +358,14 @@ function QuickdrawArena({
               style={{ flex: 1, display: "flex", flexDirection: "column" }}
               className="leftBorder"
             >
-              <button style={{ flex: 1 }} className="defaultColor bottomBorder">
+              <button
+                style={{ flex: 1 }}
+                className={
+                  (isAcceptingHandsInput
+                    ? "defaultColor "
+                    : "notInteractableColor ") + "bottomBorder"
+                }
+              >
                 Scissors
               </button>
               <button

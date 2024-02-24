@@ -133,17 +133,15 @@ router.post("/quickplay/startGame", async (req, res) => {
   }
 });
 
-const GAME_STATES = {
+const GAME_PHASES = {
   READY: "Ready",
   DRAW: "Draw",
   OVER: "Over",
 };
 
-function registerGameControllerHandlers(io, socket) {
-  //CONSIDER HOW AUTH SHOULD BE DONE
-  //authorize the user on connection with middleware
-  //authorize the payload against the rights given by the jwt sent before each round
+let activeRooms = new Map();
 
+function registerGameControllerHandlers(io, socket) {
   const register = (session_id) => {
     socket.join(session_id);
     const numSocketsInRoom = socket.adapter.rooms.get(session_id).size;
@@ -151,13 +149,21 @@ function registerGameControllerHandlers(io, socket) {
       "Socket Registered on Room: " + session_id + " Size: " + numSocketsInRoom
     );
 
-    io.to(session_id).emit("Change Gamestate", GAME_STATES.READY);
     if (numSocketsInRoom == 2) {
       io.to(session_id).emit("test", "   Room Full");
+      beginReadyPhase(io, session_id);
     }
   };
 
   socket.on("register", register);
+}
+
+function beginReadyPhase(io, session_id) {
+  let delay = Math.random() * 8 + 2;
+  io.to(session_id).emit("BeginReadyPhase", delay);
+  setTimeout(() => {
+    io.to(session_id).emit("BeginDrawPhase");
+  }, delay * 1000);
 }
 
 function createPotentialGame(roster) {
