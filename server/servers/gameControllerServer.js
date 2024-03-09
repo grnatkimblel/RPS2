@@ -43,6 +43,9 @@ io.use((socket, next) => {
       (err, user) => {
         if (err) next(new Error("Unauthorized"));
         console.log("Socket Authentication Successful");
+        // console.log("socket auth user");
+        // console.log(user);
+        socket.client_id; //this is an arbitrarilly added field to attach client details to the socket instance
         next();
       }
     );

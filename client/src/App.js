@@ -26,7 +26,7 @@ function App() {
 
   const [userInfo, setUserInfo] = useState({
     username: "",
-    userId: "",
+    user_id: "",
     emoji: "",
   });
 
@@ -50,7 +50,7 @@ function App() {
       setUserInfo({
         //this could be sent in the body of the JWT for style points
         username: body.user.username,
-        userId: body.user.userId,
+        user_id: body.user.userId,
         emoji: body.user.emoji,
       });
       navigate(`/${PAGES.MAIN_MENU}`);
@@ -157,6 +157,7 @@ function App() {
           <QuickdrawArena
             authHelper={authorizeThenCallHttp}
             navigate={navigate}
+            userInfo={userInfo}
             gameInfo={currentGameInfo}
             gameInfoSetter={setCurrentGameInfo}
             setAccessToken={setAccessToken}

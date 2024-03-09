@@ -26,7 +26,6 @@ function OpponentSelectButton({
       console.log(
         "OpponentSelectButton received response from Search:NewInvite Endpoint"
       );
-      console.log(data);
       gameInfoSetter(data);
       // navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
     });

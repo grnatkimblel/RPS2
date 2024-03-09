@@ -92,7 +92,6 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
             return res.json();
           })
           .then((data) => {
-            console.log(data);
             gameInfoSetter(data);
             navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
           });

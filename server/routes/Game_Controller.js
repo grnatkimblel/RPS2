@@ -141,6 +141,27 @@ const GAME_PHASES = {
 
 let activeRooms = new Map();
 
+/*
+activeRooms
+key: session Id
+value: {
+  numRoundsToWin:
+  player_1_score:
+  player_2_score:
+  player_1_CBM:
+  player_2_CBM:
+  rounds: [{
+    readyTime,
+    drawTime,
+    endTime,
+    hands: [
+      {player_1: client_id, hand: hand, time: time},
+      {player_2: client_id, hand: hand, time: time},
+    ]
+  },...]
+}
+*/
+
 function registerGameControllerHandlers(io, socket) {
   const register = (session_id) => {
     socket.join(session_id);
@@ -155,15 +176,61 @@ function registerGameControllerHandlers(io, socket) {
     }
   };
 
+  const playHand = (client_id, session_id, hand) => {
+    //if the hand is played during the valid time
+
+    times = activeRooms.get(session_id);
+    now = Date.now();
+    readyTime = times[0];
+    drawTime = times[1];
+    endTime = times[2];
+
+    if (now < readyTime) {
+      console.log("hand played before ready time, this should be impossible");
+    }
+    if (now > readyTime && now < drawTime) {
+      //the player has played their hand to early
+      console.log("the player has played their hand to early");
+    }
+    if (now > drawTime && now < endTime) {
+      //this is a valid play
+      console.log("this is a valid play");
+    }
+    if (now > endTime) {
+      //the player has played their hand to late
+      console.log("the player has played their hand to late");
+    }
+    // console.log("client_id received: " + client_id);
+    // console.log("session_id received: " + session_id);
+    // console.log("hand received: " + hand);
+    // console.log("times: " + times);
+  };
+
   socket.on("register", register);
+  socket.on("playHand", playHand);
 }
 
 function beginReadyPhase(io, session_id) {
-  let delay = Math.random() * 8 + 2;
-  io.to(session_id).emit("BeginReadyPhase", delay);
+  let drawTime = Math.random() * 8 + 3;
+  let endTime = Math.random() * 3 + 3 + drawTime;
+  // console.log("readyDelaySeconds: " + readyDelaySeconds);
+  // console.log("drawDelaySeconds: " + drawDelaySeconds);
+  io.to(session_id).emit("BeginReadyPhase", drawTime);
+  now = Date.now();
+
+  //##TODO create a more complete object to store in active Rooms. may need player 1 and player two, gotta get them somehow
+  activeRooms.set(session_id, [
+    now,
+    now + drawTime * 1000,
+    now + endTime * 1000,
+  ]);
+
   setTimeout(() => {
     io.to(session_id).emit("BeginDrawPhase");
-  }, delay * 1000);
+  }, drawTime * 1000);
+  setTimeout(() => {
+    io.to(session_id).emit("BeginEndPhase");
+  }, endTime * 1000);
 }
 
 function createPotentialGame(roster) {
