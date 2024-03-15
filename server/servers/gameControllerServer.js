@@ -43,9 +43,11 @@ io.use((socket, next) => {
       (err, user) => {
         if (err) next(new Error("Unauthorized"));
         console.log("Socket Authentication Successful");
-        // console.log("socket auth user");
-        // console.log(user);
-        socket.client_id; //this is an arbitrarilly added field to attach client details to the socket instance
+        console.log("socket auth user");
+        console.log(user);
+        console.log("End of Middleware");
+        socket.client_id = user.id; //this is an arbitrarilly added field to attach client details to the socket instance
+        socket.authUser = user;
         next();
       }
     );
@@ -67,13 +69,10 @@ app.use("/game", gameControllerRouter);
 */
 io.on("connection", (socket) => {
   console.log(`User ${socket.id} connected`);
-
-  console.log(`authUser ${socket.authUser}`);
-
   registerGameControllerHandlers(io, socket);
 
   socket.on("disconnect", (reason) => {
-    console.log(`User ${socket.id} disconnected`);
+    console.log(`User ${socket.authUser.username} disconnected`);
   });
 });
 

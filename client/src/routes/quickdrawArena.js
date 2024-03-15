@@ -8,10 +8,7 @@ import API_ROUTES from "../enums/apiRoutes";
 import GoodBadAndUglyURL from "../audio/The Good, the Bad and the Ugly  Main Theme  Ennio Morricone.ogg";
 import useSound from "use-sound";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Socket, io } from "socket.io-client";
-import { getNewAccessToken } from "../helper";
-
-import { gameController } from "../gameControllerHandler";
+import useSocket from "../hooks/useSocket";
 
 require("react-dom");
 window.React2 = require("react");
@@ -21,8 +18,16 @@ console.log(window.React1 === window.React2);
 gameInfo:
 sessionId: roster.rosterId,
     roundStartTime: roundStartTime,
-    player1: player_1_info,
-    player2: player_2_info,
+    player1: {
+      username: '',
+      userId: '',
+      emoji: ''
+    },
+    player2: {
+      username: '',
+      userId: '',
+      emoji: ''
+    }
 
 
 idk what this is
@@ -54,11 +59,9 @@ function QuickdrawArena({
   userInfo,
   gameInfo,
   gameInfoSetter,
-  setAccessToken,
-  accessToken,
   refreshToken,
 }) {
-  const initialGameState = {
+  const initialGameDisplayState = {
     titleText: Math.ceil((gameInfo.roundStartTime - Date.now()) / 1000),
     gamePhase: "pregame",
     numRoundsToWin: 3,
@@ -77,12 +80,81 @@ function QuickdrawArena({
     volume: 0.1,
   });
 
-  const [gameState, setGameState] = useState(initialGameState);
+  const [gameDisplayState, setGameDisplayState] = useState(
+    initialGameDisplayState
+  );
   const [isAcceptingHandsInput, setIsAcceptingHandsInput] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const socket = useSocket(refreshToken, isConnected);
 
-  const [currentAccessToken, setCurrentAccessToken] = useState(null);
-  const [socket, setSocket] = useState(null);
+  useEffect(() => {
+    socket.then(
+      (socket) => {
+        if (!socket) return;
+        console.log(socket);
+
+        //Begin Phase Events
+        socket.on("BeginReadyPhase", (payload) => {
+          console.log(`ReadyPhase Begun, ${payload} seconds till Draw`);
+          setGameDisplayState((prev) => ({
+            ...prev,
+            gamePhase: "Ready",
+            titleText: READY_PHASE_EMOJI,
+          }));
+          setIsAcceptingHandsInput(true);
+          //change gamestate and handle the Ready State
+        });
+        socket.on("BeginDrawPhase", (payload) => {
+          console.log(`DrawPhase Begun`);
+          setGameDisplayState((prev) => ({
+            ...prev,
+            gamePhase: "Draw",
+            titleText: DRAW_PHASE_EMOJI,
+          }));
+          //change gamestate and handle the Draw State
+        });
+        socket.on("BeginEndPhase", (payload) => {
+          console.log(`EndPhase Begun`);
+          setGameDisplayState((prev) => ({
+            ...prev,
+            gamePhase: "End",
+            titleText: END_PHASE_EMOJI,
+          }));
+          setIsAcceptingHandsInput(false);
+          //change gamestate and handle the End State
+        });
+
+        if (!isRegistered) {
+          registerSocket(socket, gameInfo);
+          setIsRegistered(true);
+        }
+
+        return () => {
+          socket.off("BeginReadyPhase");
+          socket.off("BeginDrawPhase");
+          socket.off("BeginEndPhase");
+        };
+      },
+      [socket, isRegistered]
+    );
+  });
+
+  function registerSocket(socket, gameInfo) {
+    console.log("Socket connected To Server");
+    socket.emit("register", gameInfo);
+  }
+
+  const playHand = useCallback(
+    (hand) => {
+      console.log("playing hand: " + hand);
+      console.log("userInfo: " + userInfo);
+      socket.then((socket) => {
+        socket.emit("playHand", userInfo.userId, gameInfo.sessionId, hand);
+      });
+    },
+    [userInfo, socket]
+  );
 
   //STARTS COUNTDOWN
   useEffect(() => {
@@ -90,7 +162,7 @@ function QuickdrawArena({
     let countdown;
     if (gameInfo.roundStartTime - Date.now() > 1000) {
       countdown = setTimeout(() => {
-        setGameState((prev) => {
+        setGameDisplayState((prev) => {
           return { ...prev, titleText: prev.titleText - 1 };
         });
       }, 1000);
@@ -99,13 +171,16 @@ function QuickdrawArena({
     return () => {
       clearInterval(countdown);
     };
-  }, [gameState.titleText]);
+  }, [gameInfo.titleText]); //on arena mount, this function will trigger and then retrigger itself until the roundStartTime is in the past.
 
-  //STARTGAME, SET ISCONNECTED TO TRUE OF FALSE, RUNS EXACTLY ONCE
+  //STARTGAME, SET ISCONNECTED TO TRUE OF FALSE
   useEffect(() => {
     //2nd, the game is started. On game found, the socket needs to be setup
     const startGame = async () => {
-      setGameState({ ...gameState, titleText: READY_PHASE_EMOJI });
+      setGameDisplayState({
+        ...gameDisplayState,
+        titleText: READY_PHASE_EMOJI,
+      });
       //request on api that starts the game.
       await authHelper(API_ROUTES.GAME.QUICKDRAW.START_GAME, "POST", {
         session_id: gameInfo.sessionId,
@@ -116,118 +191,38 @@ function QuickdrawArena({
         .then((data) => {
           console.log("gameFound: ", data.gameFound);
           if (data.gameFound) {
-            beginSocketConnection();
-            // setIsConnected(true);
+            setIsConnected(true);
           } else {
-            // setIsConnected(false);
+            setIsConnected(false);
             //TODO: opponent ran, display something to tell the player
           }
         });
     };
 
-    let ignore = false;
+    // let ignore = false;
     const timer = setTimeout(() => {
-      if (!ignore) {
-        console.log("useTimeout executing");
-        startGame(); //this should only run once
-      }
+      // if (!ignore) {
+      console.log("useTimeout executing");
+      startGame(); //this should only run once
+      //}
     }, gameInfo.roundStartTime - Date.now());
     return () => {
-      ignore = true;
+      //ignore = true;
+      clearTimeout(timer);
     };
   }, [gameInfo, authHelper]);
 
-  //update assets based on gamestate
+  //update assets based on gameDisplayState
   useEffect(() => {
-    if (gameState.gamePhase == "Ready") {
+    if (gameDisplayState.gamePhase == "Ready") {
       playGoodBadUglyAudio();
       console.log("gamePhase: Ready");
     }
-    if (gameState.gamePhase == "Draw") {
+    if (gameDisplayState.gamePhase == "Draw") {
       goodBadUglyAudio.stop();
       console.log("gamePhase: Draw");
     }
-  }, [gameState.gamePhase, playGoodBadUglyAudio, goodBadUglyAudio]);
-
-  async function beginSocketConnection() {
-    //maybe this needs to be a hook?
-    //get fresh access token for socket connection
-    const newAccessToken = await getNewAccessToken(refreshToken);
-    setAccessToken(newAccessToken);
-
-    console.log("newAccessToken: ", newAccessToken);
-
-    //get new socket instance with fresh access
-    const newSocket = io(`http://localhost:8200`, {
-      autoConnect: false,
-      transports: ["websocket"],
-      auth: { token: newAccessToken },
-    });
-    console.log("newSocket: ", newSocket);
-    initializeSocket(newSocket);
-    setSocket(newSocket);
-    newSocket.connect();
-  }
-
-  function registerSocket(socket, session_id) {
-    console.log("Socket connected To Server");
-    socket.emit("register", session_id);
-  }
-
-  function playHand(hand) {
-    console.log("playing hand: " + hand);
-    socket.emit("playHand", userInfo.user_id, gameInfo.sessionId, hand);
-  }
-
-  function initializeSocket(socket) {
-    //Begin Phase Events
-    socket.on("BeginReadyPhase", (payload) => {
-      console.log(`ReadyPhase Begun, ${payload} seconds till Draw`);
-      setGameState((prev) => {
-        return { ...prev, gamePhase: "Ready", titleText: READY_PHASE_EMOJI };
-      });
-      setIsAcceptingHandsInput(true);
-      //change gamestate and handle the Ready State
-    });
-    socket.on("BeginDrawPhase", (payload) => {
-      console.log(`DrawPhase Begun`);
-      setGameState((prev) => {
-        return { ...prev, gamePhase: "Draw", titleText: DRAW_PHASE_EMOJI };
-      });
-      //change gamestate and handle the Draw State
-    });
-    socket.on("BeginEndPhase", (payload) => {
-      console.log(`EndPhase Begun`);
-      setGameState((prev) => {
-        return { ...prev, gamePhase: "End", titleText: END_PHASE_EMOJI };
-      });
-      setIsAcceptingHandsInput(false);
-      //change gamestate and handle the End State
-    });
-
-    //On Socket Connect Events
-    socket.on("connect", () => {
-      console.log("Socket connected To Server");
-      registerSocket(socket, gameInfo.sessionId);
-    });
-    socket.on("connect_error", async (error) => {
-      console.error("Connection error:", error);
-      console.error("Connection error message:", error.massage);
-      if (error.message === "Unauthorized") {
-        console.log("Unauthorized socket connection");
-        const newAccessToken = await getNewAccessToken(refreshToken);
-        setAccessToken(newAccessToken);
-        const newSocket = io(`http://localhost:8200`, {
-          autoConnect: false,
-          transports: ["websocket"],
-          auth: { token: newAccessToken },
-        });
-        initializeSocket(newSocket);
-        setSocket(newSocket);
-        newSocket.connect();
-      }
-    });
-  }
+  }, [gameDisplayState.gamePhase, playGoodBadUglyAudio, goodBadUglyAudio]);
 
   const run = async () => {
     setIsConnected(false);
@@ -239,7 +234,7 @@ function QuickdrawArena({
 
   const getScoreCards = (playerScore, isLeft) => {
     const border = isLeft ? "leftBorder" : "rightBorder";
-    const cards = Array(gameState.numRoundsToWin)
+    const cards = Array(gameDisplayState.numRoundsToWin)
       .fill(1)
       .map((el, i) => {
         const scoreColor =
@@ -277,7 +272,7 @@ function QuickdrawArena({
 
   return (
     <>
-      <div className="title">{gameState.titleText}</div>
+      <div className="title">{gameDisplayState.titleText}</div>
       <div
         style={{
           display: "flex",
@@ -310,7 +305,7 @@ function QuickdrawArena({
             <div
               style={{ display: "flex", width: "60%", justifyContent: "end" }}
             >
-              {getScoreCards(gameState.player1_score, true)}
+              {getScoreCards(gameDisplayState.player1_score, true)}
             </div>
           </div>
           <div
@@ -322,7 +317,7 @@ function QuickdrawArena({
             className="notInteractableColor bottomBorder leftBorder topRow"
           >
             <div style={{ display: "flex", width: "60%" }}>
-              {getScoreCards(gameState.player2_score, false)}
+              {getScoreCards(gameDisplayState.player2_score, false)}
             </div>
 
             <button
@@ -350,7 +345,7 @@ function QuickdrawArena({
             <div style={{ position: "absolute" }}>
               {/* <StatsButton /> */}
               <span style={{ marginLeft: "15px" }}>
-                {getCBM(gameState.player1_CBM)}
+                {getCBM(gameDisplayState.player1_CBM)}
               </span>
             </div>
             <div
@@ -374,7 +369,7 @@ function QuickdrawArena({
           >
             <div style={{ position: "absolute", right: "0" }}>
               <span style={{ marginRight: "5px" }}>
-                {getCBM(gameState.player2_CBM)}
+                {getCBM(gameDisplayState.player2_CBM)}
               </span>
               {/* <StatsButton /> */}
             </div>

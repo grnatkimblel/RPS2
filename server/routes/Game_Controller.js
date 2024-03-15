@@ -13,10 +13,10 @@ const COUNTDOWN_TIME = 3000;
 
 game = {
   rosterId: rosterId,
-    players: {
-      player_1: player1_id,
-      player_2: player2_id,
-    }
+  players: {
+    player_1: player1_id,
+    player_2: player2_id,
+  },
   checkInStatus: {
       player_1: false,
       player_2: false,
@@ -33,7 +33,7 @@ gameHeader : {
 
 */
 
-let activeGames = [];
+let activeRooms = new Map();
 
 router.post("/quickdraw/pregame", async (req, res) => {
   console.log(" /quickdraw/pregame called successfully");
@@ -57,12 +57,8 @@ router.post("/quickdraw/pregame", async (req, res) => {
   };
   const roundStartTime = Date.now() + COUNTDOWN_TIME;
 
-  if (
-    !activeGames.some((game) => {
-      return game.rosterId == roster.rosterId;
-    })
-  )
-    activeGames.push(createPotentialGame(roster));
+  if (!activeRooms.has(roster.rosterId))
+    activeRooms.set(roster.rosterId, createPotentialGame(roster));
 
   res.json({
     sessionId: roster.rosterId,
@@ -75,13 +71,13 @@ router.post("/quickdraw/pregame", async (req, res) => {
 router.post("/quickplay/run", async (req, res) => {
   const client_id = req.authUser.id;
   const session_id = req.body.session_id;
-  const game = findGameWithPlayer(session_id, client_id);
 
-  if (game) {
-    activeGames.splice(activeGames.indexOf(game), 1);
+  if (activeRooms.has(session_id)) {
+    activeRooms.delete(session_id);
+
     console.log("game removed");
-    console.log("new activeGames");
-    console.log(activeGames);
+    console.log("activeRooms after removal:");
+    console.log(activeRooms);
   } else {
     //game doesn't exist or other player already ran
     //do nothing
@@ -94,9 +90,9 @@ router.post("/quickplay/startGame", async (req, res) => {
   const session_id = req.body.session_id;
   const client_id = req.authUser.id;
   console.log("startGame called");
-  const game = findGameWithPlayer(session_id, client_id);
-  if (game) {
-    if (isPlayer1(game, client_id)) {
+  if (activeRooms.has(session_id)) {
+    game = activeRooms.get(session_id);
+    if (game.players.player_1 == client_id) {
       game.checkInStatus.player_1 = true;
     } else {
       game.checkInStatus.player_2 = true;
@@ -139,78 +135,155 @@ const GAME_PHASES = {
   OVER: "Over",
 };
 
-let activeRooms = new Map();
-
 /*
 activeRooms
 key: session Id
 value: {
-  numRoundsToWin:
-  player_1_score:
-  player_2_score:
-  player_1_CBM:
-  player_2_CBM:
+  players: {
+    player_1: client_id,
+    player_2: client_id
+  }
+  header: {
+    numRoundsToWin:
+    player_1_score:
+    player_2_score:
+    player_1_CBM:
+    player_2_CBM:
+  }
   rounds: [{
     readyTime,
     drawTime,
     endTime,
-    hands: [
-      {player_1: client_id, hand: hand, time: time},
-      {player_2: client_id, hand: hand, time: time},
-    ]
+    hands:
+      player_1: {
+        client_id, 
+        hand: hand, 
+        time: time
+      },
+      player_2: {
+        client_id, 
+        hand: hand, 
+        time: time
+      },
+    
   },...]
+  checkInStatus: {
+    player_1: false,
+    player_2: false,
+  },
 }
 */
 
 function registerGameControllerHandlers(io, socket) {
-  const register = (session_id) => {
+  const register = (gameInfo) => {
+    console.log("gameInfo: ");
+    console.log(gameInfo);
+    const session_id = gameInfo.sessionId;
     socket.join(session_id);
     const numSocketsInRoom = socket.adapter.rooms.get(session_id).size;
     console.log(
-      "Socket Registered on Room: " + session_id + " Size: " + numSocketsInRoom
+      "Socket " +
+        socket.authUser.username +
+        " Registered on Room: " +
+        session_id +
+        " Size: " +
+        numSocketsInRoom
     );
 
     if (numSocketsInRoom == 2) {
       io.to(session_id).emit("test", "   Room Full");
-      beginReadyPhase(io, session_id);
+      beginReadyPhase(io, gameInfo);
     }
   };
 
-  const playHand = (client_id, session_id, hand) => {
-    //if the hand is played during the valid time
-
-    times = activeRooms.get(session_id);
+  const playHand = (client_id, sessionId, hand) => {
+    console.log(client_id + " played a hand");
+    game = activeRooms.get(sessionId);
+    isPlayer_1 = game.players.player_1 == client_id;
+    game = activeRooms.get(sessionId);
+    thisRound = game.rounds[game.rounds.length - 1];
     now = Date.now();
-    readyTime = times[0];
-    drawTime = times[1];
-    endTime = times[2];
+    // console.log("game");
+    // console.log(game);
 
-    if (now < readyTime) {
+    if (now < thisRound.readyTime) {
       console.log("hand played before ready time, this should be impossible");
     }
-    if (now > readyTime && now < drawTime) {
+    if (now > thisRound.readyTime && now < thisRound.drawTime) {
       //the player has played their hand to early
       console.log("the player has played their hand to early");
     }
-    if (now > drawTime && now < endTime) {
+    if (now > thisRound.drawTime && now < thisRound.endTime) {
       //this is a valid play
       console.log("this is a valid play");
+      hands = game.rounds[game.rounds.length - 1].hands;
+      console.log("before hands");
+      console.log(hands);
+      game.rounds[game.rounds.length - 1].hands = {
+        ...game.rounds[game.rounds.length - 1].hands,
+        player_1: isPlayer_1
+          ? {
+              client_id: client_id,
+              hand: hand,
+              time: now,
+            }
+          : game.rounds[game.rounds.length - 1].hands.player_1,
+        player_2: isPlayer_1
+          ? game.rounds[game.rounds.length - 1].hands.player_2
+          : {
+              client_id: client_id,
+              hand: hand,
+              time: now,
+            },
+      };
+
+      console.log("after hands");
+      console.log(hands);
+
+      console.log("after room");
+      temp = activeRooms.get(sessionId);
+      console.log(temp);
+      console.log(temp.rounds[temp.rounds.length - 1].hands);
+      return;
     }
-    if (now > endTime) {
+    if (now > thisRound.endTime) {
       //the player has played their hand to late
       console.log("the player has played their hand to late");
     }
-    // console.log("client_id received: " + client_id);
-    // console.log("session_id received: " + session_id);
-    // console.log("hand received: " + hand);
-    // console.log("times: " + times);
+    hands = game.rounds[game.rounds.length - 1].hands;
+    console.log("before hands");
+    console.log(hands);
+    game.rounds[game.rounds.length - 1].hands = {
+      ...game.rounds[game.rounds.length - 1].hands,
+      player_1: isPlayer_1
+        ? {
+            client_id: client_id,
+            hand: null,
+            time: null,
+          }
+        : game.rounds[game.rounds.length - 1].hands.player_1,
+      player_2: isPlayer_1
+        ? game.rounds[game.rounds.length - 1].hands.player_2
+        : {
+            client_id: client_id,
+            hand: null,
+            time: null,
+          },
+    };
+
+    console.log("after hands");
+    console.log(hands);
+
+    console.log("after room");
+    console.log(activeRooms.get(sessionId));
   };
 
   socket.on("register", register);
   socket.on("playHand", playHand);
 }
 
-function beginReadyPhase(io, session_id) {
+function beginReadyPhase(io, gameInfo) {
+  const session_id = gameInfo.sessionId;
   let drawTime = Math.random() * 8 + 3;
   let endTime = Math.random() * 3 + 3 + drawTime;
   // console.log("readyDelaySeconds: " + readyDelaySeconds);
@@ -219,11 +292,17 @@ function beginReadyPhase(io, session_id) {
   now = Date.now();
 
   //##TODO create a more complete object to store in active Rooms. may need player 1 and player two, gotta get them somehow
-  activeRooms.set(session_id, [
-    now,
-    now + drawTime * 1000,
-    now + endTime * 1000,
-  ]);
+  game = activeRooms.get(session_id);
+  game.rounds.push({
+    roundNumber: game.rounds.length + 1,
+    readyTime: now,
+    drawTime: now + drawTime * 1000,
+    endTime: now + endTime * 1000,
+    hands: {
+      player_1: { client_id: gameInfo.player1.userId, hand: null, time: null },
+      player_2: { client_id: gameInfo.player2.userId, hand: null, time: null },
+    },
+  });
 
   setTimeout(() => {
     io.to(session_id).emit("BeginDrawPhase");
@@ -234,35 +313,45 @@ function beginReadyPhase(io, session_id) {
 }
 
 function createPotentialGame(roster) {
-  const potentialGame = {
-    ...roster,
+  potentialGame = {
+    players: {
+      player_1: roster.players.player_1,
+      player_2: roster.players.player_2,
+    },
+    header: {
+      numRoundsToWin: 3,
+      player_1_score: 0,
+      player_2_score: 0,
+      player_1_CBM: 0,
+      player_2_CBM: 0,
+    },
+    rounds: [
+      //   {
+      //   readyTime,
+      //   drawTime,
+      //   endTime,
+      //   hands: {
+      //    player_1: {
+      //      client_id:,
+      //       hand:,
+      //       time:,
+      //    }
+      //    player_2: {
+      //      client_id:,
+      //       hand:,
+      //       time:,
+      //    }
+      //   }
+      // }
+    ],
     checkInStatus: {
       player_1: false,
       player_2: false,
     },
   };
-  // console.log(potentialGame);
+
+  //console.log(shellObject);
   return potentialGame;
-}
-
-function isPlayer1(game, client_id) {
-  return game.players.player_1 == client_id;
-}
-
-function findGameWithPlayer(session_id, client_id) {
-  const game = activeGames.find((value) => {
-    // console.log("value ", value);
-    // console.log("session_id ", session_id);
-    return value.rosterId == session_id;
-  });
-  // console.log(game);
-  if (!game) return false;
-  if (
-    game.players.player_1 == client_id ||
-    game.players.player_2 == client_id
-  ) {
-    return game;
-  } else return false;
 }
 
 module.exports = { router, registerGameControllerHandlers };

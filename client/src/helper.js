@@ -7,6 +7,7 @@ async function getNewAccessToken(refreshToken) {
         "Content-Type": "application/json",
       },
       method: "POST",
+      //credentials: "include",
       body: JSON.stringify({ refreshToken: refreshToken }),
     });
     let body = await res.json();

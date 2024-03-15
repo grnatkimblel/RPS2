@@ -26,11 +26,14 @@ function App() {
 
   const [userInfo, setUserInfo] = useState({
     username: "",
-    user_id: "",
+    userId: "",
     emoji: "",
   });
 
   const [currentGameInfo, setCurrentGameInfo] = useState("");
+
+  //all http calls prior to quickdraw arena are made in response to events, so changing these to be useEffects is not gonna work i dont think.
+  //changing to allow refreshTokens to only exist in the cookie means CORS bs, not impossible just not what im tryna fuck with rn.
 
   const loginHelper = async (credentials) => {
     //authorizes user and returns access tokens and user account info
@@ -50,7 +53,7 @@ function App() {
       setUserInfo({
         //this could be sent in the body of the JWT for style points
         username: body.user.username,
-        user_id: body.user.userId,
+        userId: body.user.userId,
         emoji: body.user.emoji,
       });
       navigate(`/${PAGES.MAIN_MENU}`);
@@ -160,8 +163,6 @@ function App() {
             userInfo={userInfo}
             gameInfo={currentGameInfo}
             gameInfoSetter={setCurrentGameInfo}
-            setAccessToken={setAccessToken}
-            accessToken={accessToken}
             refreshToken={refreshToken}
           />
         }
