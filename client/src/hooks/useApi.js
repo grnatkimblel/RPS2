@@ -45,7 +45,7 @@ export default function useApi(url, requestType, body) {
 
         if (res.status === 403) {
           // Refresh Token
-          const newAccessToken = await getNewAccessToken();
+          const newAccessToken = await getNewAccessToken(refreshToken);
           setAccessToken(newAccessToken);
         }
 

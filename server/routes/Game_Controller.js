@@ -197,7 +197,10 @@ function registerGameControllerHandlers(io, socket) {
   };
 
   const playHand = (client_id, sessionId, hand) => {
+    const debug = false;
+    // if (debug) {
     console.log(client_id + " played a hand");
+    // }
     game = activeRooms.get(sessionId);
     isPlayer_1 = game.players.player_1 == client_id;
     game = activeRooms.get(sessionId);
@@ -212,13 +215,16 @@ function registerGameControllerHandlers(io, socket) {
     if (now > thisRound.readyTime && now < thisRound.drawTime) {
       //the player has played their hand to early
       console.log("the player has played their hand to early");
+      io.to(sessionId).emit("ReceiveHand", isPlayer_1, "tooEarly");
     }
     if (now > thisRound.drawTime && now < thisRound.endTime) {
       //this is a valid play
       console.log("this is a valid play");
       hands = game.rounds[game.rounds.length - 1].hands;
-      console.log("before hands");
-      console.log(hands);
+      if (debug) {
+        console.log("before hands");
+        console.log(hands);
+      }
       game.rounds[game.rounds.length - 1].hands = {
         ...game.rounds[game.rounds.length - 1].hands,
         player_1: isPlayer_1
@@ -236,14 +242,16 @@ function registerGameControllerHandlers(io, socket) {
               time: now,
             },
       };
+      io.to(sessionId).emit("ReceiveHand", isPlayer_1, hand);
 
-      console.log("after hands");
-      console.log(hands);
-
-      console.log("after room");
       temp = activeRooms.get(sessionId);
-      console.log(temp);
-      console.log(temp.rounds[temp.rounds.length - 1].hands);
+      if (debug) {
+        console.log("after hands");
+        console.log(temp.rounds[temp.rounds.length - 1].hands);
+
+        console.log("after room");
+        console.log(temp);
+      }
       return;
     }
     if (now > thisRound.endTime) {
@@ -251,8 +259,10 @@ function registerGameControllerHandlers(io, socket) {
       console.log("the player has played their hand to late");
     }
     hands = game.rounds[game.rounds.length - 1].hands;
-    console.log("before hands");
-    console.log(hands);
+    if (debug) {
+      console.log("before hands");
+      console.log(hands);
+    }
     game.rounds[game.rounds.length - 1].hands = {
       ...game.rounds[game.rounds.length - 1].hands,
       player_1: isPlayer_1
@@ -271,11 +281,13 @@ function registerGameControllerHandlers(io, socket) {
           },
     };
 
-    console.log("after hands");
-    console.log(hands);
+    if (debug) {
+      console.log("after hands");
+      console.log(hands);
 
-    console.log("after room");
-    console.log(activeRooms.get(sessionId));
+      console.log("after room");
+      console.log(activeRooms.get(sessionId));
+    }
   };
 
   socket.on("register", register);

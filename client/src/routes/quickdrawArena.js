@@ -29,19 +29,12 @@ sessionId: roster.rosterId,
       emoji: ''
     }
 
-
-idk what this is
-game = {
-  rosterId: rosterId,
-    players: {
-      player_1: player1_id,
-      player_2: player2_id,
-    }
-  checkInStatus: {
-      player_1: false,
-      player_2: false,
-    },
-}
+userInfo:
+const [userInfo, setUserInfo] = useState({
+  username: "",
+  userId: "",
+  emoji: "",
+});
 
 gameHeader : {
   game_id: 
@@ -61,20 +54,37 @@ function QuickdrawArena({
   gameInfoSetter,
   refreshToken,
 }) {
-  const initialGameDisplayState = {
-    titleText: Math.ceil((gameInfo.roundStartTime - Date.now()) / 1000),
-    gamePhase: "pregame",
-    numRoundsToWin: 3,
-    player1_score: 0,
-    player1_CBM: 0,
-    player2_score: 0,
-    player2_CBM: 0,
-  };
-
-  const PREGAME_PHASE_TEXT = "RPS";
+  const PREGAME_PHASE_TEXT = "OR-RPS";
   const READY_PHASE_EMOJI = "🪈";
   const DRAW_PHASE_EMOJI = "💣";
   const END_PHASE_EMOJI = "💥";
+  const THINKING_EMOJI = "🤔";
+  const ROCK_EMOJI = "🗿";
+  const PAPER_EMOJI = "📄";
+  const SCISSORS_EMOJI = "✂️";
+  const TOO_EARLY_EMOJI = "❌";
+  const ERROR_EMOJI = "☣️";
+
+  const GAME_PHASES = {
+    PRE_GAME: 1,
+    READY: 2,
+    DRAW: 3,
+    END: 4,
+  };
+
+  const initialGameDisplayState = {
+    titleText: Math.ceil((gameInfo.roundStartTime - Date.now()) / 1000),
+    gamePhase: GAME_PHASES.PRE_GAME,
+    numRoundsToWin: 3,
+    player1_hand:
+      gameInfo.player1.emoji != "" ? gameInfo.player1.emoji : THINKING_EMOJI,
+    player1_score: 0,
+    player1_CBM: 0,
+    player2_hand:
+      gameInfo.player2.emoji != "" ? gameInfo.player2.emoji : THINKING_EMOJI,
+    player2_score: 0,
+    player2_CBM: 0,
+  };
 
   const [playGoodBadUglyAudio, goodBadUglyAudio] = useSound(GoodBadAndUglyURL, {
     volume: 0.1,
@@ -92,14 +102,14 @@ function QuickdrawArena({
     socket.then(
       (socket) => {
         if (!socket) return;
-        console.log(socket);
+        //console.log(socket);
 
         //Begin Phase Events
         socket.on("BeginReadyPhase", (payload) => {
           console.log(`ReadyPhase Begun, ${payload} seconds till Draw`);
           setGameDisplayState((prev) => ({
             ...prev,
-            gamePhase: "Ready",
+            gamePhase: GAME_PHASES.READY,
             titleText: READY_PHASE_EMOJI,
           }));
           setIsAcceptingHandsInput(true);
@@ -109,7 +119,7 @@ function QuickdrawArena({
           console.log(`DrawPhase Begun`);
           setGameDisplayState((prev) => ({
             ...prev,
-            gamePhase: "Draw",
+            gamePhase: GAME_PHASES.DRAW,
             titleText: DRAW_PHASE_EMOJI,
           }));
           //change gamestate and handle the Draw State
@@ -118,11 +128,43 @@ function QuickdrawArena({
           console.log(`EndPhase Begun`);
           setGameDisplayState((prev) => ({
             ...prev,
-            gamePhase: "End",
+            gamePhase: GAME_PHASES.END,
             titleText: END_PHASE_EMOJI,
           }));
           setIsAcceptingHandsInput(false);
           //change gamestate and handle the End State
+        });
+
+        socket.on("ReceiveHand", (isPlayer1, hand) => {
+          setGameDisplayState(
+            isPlayer1
+              ? {
+                  ...gameDisplayState,
+                  player1_hand:
+                    hand == "rock"
+                      ? ROCK_EMOJI
+                      : hand == "paper"
+                      ? PAPER_EMOJI
+                      : hand == "scissors"
+                      ? SCISSORS_EMOJI
+                      : hand == "tooEarly"
+                      ? TOO_EARLY_EMOJI
+                      : ERROR_EMOJI,
+                }
+              : {
+                  ...gameDisplayState,
+                  player2_hand:
+                    hand == "rock"
+                      ? ROCK_EMOJI
+                      : hand == "paper"
+                      ? PAPER_EMOJI
+                      : hand == "scissors"
+                      ? SCISSORS_EMOJI
+                      : hand == "tooEarly"
+                      ? TOO_EARLY_EMOJI
+                      : ERROR_EMOJI,
+                }
+          );
         });
 
         if (!isRegistered) {
@@ -134,6 +176,7 @@ function QuickdrawArena({
           socket.off("BeginReadyPhase");
           socket.off("BeginDrawPhase");
           socket.off("BeginEndPhase");
+          socket.off("ReceiveHand");
         };
       },
       [socket, isRegistered]
@@ -144,14 +187,59 @@ function QuickdrawArena({
     console.log("Socket connected To Server");
     socket.emit("register", gameInfo);
   }
+  //for debugging
+  useEffect(() => {
+    console.log("gameDisplayState.player1_hand");
+    console.log(gameDisplayState.player1_hand);
+    console.log("gameDisplayState.player2_hand");
+    console.log(gameDisplayState.player2_hand);
+  }, [gameDisplayState.player1_hand, gameDisplayState.player2_hand]);
 
   const playHand = useCallback(
     (hand) => {
       console.log("playing hand: " + hand);
-      console.log("userInfo: " + userInfo);
+      console.log("gameDisplayState.gamePhase: " + gameDisplayState.gamePhase);
       socket.then((socket) => {
         socket.emit("playHand", userInfo.userId, gameInfo.sessionId, hand);
       });
+      //set display client side, other clients will experience a delay before this is reflected
+      if (gameDisplayState.gamePhase == GAME_PHASES.DRAW) {
+        setGameDisplayState(
+          gameInfo.player1.userId == userInfo.userId
+            ? {
+                ...gameDisplayState,
+                player1_hand:
+                  hand == "rock"
+                    ? ROCK_EMOJI
+                    : hand == "paper"
+                    ? PAPER_EMOJI
+                    : SCISSORS_EMOJI,
+              }
+            : {
+                ...gameDisplayState,
+                player2_hand:
+                  hand == "rock"
+                    ? ROCK_EMOJI
+                    : hand == "paper"
+                    ? PAPER_EMOJI
+                    : SCISSORS_EMOJI,
+              }
+        );
+      } else {
+        //this is client side, we know that the hand is invalid, we can hard set it to be wrong
+        setGameDisplayState(
+          gameInfo.player1.userId == userInfo.userId
+            ? {
+                ...gameDisplayState,
+                player1_hand: TOO_EARLY_EMOJI,
+              }
+            : {
+                ...gameDisplayState,
+                player2_hand: TOO_EARLY_EMOJI,
+              }
+        );
+        setIsAcceptingHandsInput(false);
+      }
     },
     [userInfo, socket]
   );
@@ -160,6 +248,7 @@ function QuickdrawArena({
   useEffect(() => {
     //1st the countdown
     let countdown;
+
     if (gameInfo.roundStartTime - Date.now() > 1000) {
       countdown = setTimeout(() => {
         setGameDisplayState((prev) => {
@@ -171,7 +260,7 @@ function QuickdrawArena({
     return () => {
       clearInterval(countdown);
     };
-  }, [gameInfo.titleText]); //on arena mount, this function will trigger and then retrigger itself until the roundStartTime is in the past.
+  }, [gameDisplayState.titleText]); //on arena mount, this function will trigger and then retrigger itself until the roundStartTime is in the past.
 
   //STARTGAME, SET ISCONNECTED TO TRUE OF FALSE
   useEffect(() => {
@@ -214,11 +303,11 @@ function QuickdrawArena({
 
   //update assets based on gameDisplayState
   useEffect(() => {
-    if (gameDisplayState.gamePhase == "Ready") {
+    if (gameDisplayState.gamePhase == GAME_PHASES.READY) {
       playGoodBadUglyAudio();
       console.log("gamePhase: Ready");
     }
-    if (gameDisplayState.gamePhase == "Draw") {
+    if (gameDisplayState.gamePhase == GAME_PHASES.DRAW) {
       goodBadUglyAudio.stop();
       console.log("gamePhase: Draw");
     }
@@ -357,7 +446,7 @@ function QuickdrawArena({
               }}
             >
               <div className="arenaEmoji">{gameInfo.player1.emoji}</div>
-              <div className="arenaEmoji">🗿</div>
+              <div className="arenaEmoji">{gameDisplayState.player1_hand}</div>
             </div>
           </div>
           <div
@@ -381,7 +470,7 @@ function QuickdrawArena({
                 justifyContent: "space-between",
               }}
             >
-              <div className="arenaEmoji">🗿</div>
+              <div className="arenaEmoji">{gameDisplayState.player2_hand}</div>
               <div className="arenaEmoji">{gameInfo.player2.emoji}</div>
             </div>
           </div>

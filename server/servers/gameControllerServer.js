@@ -35,6 +35,7 @@ app.use(cors());
  */
 
 io.use((socket, next) => {
+  console.log("");
   console.log("Socket Middleware running");
   if (socket.handshake.auth.token) {
     jwt.verify(
@@ -46,6 +47,7 @@ io.use((socket, next) => {
         console.log("socket auth user");
         console.log(user);
         console.log("End of Middleware");
+        console.log("");
         socket.client_id = user.id; //this is an arbitrarilly added field to attach client details to the socket instance
         socket.authUser = user;
         next();
@@ -81,11 +83,11 @@ io.on("new_namespace", (namespace) => {
 });
 
 io.of("/").adapter.on("create-room", (room) => {
-  console.log(`room ${room} was created`);
+  //console.log(`room ${room} was created`);
 });
 
 io.of("/").adapter.on("join-room", (room, id) => {
-  console.log(`socket ${id} has joined room ${room}`);
+  //console.log(`socket ${id} has joined room ${room}`);
 });
 
 db.sequelize.sync().then(() => {

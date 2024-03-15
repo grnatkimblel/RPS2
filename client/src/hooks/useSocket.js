@@ -20,7 +20,7 @@ export default async function useSocket(refreshToken, isConnected) {
           transports: ["websocket"],
           auth: { token: newAccessToken },
         });
-        console.log("newSocket: ", newSocket);
+        //console.log("newSocket: ", newSocket);
 
         //On Socket Connect Events
         newSocket.on("connect", () => {
@@ -37,10 +37,10 @@ export default async function useSocket(refreshToken, isConnected) {
     if (isConnected) {
       console.log("is connecting is true, socket being set in useSocket");
       initializeSocket().then((socket) => {
-        console.log("newSocket: ", socket);
+        //console.log("newSocket: ", socket);
         setSocket(socket);
         socket.connect();
-        console.log("socket.connected: " + socket.connected);
+        //console.log("socket.connected: " + socket.connected);
       });
     }
 
