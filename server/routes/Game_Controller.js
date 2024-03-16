@@ -139,6 +139,7 @@ const GAME_PHASES = {
 activeRooms
 key: session Id
 value: {
+  isFinished: false
   players: {
     player_1: client_id,
     player_2: client_id
@@ -192,7 +193,8 @@ function registerGameControllerHandlers(io, socket) {
 
     if (numSocketsInRoom == 2) {
       io.to(session_id).emit("test", "   Room Full");
-      beginReadyPhase(io, gameInfo);
+      console.log("doGame Called");
+      doGame(io, gameInfo);
     }
   };
 
@@ -282,11 +284,12 @@ function registerGameControllerHandlers(io, socket) {
     };
 
     if (debug) {
+      room = activeRooms.get(sessionId);
       console.log("after hands");
-      console.log(hands);
+      console.log(room.hands);
 
       console.log("after room");
-      console.log(activeRooms.get(sessionId));
+      console.log(room);
     }
   };
 
@@ -294,38 +297,132 @@ function registerGameControllerHandlers(io, socket) {
   socket.on("playHand", playHand);
 }
 
-function beginReadyPhase(io, gameInfo) {
-  const session_id = gameInfo.sessionId;
-  let drawTime = Math.random() * 8 + 3;
-  let endTime = Math.random() * 3 + 3 + drawTime;
-  // console.log("readyDelaySeconds: " + readyDelaySeconds);
-  // console.log("drawDelaySeconds: " + drawDelaySeconds);
-  io.to(session_id).emit("BeginReadyPhase", drawTime);
-  now = Date.now();
+async function doGame(io, gameInfo) {
+  while (!activeRooms.get(gameInfo.sessionId).isFinished) {
+    console.log("doRound Called");
+    await doRound(io, gameInfo);
+  }
+}
 
-  //##TODO create a more complete object to store in active Rooms. may need player 1 and player two, gotta get them somehow
-  game = activeRooms.get(session_id);
-  game.rounds.push({
-    roundNumber: game.rounds.length + 1,
-    readyTime: now,
-    drawTime: now + drawTime * 1000,
-    endTime: now + endTime * 1000,
-    hands: {
-      player_1: { client_id: gameInfo.player1.userId, hand: null, time: null },
-      player_2: { client_id: gameInfo.player2.userId, hand: null, time: null },
-    },
+async function doRound(io, gameInfo) {
+  return new Promise((resolve, reject) => {
+    const session_id = gameInfo.sessionId;
+    let drawTime = Math.random() * 8 + 3;
+    let endTime = Math.random() * 3 + 3 + drawTime;
+    // console.log("readyDelaySeconds: " + readyDelaySeconds);
+    // console.log("drawDelaySeconds: " + drawDelaySeconds);
+    console.log("emitting BeginReadyPhase");
+    io.to(session_id).emit("BeginReadyPhase", drawTime);
+    now = Date.now();
+
+    //##TODO create a more complete object to store in active Rooms. may need player 1 and player two, gotta get them somehow
+    game = activeRooms.get(session_id);
+    game.rounds.push({
+      roundNumber: game.rounds.length + 1,
+      readyTime: now,
+      drawTime: now + drawTime * 1000,
+      endTime: now + endTime * 1000,
+      hands: {
+        player_1: {
+          client_id: gameInfo.player1.userId,
+          hand: null,
+          time: null,
+        },
+        player_2: {
+          client_id: gameInfo.player2.userId,
+          hand: null,
+          time: null,
+        },
+      },
+    });
+
+    setTimeout(() => {
+      io.to(session_id).emit("BeginDrawPhase");
+    }, drawTime * 1000);
+    setTimeout(() => {
+      io.to(session_id).emit("BeginEndPhase");
+      updateGameStateAfterRound(io, gameInfo);
+      io.to(session_id).emit(
+        "ReceiveNewGameState",
+        activeRooms.get(session_id)
+      );
+    }, endTime * 1000);
+    setTimeout(() => {
+      if (activeRooms.get(session_id).isFinished)
+        io.to(session_id).emit("EndGame");
+      resolve();
+    }, (endTime + 3) * 1000);
   });
+}
 
-  setTimeout(() => {
-    io.to(session_id).emit("BeginDrawPhase");
-  }, drawTime * 1000);
-  setTimeout(() => {
-    io.to(session_id).emit("BeginEndPhase");
-  }, endTime * 1000);
+function updateGameStateAfterRound(io, gameInfo) {
+  const session_id = gameInfo.sessionId;
+  game = activeRooms.get(session_id);
+  let p1Score = 0;
+  let p2Score = 0;
+  //get current score
+  // console.log(" ");
+  // console.log("gamr");
+  // console.log(game);
+  // console.log("RoundScoring");
+  game.rounds.forEach((round) => {
+    let hands = round.hands;
+    // console.log("round");
+    // console.log(round);
+    // console.log("hands");
+    // console.log(hands);
+    // console.log("didScoring(hands)");
+    // console.log(didScoring(hands));
+    if (didScoring(hands)) {
+      // console.log("didPlayer1Win(hands.player_1.hand, hands.player_2.hand)");
+      // console.log(didPlayer1Win(hands.player_1.hand, hands.player_2.hand));
+    }
+    if (didScoring(hands))
+      didPlayer1Win(hands.player_1.hand, hands.player_2.hand)
+        ? (p1Score += 1)
+        : (p2Score += 1);
+  });
+  //update score
+  game.header = {
+    ...game.header,
+    player_1_score: p1Score,
+    player_2_score: p2Score,
+  };
+  //check if game is over
+  if (
+    game.header.player_1_score == game.header.numRoundsToWin ||
+    game.header.player_2_score == game.header.numRoundsToWin
+  )
+    game.isFinished = true;
+}
+
+function didScoring(hands) {
+  let p1Hand = hands.player_1.hand;
+  let p2Hand = hands.player_2.hand;
+  return (p1Hand != null || p2Hand != null) && p1Hand != p2Hand;
+}
+
+function didPlayer1Win(p1Hand, p2Hand) {
+  if (p1Hand == null) {
+    return false;
+  }
+  if (p2Hand == null) {
+    return true;
+  }
+  if (p1Hand == "rock") {
+    return p2Hand == "scissors" ? true : false;
+  }
+  if (p1Hand == "paper") {
+    return p2Hand == "rock" ? true : false;
+  }
+  if (p1Hand == "scissors") {
+    return p2Hand == "paper" ? true : false;
+  }
 }
 
 function createPotentialGame(roster) {
   potentialGame = {
+    isFinished: false,
     players: {
       player_1: roster.players.player_1,
       player_2: roster.players.player_2,

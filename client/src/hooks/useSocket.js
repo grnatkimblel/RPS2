@@ -5,54 +5,54 @@ import { getNewAccessToken } from "../helper";
 
 const SOCKET_SERVER_URL = "http://localhost:8200";
 
-export default async function useSocket(refreshToken, isConnected) {
+export default function useSocket(refreshToken, isConnected) {
   const [socket, setSocket] = useState(null);
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
 
   useEffect(() => {
-    const initializeSocket = async () => {
-      try {
-        const newAccessToken = await getNewAccessToken(refreshToken);
-        console.log("newAccessToken: ", newAccessToken);
-
-        //get new socket instance with fresh access
-        const newSocket = await io(SOCKET_SERVER_URL, {
-          autoConnect: false,
-          transports: ["websocket"],
-          auth: { token: newAccessToken },
-        });
-        //console.log("newSocket: ", newSocket);
-
-        //On Socket Connect Events
-        newSocket.on("connect", () => {
-          console.log("Socket connected To Server");
-        });
-        newSocket.on("disconnect", () => {
-          console.log("Socket disconnected To Server");
-        });
-        return newSocket;
-      } catch (error) {
-        console.error("Error initializing socket:", error);
-      }
-    };
     if (isConnected) {
-      console.log("is connecting is true, socket being set in useSocket");
-      initializeSocket().then((socket) => {
-        //console.log("newSocket: ", socket);
-        setSocket(socket);
-        socket.connect();
-        //console.log("socket.connected: " + socket.connected);
-      });
-    }
+      const initializeSocket = async () => {
+        try {
+          const newAccessToken = await getNewAccessToken(refreshToken);
+          console.log("newAccessToken: ", newAccessToken);
 
+          //get new socket instance with fresh access
+          const newSocket = await io(SOCKET_SERVER_URL, {
+            autoConnect: false, // autoConnect disabled
+            transports: ["websocket"],
+            auth: { token: newAccessToken },
+          });
+          console.log("newSocket");
+          console.log(newSocket);
+
+          //On Socket Connect Events
+          newSocket.on("connect", () => {
+            console.log("Socket connected To Server");
+            setIsSocketConnected(true);
+          });
+          newSocket.on("disconnect", () => {
+            console.log("Socket disconnected To Server");
+          });
+
+          newSocket.connect(); //this is not instantaneous
+          setSocket(newSocket);
+        } catch (error) {
+          console.error("Error initializing socket:", error);
+        }
+      };
+      initializeSocket();
+    }
     return () => {
-      if (socket?.connected) {
+      console.log("SocketCleanup");
+      if (socket) {
+        console.log("SocketCleanup actually");
         socket.off("connect");
         socket.off("disconnect");
         socket.disconnect();
+        setIsSocketConnected(false);
       }
-      setSocket(null);
     };
   }, [refreshToken, isConnected]);
 
-  return socket;
+  return isSocketConnected ? socket : null;
 }

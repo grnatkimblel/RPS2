@@ -9,10 +9,11 @@ import GoodBadAndUglyURL from "../audio/The Good, the Bad and the Ugly  Main The
 import useSound from "use-sound";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import useSocket from "../hooks/useSocket";
+import { Socket } from "socket.io-client";
 
-require("react-dom");
-window.React2 = require("react");
-console.log(window.React1 === window.React2);
+// require("react-dom");
+// window.React2 = require("react");
+// console.log(window.React1 === window.React2);
 
 /*
 gameInfo:
@@ -70,6 +71,7 @@ function QuickdrawArena({
     READY: 2,
     DRAW: 3,
     END: 4,
+    OVER: 5,
   };
 
   const initialGameDisplayState = {
@@ -97,117 +99,179 @@ function QuickdrawArena({
   const [isConnected, setIsConnected] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
   const socket = useSocket(refreshToken, isConnected);
+  const [isSocketSetup, setIsSocketSetup] = useState(false);
+
+  function setUpSocket(socket) {
+    // console.log("socket instanceof Socket");
+    // console.log(socket instanceof Socket);
+
+    //Begin Phase Events
+    socket.on("BeginReadyPhase", (payload) => {
+      console.log(`ReadyPhase Begun, ${payload} seconds till Draw`);
+      setGameDisplayState((prev) => ({
+        ...prev,
+        gamePhase: GAME_PHASES.READY,
+        titleText: READY_PHASE_EMOJI,
+      }));
+      playGoodBadUglyAudio();
+      setIsAcceptingHandsInput(true);
+      //change gamestate and handle the Ready State
+    });
+    socket.on("BeginDrawPhase", (payload) => {
+      console.log(`DrawPhase Begun`);
+      setGameDisplayState((prev) => ({
+        ...prev,
+        gamePhase: GAME_PHASES.DRAW,
+        titleText: DRAW_PHASE_EMOJI,
+      }));
+      goodBadUglyAudio.stop();
+      //change gamestate and handle the Draw State
+    });
+    socket.on("BeginEndPhase", (payload) => {
+      console.log(`EndPhase Begun`);
+      setGameDisplayState((prev) => ({
+        ...prev,
+        gamePhase: GAME_PHASES.END,
+        titleText: END_PHASE_EMOJI,
+      }));
+      setIsAcceptingHandsInput(false);
+      //change gamestate and handle the End State
+    });
+    socket.on("EndGame", (payload) => {
+      console.log(`Game Ended`);
+      //change gamestate and handle the End State
+    });
+    socket.on("ReceiveNewGameState", (payload) => {
+      console.log(`newGameState`);
+      setGameDisplayState((prev) => ({
+        ...prev,
+        numRoundsToWin: payload.header.numRoundsToWin,
+        player1_score: payload.header.player_1_score,
+        player2_score: payload.header.player_2_score,
+        player1_CBM: payload.header.player_1_CBM,
+        player2_CBM: payload.header.player_2_CBM,
+        //reset emojis for next round
+        player1_hand:
+          gameInfo.player1.emoji != ""
+            ? gameInfo.player1.emoji
+            : THINKING_EMOJI,
+        player2_hand:
+          gameInfo.player2.emoji != ""
+            ? gameInfo.player2.emoji
+            : THINKING_EMOJI,
+      }));
+      //change gamestate and handle the End State
+    });
+    socket.on("ReceiveHand", (isPlayer1, hand) => {
+      // console.log("displayState before receiving hand");
+      // console.log(gameDisplayState);
+      let emojiFromHand =
+        hand == "rock"
+          ? ROCK_EMOJI
+          : hand == "paper"
+          ? PAPER_EMOJI
+          : hand == "scissors"
+          ? SCISSORS_EMOJI
+          : hand == "tooEarly"
+          ? TOO_EARLY_EMOJI
+          : ERROR_EMOJI;
+
+      setGameDisplayState((prev) => {
+        return isPlayer1
+          ? {
+              ...prev,
+              player1_hand: emojiFromHand,
+            }
+          : {
+              ...prev,
+              player2_hand: emojiFromHand,
+            };
+      });
+    });
+
+    // if (!isSocketSetup) setIsSocketSetup(true);
+
+    return () => {
+      // console.log("socket cleanup");
+      setIsSocketSetup(false);
+      socket.off("BeginReadyPhase");
+      socket.off("BeginDrawPhase");
+      socket.off("BeginEndPhase");
+      socket.off("EndEndPhase");
+      socket.off("ReceiveHand");
+      socket.off("ReceiveNewGameState");
+      goodBadUglyAudio.stop();
+    };
+  }
+
+  //onGetSocket, subscribe to all events needed to play the game
+  useEffect(() => {
+    // isSocketSetup
+    //   ? console.log("socket isSocketSetup")
+    //   : console.log("socket not isSocketSetup");
+    // console.log("socket handler UseEffect Running");
+
+    if (socket && socket.connected) {
+      // console.log("setupSocket");
+      let cleanupFunction = setUpSocket(socket);
+      setIsSocketSetup(true);
+
+      return cleanupFunction;
+    } else {
+      // console.log("Socket UseEffect: Socket unable to be setup");
+    }
+  }, [socket, socket?.connected]);
 
   useEffect(() => {
-    socket.then(
-      (socket) => {
-        if (!socket) return;
-        //console.log(socket);
-
-        //Begin Phase Events
-        socket.on("BeginReadyPhase", (payload) => {
-          console.log(`ReadyPhase Begun, ${payload} seconds till Draw`);
-          setGameDisplayState((prev) => ({
-            ...prev,
-            gamePhase: GAME_PHASES.READY,
-            titleText: READY_PHASE_EMOJI,
-          }));
-          setIsAcceptingHandsInput(true);
-          //change gamestate and handle the Ready State
-        });
-        socket.on("BeginDrawPhase", (payload) => {
-          console.log(`DrawPhase Begun`);
-          setGameDisplayState((prev) => ({
-            ...prev,
-            gamePhase: GAME_PHASES.DRAW,
-            titleText: DRAW_PHASE_EMOJI,
-          }));
-          //change gamestate and handle the Draw State
-        });
-        socket.on("BeginEndPhase", (payload) => {
-          console.log(`EndPhase Begun`);
-          setGameDisplayState((prev) => ({
-            ...prev,
-            gamePhase: GAME_PHASES.END,
-            titleText: END_PHASE_EMOJI,
-          }));
-          setIsAcceptingHandsInput(false);
-          //change gamestate and handle the End State
-        });
-
-        socket.on("ReceiveHand", (isPlayer1, hand) => {
-          setGameDisplayState(
-            isPlayer1
-              ? {
-                  ...gameDisplayState,
-                  player1_hand:
-                    hand == "rock"
-                      ? ROCK_EMOJI
-                      : hand == "paper"
-                      ? PAPER_EMOJI
-                      : hand == "scissors"
-                      ? SCISSORS_EMOJI
-                      : hand == "tooEarly"
-                      ? TOO_EARLY_EMOJI
-                      : ERROR_EMOJI,
-                }
-              : {
-                  ...gameDisplayState,
-                  player2_hand:
-                    hand == "rock"
-                      ? ROCK_EMOJI
-                      : hand == "paper"
-                      ? PAPER_EMOJI
-                      : hand == "scissors"
-                      ? SCISSORS_EMOJI
-                      : hand == "tooEarly"
-                      ? TOO_EARLY_EMOJI
-                      : ERROR_EMOJI,
-                }
-          );
-        });
-
-        if (!isRegistered) {
-          registerSocket(socket, gameInfo);
-          setIsRegistered(true);
-        }
-
-        return () => {
-          socket.off("BeginReadyPhase");
-          socket.off("BeginDrawPhase");
-          socket.off("BeginEndPhase");
-          socket.off("ReceiveHand");
-        };
-      },
-      [socket, isRegistered]
-    );
-  });
+    // isRegistered
+    //   ? console.log("socket isRegistered")
+    //   : console.log("socket not isRegistered");
+    if (isSocketSetup && !isRegistered) {
+      if (socket?.connected) {
+        console.log("socket registered");
+        registerSocket(socket, gameInfo);
+        setIsRegistered(true);
+      }
+    }
+  }, [socket, isRegistered, isSocketSetup]);
 
   function registerSocket(socket, gameInfo) {
-    console.log("Socket connected To Server");
     socket.emit("register", gameInfo);
   }
+
   //for debugging
-  useEffect(() => {
-    console.log("gameDisplayState.player1_hand");
-    console.log(gameDisplayState.player1_hand);
-    console.log("gameDisplayState.player2_hand");
-    console.log(gameDisplayState.player2_hand);
-  }, [gameDisplayState.player1_hand, gameDisplayState.player2_hand]);
+  // useEffect(() => {
+  //   console.log("socket changed");
+  //   console.log(socket);
+  //   if (socket instanceof Socket) {
+  //     console.log("socket.connected");
+  //     console.log(socket.connected);
+  //   }
+
+  //   console.log(" ");
+  // }, [socket]);
+  // useEffect(() => {
+  //   console.log("isConnected changed");
+  //   console.log(isConnected);
+  // }, [isConnected]);
+  // useEffect(() => {
+  //   console.log("displayState changed");
+  //   console.log(gameDisplayState);
+  // }, [gameDisplayState]);
 
   const playHand = useCallback(
     (hand) => {
       console.log("playing hand: " + hand);
       console.log("gameDisplayState.gamePhase: " + gameDisplayState.gamePhase);
-      socket.then((socket) => {
-        socket.emit("playHand", userInfo.userId, gameInfo.sessionId, hand);
-      });
+
+      socket.emit("playHand", userInfo.userId, gameInfo.sessionId, hand);
+
       //set display client side, other clients will experience a delay before this is reflected
       if (gameDisplayState.gamePhase == GAME_PHASES.DRAW) {
-        setGameDisplayState(
-          gameInfo.player1.userId == userInfo.userId
+        setGameDisplayState((prev) => {
+          return gameInfo.player1.userId == userInfo.userId
             ? {
-                ...gameDisplayState,
+                ...prev,
                 player1_hand:
                   hand == "rock"
                     ? ROCK_EMOJI
@@ -216,32 +280,32 @@ function QuickdrawArena({
                     : SCISSORS_EMOJI,
               }
             : {
-                ...gameDisplayState,
+                ...prev,
                 player2_hand:
                   hand == "rock"
                     ? ROCK_EMOJI
                     : hand == "paper"
                     ? PAPER_EMOJI
                     : SCISSORS_EMOJI,
-              }
-        );
+              };
+        });
       } else {
         //this is client side, we know that the hand is invalid, we can hard set it to be wrong
-        setGameDisplayState(
-          gameInfo.player1.userId == userInfo.userId
+        setGameDisplayState((prev) => {
+          return gameInfo.player1.userId == userInfo.userId
             ? {
-                ...gameDisplayState,
+                ...prev,
                 player1_hand: TOO_EARLY_EMOJI,
               }
             : {
-                ...gameDisplayState,
+                ...prev,
                 player2_hand: TOO_EARLY_EMOJI,
-              }
-        );
+              };
+        });
         setIsAcceptingHandsInput(false);
       }
     },
-    [userInfo, socket]
+    [userInfo, socket, gameDisplayState]
   );
 
   //STARTS COUNTDOWN
@@ -291,7 +355,7 @@ function QuickdrawArena({
     // let ignore = false;
     const timer = setTimeout(() => {
       // if (!ignore) {
-      console.log("useTimeout executing");
+      console.log("starting Game");
       startGame(); //this should only run once
       //}
     }, gameInfo.roundStartTime - Date.now());
@@ -300,18 +364,6 @@ function QuickdrawArena({
       clearTimeout(timer);
     };
   }, [gameInfo, authHelper]);
-
-  //update assets based on gameDisplayState
-  useEffect(() => {
-    if (gameDisplayState.gamePhase == GAME_PHASES.READY) {
-      playGoodBadUglyAudio();
-      console.log("gamePhase: Ready");
-    }
-    if (gameDisplayState.gamePhase == GAME_PHASES.DRAW) {
-      goodBadUglyAudio.stop();
-      console.log("gamePhase: Draw");
-    }
-  }, [gameDisplayState.gamePhase, playGoodBadUglyAudio, goodBadUglyAudio]);
 
   const run = async () => {
     setIsConnected(false);
