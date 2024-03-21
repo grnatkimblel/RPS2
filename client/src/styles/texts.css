@@ -3,6 +3,12 @@
   src: url(fonts/ComicSansMS3.ttf);
 }
 
+.primary {
+  letter-spacing: 10px;
+  font-family: "ComicSans";
+  font-size: 60px;
+}
+
 .title {
   z-index: 1;
   position: absolute;
@@ -29,7 +35,7 @@ p.loginInputFieldName {
   position: relative;
   letter-spacing: 10px;
   font-family: "ComicSans";
-  font-size: 60px;
+  font-size: 5vw;
   white-space: pre-wrap;
   bottom: 10%;
 }

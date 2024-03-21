@@ -72,16 +72,16 @@ router.post("/quickplay/run", async (req, res) => {
   const client_id = req.authUser.id;
   const session_id = req.body.session_id;
 
-  if (activeRooms.has(session_id)) {
-    activeRooms.delete(session_id);
+  // if (activeRooms.has(session_id)) {
+  //   activeRooms.delete(session_id);
 
-    console.log("game removed");
-    console.log("activeRooms after removal:");
-    console.log(activeRooms);
-  } else {
-    //game doesn't exist or other player already ran
-    //do nothing
-  }
+  //   console.log("game removed");
+  //   console.log("activeRooms after removal:");
+  //   console.log(activeRooms);
+  // } else {
+  //   //game doesn't exist or other player already ran
+  //   //do nothing
+  // }
   res.sendStatus(200);
 });
 
@@ -293,14 +293,20 @@ function registerGameControllerHandlers(io, socket) {
     }
   };
 
+  const run = (session_id) => {
+    activeRooms.get(session_id).isFinished = true;
+    io.to(session_id).emit("PlayerRan");
+  };
+
+  socket.on("run", run);
   socket.on("register", register);
   socket.on("playHand", playHand);
 }
 
 async function doGame(io, gameInfo) {
   while (!activeRooms.get(gameInfo.sessionId).isFinished) {
-    console.log("doRound Called");
     await doRound(io, gameInfo);
+    console.log("doRound Called");
   }
 }
 
@@ -341,7 +347,7 @@ async function doRound(io, gameInfo) {
     }, drawTime * 1000);
     setTimeout(() => {
       io.to(session_id).emit("BeginEndPhase");
-      updateGameStateAfterRound(io, gameInfo);
+      if (!game.isFinished) updateGameStateAfterRound(io, gameInfo);
       io.to(session_id).emit(
         "ReceiveNewGameState",
         activeRooms.get(session_id)
@@ -360,33 +366,47 @@ function updateGameStateAfterRound(io, gameInfo) {
   game = activeRooms.get(session_id);
   let p1Score = 0;
   let p2Score = 0;
-  //get current score
-  // console.log(" ");
-  // console.log("gamr");
-  // console.log(game);
-  // console.log("RoundScoring");
+  let p1CBM = 0;
+  let p2CBM = 0;
+  // get current score
+  console.log(" ");
+  console.log("gamr");
+  console.log(game);
+  console.log("RoundScoring");
   game.rounds.forEach((round) => {
     let hands = round.hands;
-    // console.log("round");
-    // console.log(round);
-    // console.log("hands");
-    // console.log(hands);
-    // console.log("didScoring(hands)");
-    // console.log(didScoring(hands));
+    console.log("round");
+    console.log(round);
+    console.log("hands");
+    console.log(hands);
+    console.log("didScoring(hands)");
+    console.log(didScoring(hands));
     if (didScoring(hands)) {
-      // console.log("didPlayer1Win(hands.player_1.hand, hands.player_2.hand)");
-      // console.log(didPlayer1Win(hands.player_1.hand, hands.player_2.hand));
+      console.log("didPlayer1Win(hands.player_1.hand, hands.player_2.hand)");
+      console.log(didPlayer1Win(hands.player_1.hand, hands.player_2.hand));
     }
-    if (didScoring(hands))
-      didPlayer1Win(hands.player_1.hand, hands.player_2.hand)
-        ? (p1Score += 1)
-        : (p2Score += 1);
+    if (didHands(hands)) {
+      didPlayer1GetCBM(hands.player_1.time, hands.player_2.time)
+        ? p1CBM < 3
+          ? (p1CBM += 1)
+          : void 0
+        : p2CBM < 3
+        ? (p2CBM += 1)
+        : void 0;
+      if (didScoring(hands)) {
+        didPlayer1Win(hands.player_1.hand, hands.player_2.hand)
+          ? (p1Score += 1)
+          : (p2Score += 1);
+      }
+    }
   });
   //update score
   game.header = {
     ...game.header,
     player_1_score: p1Score,
     player_2_score: p2Score,
+    player_1_CBM: p1CBM,
+    player_2_CBM: p2CBM,
   };
   //check if game is over
   if (
@@ -397,9 +417,17 @@ function updateGameStateAfterRound(io, gameInfo) {
 }
 
 function didScoring(hands) {
+  //was it not a tie
   let p1Hand = hands.player_1.hand;
   let p2Hand = hands.player_2.hand;
-  return (p1Hand != null || p2Hand != null) && p1Hand != p2Hand;
+  return p1Hand != p2Hand;
+}
+
+function didHands(hands) {
+  //did anyone actually play
+  let p1Hand = hands.player_1.hand;
+  let p2Hand = hands.player_2.hand;
+  return p1Hand != null || p2Hand != null;
 }
 
 function didPlayer1Win(p1Hand, p2Hand) {
@@ -418,6 +446,13 @@ function didPlayer1Win(p1Hand, p2Hand) {
   if (p1Hand == "scissors") {
     return p2Hand == "paper" ? true : false;
   }
+}
+
+function didPlayer1GetCBM(p1HandTime, p2HandTime) {
+  if (p1HandTime != null && p2HandTime != null) {
+    return p1HandTime > p2HandTime;
+  }
+  return p2HandTime == null ? true : false;
 }
 
 function createPotentialGame(roster) {

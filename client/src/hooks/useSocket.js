@@ -41,6 +41,13 @@ export default function useSocket(refreshToken, isConnected) {
         }
       };
       initializeSocket();
+    } else {
+      if (socket?.connected) {
+        socket.off("connect");
+        socket.off("disconnect");
+        socket.disconnect();
+        setSocket(null);
+      }
     }
     return () => {
       console.log("SocketCleanup");

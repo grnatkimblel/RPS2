@@ -15,7 +15,7 @@ function MainMenu({ navigate, userInfo, onLogout }) {
       >
         <button
           style={{ flex: 1 }}
-          className={"defaultColor bottomBorder"}
+          className={"notInteractableColor bottomBorder"}
           onClick={() => navigate(`/${PAGES.ACCOUNT}`)}
         >
           {userInfo.username}
@@ -36,7 +36,7 @@ function MainMenu({ navigate, userInfo, onLogout }) {
       >
         <button
           style={{ flex: 1 }}
-          className="defaultColor"
+          className="notInteractableColor"
           onClick={() => navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`)}
         >
           Local

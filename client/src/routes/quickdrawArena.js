@@ -6,6 +6,8 @@ import PAGES from "../enums/pages";
 import API_ROUTES from "../enums/apiRoutes";
 
 import GoodBadAndUglyURL from "../audio/The Good, the Bad and the Ugly  Main Theme  Ennio Morricone.ogg";
+import GunshotURL from "../audio/Gunshot.ogg";
+import DrumrollURL from "../audio/Drumroll.ogg";
 import useSound from "use-sound";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import useSocket from "../hooks/useSocket";
@@ -56,6 +58,7 @@ function QuickdrawArena({
   refreshToken,
 }) {
   const PREGAME_PHASE_TEXT = "OR-RPS";
+  const GAME_OVER_TEXT = "GAME OVER";
   const READY_PHASE_EMOJI = "🪈";
   const DRAW_PHASE_EMOJI = "💣";
   const END_PHASE_EMOJI = "💥";
@@ -91,11 +94,15 @@ function QuickdrawArena({
   const [playGoodBadUglyAudio, goodBadUglyAudio] = useSound(GoodBadAndUglyURL, {
     volume: 0.1,
   });
+  const [playGunshot, gunshotAudio] = useSound(GunshotURL, { volume: 0.1 });
+  const [playDrumroll, drumrollAudio] = useSound(DrumrollURL, { volume: 0.1 });
 
   const [gameDisplayState, setGameDisplayState] = useState(
     initialGameDisplayState
   );
+  const [isRunning, setIsRunning] = useState(false);
   const [isAcceptingHandsInput, setIsAcceptingHandsInput] = useState(false);
+  const [isAcceptingRunningInput, setIsAcceptingRunningInput] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
   const socket = useSocket(refreshToken, isConnected);
@@ -119,12 +126,15 @@ function QuickdrawArena({
     });
     socket.on("BeginDrawPhase", (payload) => {
       console.log(`DrawPhase Begun`);
+      setIsAcceptingRunningInput(false);
       setGameDisplayState((prev) => ({
         ...prev,
         gamePhase: GAME_PHASES.DRAW,
         titleText: DRAW_PHASE_EMOJI,
       }));
       goodBadUglyAudio.stop();
+      playGunshot();
+      playDrumroll();
       //change gamestate and handle the Draw State
     });
     socket.on("BeginEndPhase", (payload) => {
@@ -134,15 +144,24 @@ function QuickdrawArena({
         gamePhase: GAME_PHASES.END,
         titleText: END_PHASE_EMOJI,
       }));
+      playGunshot();
+      drumrollAudio.stop();
+      setIsAcceptingRunningInput(true);
       setIsAcceptingHandsInput(false);
       //change gamestate and handle the End State
     });
     socket.on("EndGame", (payload) => {
       console.log(`Game Ended`);
+      setGameDisplayState((prev) => ({
+        ...prev,
+        titleText: GAME_OVER_TEXT,
+      }));
+      // setIsAcceptingHandsInput(false);
       //change gamestate and handle the End State
     });
     socket.on("ReceiveNewGameState", (payload) => {
       console.log(`newGameState`);
+      console.log(payload);
       setGameDisplayState((prev) => ({
         ...prev,
         numRoundsToWin: payload.header.numRoundsToWin,
@@ -188,6 +207,14 @@ function QuickdrawArena({
             };
       });
     });
+    socket.on("PlayerRan", () => {
+      console.log("other player Left");
+      setGameDisplayState((prev) => ({
+        ...prev,
+        titleText: "Other Player Left",
+      }));
+      setIsConnected(false);
+    });
 
     // if (!isSocketSetup) setIsSocketSetup(true);
 
@@ -200,6 +227,7 @@ function QuickdrawArena({
       socket.off("EndEndPhase");
       socket.off("ReceiveHand");
       socket.off("ReceiveNewGameState");
+      socket.off("PlayerRan");
       goodBadUglyAudio.stop();
     };
   }
@@ -365,13 +393,14 @@ function QuickdrawArena({
     };
   }, [gameInfo, authHelper]);
 
-  const run = async () => {
+  const run = useCallback(async () => {
+    socket.emit("run", gameInfo.sessionId);
     setIsConnected(false);
-    await authHelper(API_ROUTES.GAME.QUICKDRAW.RUN, "POST", {
-      session_id: gameInfo.sessionId,
-    });
+    // await authHelper(API_ROUTES.GAME.QUICKDRAW.RUN, "POST", {
+    //   session_id: gameInfo.sessionId,
+    // });
     gameInfoSetter({});
-  };
+  }, [socket, authHelper]);
 
   const getScoreCards = (playerScore, isLeft) => {
     const border = isLeft ? "leftBorder" : "rightBorder";
@@ -413,6 +442,15 @@ function QuickdrawArena({
 
   return (
     <>
+      <RunPopup
+        setIsAcceptingHandsInput={setIsAcceptingHandsInput}
+        setIsRunning={setIsRunning}
+        isRunning={isRunning}
+        run={() => {
+          run();
+        }}
+        navigate={navigate}
+      />
       <div className="title">{gameDisplayState.titleText}</div>
       <div
         style={{
@@ -582,16 +620,28 @@ function QuickdrawArena({
               >
                 Scissors
               </button>
-              <button
-                style={{ flex: 1 }}
-                className="defaultColor"
-                onClick={async () => {
-                  await run();
-                  navigate(`/${PAGES.MAIN_MENU}`);
-                }}
-              >
-                Run
-              </button>
+              {isConnected ? (
+                <button
+                  style={{ flex: 1 }}
+                  className="defaultColor"
+                  onClick={async () => {
+                    setIsAcceptingHandsInput(false);
+                    setIsRunning(true);
+                  }}
+                >
+                  Run
+                </button>
+              ) : (
+                <button
+                  style={{ flex: 1 }}
+                  className="defaultColor"
+                  onClick={async () => {
+                    navigate(PAGES.MAIN_MENU);
+                  }}
+                >
+                  Leave
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -638,4 +688,57 @@ function StatsButton({ playerStats }) {
   );
 }
 
+function RunPopup({
+  setIsAcceptingHandsInput,
+  setIsRunning,
+  isRunning,
+  run,
+  navigate,
+}) {
+  if (isRunning)
+    return (
+      <div
+        style={{
+          width: "40%",
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          zIndex: 2,
+          display: "flex",
+          flexDirection: "column",
+        }}
+        className="leftBorder rightBorder topBorder bottomBorder"
+      >
+        <button
+          style={{ flex: 1, fontSize: "40px" }}
+          className="notInteractableColor"
+        >
+          Are you sure you want to run?
+        </button>
+        <div style={{ flex: 4, display: "flex" }}>
+          <button
+            style={{ flex: 1, paddingBottom: "20px" }}
+            className="defaultColor"
+            onClick={async () => {
+              await run();
+              navigate(PAGES.MAIN_MENU);
+            }}
+          >
+            yes
+          </button>
+          <button
+            style={{ flex: 1, paddingBottom: "20px" }}
+            className="defaultColor leftBorder"
+            onClick={() => {
+              setIsAcceptingHandsInput(true);
+              setIsRunning(false);
+            }}
+          >
+            no
+          </button>
+        </div>
+      </div>
+    );
+}
 export default QuickdrawArena;

@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/static/css/main.d985b0a6.css",
+    "main.js": "/static/js/main.b97802cd.js",
+    "static/js/845.83468667.chunk.js": "/static/js/845.83468667.chunk.js",
+    "static/media/The Good, the Bad and the Ugly  Main Theme  Ennio Morricone.ogg": "/static/media/The Good, the Bad and the Ugly  Main Theme  Ennio Morricone.37f6f07d586c71f40356.ogg",
+    "static/media/ComicSansMS3.ttf": "/static/media/ComicSansMS3.3198d266c6629f0b7ce0.ttf",
+    "static/media/Drumroll.ogg": "/static/media/Drumroll.7035dcc63a6aba2a7ccf.ogg",
+    "static/media/Gunshot.ogg": "/static/media/Gunshot.fb9886b4f48a7e56e461.ogg",
+    "index.html": "/index.html",
+    "main.d985b0a6.css.map": "/static/css/main.d985b0a6.css.map",
+    "main.b97802cd.js.map": "/static/js/main.b97802cd.js.map",
+    "845.83468667.chunk.js.map": "/static/js/845.83468667.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d985b0a6.css",
+    "static/js/main.b97802cd.js"
+  ]
+}

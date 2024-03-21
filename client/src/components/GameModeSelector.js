@@ -60,7 +60,11 @@ function GameModeSelector({
 
         <button
           style={{ flex: 1 }}
-          className="defaultColor bottomBorder"
+          className={
+            gameModeType == GAMEMODE_TYPES.RANKED
+              ? "bottomBorder notInteractableColor"
+              : "bottomBorder defaultColor"
+          }
           onClick={() => setGameMode(GAMEMODES.QUICKDRAW)}
         >
           Quickdraw
@@ -77,7 +81,7 @@ function GameModeSelector({
             <div className="gamemode-smalltext">{gameModeType}</div>
             <button
               style={{ width: "100%", height: "100%" }}
-              className={"defaultColor " + bonusStyles}
+              className={"notInteractableColor " + bonusStyles}
               onClick={() => setGameMode(GAMEMODES.TDM)}
             >
               TDM
@@ -88,7 +92,8 @@ function GameModeSelector({
             <button
               style={{ width: "100%", height: "100%" }}
               className={
-                "defaultColor redTextBorder smooth-16 leftBorder " + bonusStyles
+                "notInteractableColor redTextBorder smooth-16 leftBorder " +
+                bonusStyles
               }
               onClick={() => setGameMode(GAMEMODES.SEARCH)}
             >
