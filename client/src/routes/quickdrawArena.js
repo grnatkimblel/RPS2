@@ -59,15 +59,15 @@ function QuickdrawArena({
 }) {
   const PREGAME_PHASE_TEXT = "OR-RPS";
   const GAME_OVER_TEXT = "GAME OVER";
-  const READY_PHASE_EMOJI = "🪈";
-  const DRAW_PHASE_EMOJI = "💣";
-  const END_PHASE_EMOJI = "💥";
-  const THINKING_EMOJI = "🤔";
-  const ROCK_EMOJI = "🗿";
-  const PAPER_EMOJI = "📄";
-  const SCISSORS_EMOJI = "✂️";
-  const TOO_EARLY_EMOJI = "❌";
-  const ERROR_EMOJI = "☣️";
+  const EMOJI_READY_PHASE = "🪈";
+  const EMOJI_DRAW_PHASE = "💣";
+  const EMOJI_END_PHASE = "💥";
+  const EMOJI_THINKING = "🤔";
+  const EMOJI_ROCK = "🗿";
+  const EMOJI_PAPER = "📄";
+  const EMOJI_SCISSORS = "✂️";
+  const EMOJI_TOO_EARLY = "❌";
+  const EMOJI_ERROR = "☣️";
 
   const GAME_PHASES = {
     PRE_GAME: 1,
@@ -82,11 +82,11 @@ function QuickdrawArena({
     gamePhase: GAME_PHASES.PRE_GAME,
     numRoundsToWin: 3,
     player1_hand:
-      gameInfo.player1.emoji != "" ? gameInfo.player1.emoji : THINKING_EMOJI,
+      gameInfo.player1.emoji != "" ? gameInfo.player1.emoji : EMOJI_THINKING,
     player1_score: 0,
     player1_CBM: 0,
     player2_hand:
-      gameInfo.player2.emoji != "" ? gameInfo.player2.emoji : THINKING_EMOJI,
+      gameInfo.player2.emoji != "" ? gameInfo.player2.emoji : EMOJI_THINKING,
     player2_score: 0,
     player2_CBM: 0,
   };
@@ -118,7 +118,16 @@ function QuickdrawArena({
       setGameDisplayState((prev) => ({
         ...prev,
         gamePhase: GAME_PHASES.READY,
-        titleText: READY_PHASE_EMOJI,
+        titleText: EMOJI_READY_PHASE,
+        //reset the player hands
+        player1_hand:
+          gameInfo.player1.emoji != ""
+            ? gameInfo.player1.emoji
+            : EMOJI_THINKING,
+        player2_hand:
+          gameInfo.player2.emoji != ""
+            ? gameInfo.player2.emoji
+            : EMOJI_THINKING,
       }));
       playGoodBadUglyAudio();
       setIsAcceptingHandsInput(true);
@@ -130,7 +139,7 @@ function QuickdrawArena({
       setGameDisplayState((prev) => ({
         ...prev,
         gamePhase: GAME_PHASES.DRAW,
-        titleText: DRAW_PHASE_EMOJI,
+        titleText: EMOJI_DRAW_PHASE,
       }));
       goodBadUglyAudio.stop();
       playGunshot();
@@ -142,7 +151,7 @@ function QuickdrawArena({
       setGameDisplayState((prev) => ({
         ...prev,
         gamePhase: GAME_PHASES.END,
-        titleText: END_PHASE_EMOJI,
+        titleText: EMOJI_END_PHASE,
       }));
       playGunshot();
       drumrollAudio.stop();
@@ -169,15 +178,15 @@ function QuickdrawArena({
         player2_score: payload.header.player_2_score,
         player1_CBM: payload.header.player_1_CBM,
         player2_CBM: payload.header.player_2_CBM,
-        //reset emojis for next round
-        player1_hand:
-          gameInfo.player1.emoji != ""
-            ? gameInfo.player1.emoji
-            : THINKING_EMOJI,
-        player2_hand:
-          gameInfo.player2.emoji != ""
-            ? gameInfo.player2.emoji
-            : THINKING_EMOJI,
+        //dont reset yet, let the players see the outcome of the last round before for a second
+        // player1_hand:
+        //   gameInfo.player1.emoji != ""
+        //     ? gameInfo.player1.emoji
+        //     : EMOJI_THINKING,
+        // player2_hand:
+        //   gameInfo.player2.emoji != ""
+        //     ? gameInfo.player2.emoji
+        //     : EMOJI_THINKING,
       }));
       //change gamestate and handle the End State
     });
@@ -186,14 +195,14 @@ function QuickdrawArena({
       // console.log(gameDisplayState);
       let emojiFromHand =
         hand == "rock"
-          ? ROCK_EMOJI
+          ? EMOJI_ROCK
           : hand == "paper"
-          ? PAPER_EMOJI
+          ? EMOJI_PAPER
           : hand == "scissors"
-          ? SCISSORS_EMOJI
+          ? EMOJI_SCISSORS
           : hand == "tooEarly"
-          ? TOO_EARLY_EMOJI
-          : ERROR_EMOJI;
+          ? EMOJI_TOO_EARLY
+          : EMOJI_ERROR;
 
       setGameDisplayState((prev) => {
         return isPlayer1
@@ -302,19 +311,19 @@ function QuickdrawArena({
                 ...prev,
                 player1_hand:
                   hand == "rock"
-                    ? ROCK_EMOJI
+                    ? EMOJI_ROCK
                     : hand == "paper"
-                    ? PAPER_EMOJI
-                    : SCISSORS_EMOJI,
+                    ? EMOJI_PAPER
+                    : EMOJI_SCISSORS,
               }
             : {
                 ...prev,
                 player2_hand:
                   hand == "rock"
-                    ? ROCK_EMOJI
+                    ? EMOJI_ROCK
                     : hand == "paper"
-                    ? PAPER_EMOJI
-                    : SCISSORS_EMOJI,
+                    ? EMOJI_PAPER
+                    : EMOJI_SCISSORS,
               };
         });
       } else {
@@ -323,11 +332,11 @@ function QuickdrawArena({
           return gameInfo.player1.userId == userInfo.userId
             ? {
                 ...prev,
-                player1_hand: TOO_EARLY_EMOJI,
+                player1_hand: EMOJI_TOO_EARLY,
               }
             : {
                 ...prev,
-                player2_hand: TOO_EARLY_EMOJI,
+                player2_hand: EMOJI_TOO_EARLY,
               };
         });
         setIsAcceptingHandsInput(false);
@@ -360,7 +369,7 @@ function QuickdrawArena({
     const startGame = async () => {
       setGameDisplayState({
         ...gameDisplayState,
-        titleText: READY_PHASE_EMOJI,
+        titleText: EMOJI_READY_PHASE,
       });
       //request on api that starts the game.
       await authHelper(API_ROUTES.GAME.QUICKDRAW.START_GAME, "POST", {

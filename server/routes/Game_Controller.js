@@ -305,8 +305,8 @@ function registerGameControllerHandlers(io, socket) {
 
 async function doGame(io, gameInfo) {
   while (!activeRooms.get(gameInfo.sessionId).isFinished) {
-    await doRound(io, gameInfo);
     console.log("doRound Called");
+    await doRound(io, gameInfo);
   }
 }
 

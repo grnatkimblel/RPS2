@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "start npm run start && start npm run startAuthServer && start npm run startGameServer",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon ./servers/index.js",
     "startAuthServer": "nodemon ./servers/authServer.js",

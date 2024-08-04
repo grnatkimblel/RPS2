@@ -64,7 +64,7 @@ const { registerGameControllerHandlers } = require("../routes/Game_Controller");
 //Routers
 const { router: gameControllerRouter } = require("../routes/Game_Controller");
 
-app.use("/game", gameControllerRouter);
+app.use("/api/game", gameControllerRouter);
 
 /*
 

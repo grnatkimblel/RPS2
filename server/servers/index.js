@@ -14,9 +14,9 @@ const userRouter = require("../routes/User");
 const pingRouter = require("../routes/Ping");
 const matchMakingRouter = require("../routes/Matchmaking");
 
-app.use("/user", userRouter);
-app.use("/", pingRouter);
-app.use("/matchmaking", matchMakingRouter);
+app.use("/api/menu/user", userRouter);
+app.use("/api/menu/", pingRouter);
+app.use("/api/menu/matchmaking", matchMakingRouter);
 
 db.sequelize.sync({}).then(() => {
   app.listen(PORT, () => {
