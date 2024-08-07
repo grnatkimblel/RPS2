@@ -3,7 +3,7 @@ import { Socket, io } from "socket.io-client";
 import { useState, useEffect } from "react";
 import { getNewAccessToken } from "../helper";
 
-const SOCKET_SERVER_URL = "http://localhost:8200";
+const SOCKET_SERVER_URL = process.env.REACT_APP_HOST_URL;
 
 export default function useSocket(refreshToken, isConnected) {
   const [socket, setSocket] = useState(null);

@@ -1,22 +1,26 @@
 const API_ROUTES = {
-  LOGIN: "http://localhost:8100/api/auth/login",
-  LOGOUT: "http://localhost:8080/api/menu/user/logout",
-  REGISTER: "http://localhost:8080/menu/api/user/createUser",
-  REFRESH_ACCESS_TOKEN: "http://localhost:8100/api/auth/token",
-  GET_USERS: "http://localhost:8080/api/menu/user/getUsers",
+  LOGIN: process.env.REACT_APP_HOST_URL + "api/auth/login",
+  LOGOUT: process.env.REACT_APP_HOST_URL + "api/menu/user/logout",
+  REGISTER: process.env.REACT_APP_HOST_URL + "api/menu/user/createUser",
+  REFRESH_ACCESS_TOKEN: process.env.REACT_APP_HOST_URL + "api/auth/token",
+  GET_USERS: process.env.REACT_APP_HOST_URL + "api/menu/user/getUsers",
   MATCHMAKING: {
-    ADD_PLAYER: "http://localhost:8080/api/menu/matchmaking/addPlayer",
-    REMOVE_PLAYER: "http://localhost:8080/api/menu/matchmaking/removePlayer",
+    ADD_PLAYER:
+      process.env.REACT_APP_HOST_URL + "api/menu/matchmaking/addPlayer",
+    REMOVE_PLAYER:
+      process.env.REACT_APP_HOST_URL + "api/menu/matchmaking/removePlayer",
     SEARCH: {
       CHECK_INVITE:
-        "http://localhost:8080/api/menu/matchmaking/quickplay/quickdraw/search/checkInvite",
+        process.env.REACT_APP_HOST_URL +
+        "api/menu/matchmaking/quickplay/quickdraw/search/checkInvite",
     },
   },
   GAME: {
     QUICKDRAW: {
-      PREGAME: "http://localhost:8200/api/game/quickdraw/pregame",
-      START_GAME: "http://localhost:8200/api/game/quickplay/startGame",
-      RUN: "http://localhost:8200/api/game/quickplay/run",
+      PREGAME: process.env.REACT_APP_HOST_URL + "api/game/quickdraw/pregame",
+      START_GAME:
+        process.env.REACT_APP_HOST_URL + "api/game/quickplay/startGame",
+      RUN: process.env.REACT_APP_HOST_URL + "api/game/quickplay/run",
     },
   },
 };
