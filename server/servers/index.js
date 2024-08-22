@@ -1,4 +1,5 @@
 const db = require("../models");
+const logger = require("../utils/logger");
 
 const express = require("express");
 const cors = require("cors");
@@ -22,6 +23,6 @@ app.use("/api/menu/matchmaking", matchMakingRouter);
 dbSyncParam = process.env.NODE_ENV == "test" ? {force: true} : {}
 db.sequelize.sync(dbSyncParam).then(() => {
   app.listen(PORT, () => {
-    console.log(`listening on port http://localhost:${PORT}`);
+    logger.info(`listening on port http://localhost:${PORT}`);
   });
 });

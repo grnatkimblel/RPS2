@@ -2,7 +2,7 @@ const authenticateToken = require("../helper/authenticateToken");
 const { getUsersByList, getUsersByName } = require("../helper/getUsers");
 const express = require("express");
 const router = express.Router();
-
+const logger = require("./utils/logger");
 const { User, RefreshToken } = require("../models");
 const { Op } = require("sequelize");
 
@@ -12,8 +12,8 @@ const { matchmakingEventEmitter } = require("../MatchmakingService");
 
 //POSTS
 router.post("/createUser", async (req, res) => {
-  // console.log("sanity");
-  // console.log(req.body);
+  // logger.info("sanity");
+  // logger.info(req.body);
 
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -23,40 +23,40 @@ router.post("/createUser", async (req, res) => {
       hashed_password: hashedPassword,
       player_emoji: entryEmoji,
     };
-    //console.log("user to be created");
-    //console.log(user);
+    //logger.info("user to be created");
+    //logger.info(user);
     const createdUser = await User.create(user);
     res.json(createdUser.toJSON());
     res.status(201).send();
-    console.log("Created user: " + createdUser.username);
+    logger.info("Created user: " + createdUser.username);
   } catch {
     res.status(500).send();
   }
 });
 
 router.post("/getUsers", authenticateToken, async (req, res) => {
-  // console.log(req.body);
+  // logger.info(req.body);
   const searchText = req.body.searchText;
   const listOfPlayers = req.body.listOfPlayers;
-  // console.log(searchText === "");
+  // logger.info(searchText === "");
   if (searchText === "") {
     //return list of players
-    console.log("listOfPlayers: ", listOfPlayers);
+    logger.info("listOfPlayers: ", listOfPlayers);
     if (listOfPlayers != null && listOfPlayers.length > 0) {
       const responseObject = await getUsersByList(listOfPlayers);
 
-      // console.log("list resObj");
-      // console.log(responseObject);
+      // logger.info("list resObj");
+      // logger.info(responseObject);
       res.json(responseObject);
     } else {
       res.sendStatus(400);
     }
   } else {
     //search opponent by searchTerm
-    // console.log("searchText ", searchText);
+    // logger.info("searchText ", searchText);
     const response = await getUsersByName(searchText);
-    // console.log("search response");
-    // console.log(response);
+    // logger.info("search response");
+    // logger.info(response);
     res.json(response);
   }
   /* 
@@ -69,7 +69,7 @@ router.post("/getUsers", authenticateToken, async (req, res) => {
 //DELETES
 router.delete("/logout", authenticateToken, async (req, res) => {
   try {
-    console.log(req.body);
+    logger.info(req.body);
     await RefreshToken.destroy({
       where: {
         refresh_token: req.body.refreshToken,
@@ -77,7 +77,7 @@ router.delete("/logout", authenticateToken, async (req, res) => {
     });
     res.sendStatus(204);
   } catch (e) {
-    console.log(e);
+    logger.info(e);
     res.sendStatus(400);
   }
 });

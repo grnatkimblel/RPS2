@@ -1,5 +1,1 @@
-API List:
-    /users
-        /register
-        /login
-        /
+Need to setup a dev way to test server, currently client has one url since the proxy should redirect. So maybe a test proxy?

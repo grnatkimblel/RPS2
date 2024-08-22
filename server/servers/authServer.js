@@ -1,3 +1,4 @@
+const logger = require("../utils/logger");
 const db = require("../models");
 
 const express = require("express");
@@ -16,6 +17,6 @@ app.use("/api/auth", userRouter);
 dbSyncParam = process.env.NODE_ENV == "test" ? {force: true} : {}
 db.sequelize.sync(dbSyncParam).then(() => {
   app.listen(PORT, () => {
-    console.log(`listening on port http://localhost:${PORT}`);
+    logger.info(`listening on port http://localhost:${PORT}`);
   });
 });

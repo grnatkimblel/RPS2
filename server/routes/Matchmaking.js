@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const logger = require("./utils/logger");
 const authenticateToken = require("../helper/authenticateToken");
 const { matchmakingEventEmitter } = require("../MatchmakingService");
 
@@ -18,16 +18,16 @@ router.post("/addPlayer", async (req, res) => {
   try {
     validateRequestsGameDetails(gameType, gameMode, matchmakingType);
   } catch (error) {
-    console.log(error);
+    logger.info(error);
     req.sendStatus(400);
   }
 
   const client_id = req.authUser.id;
-  console.log("authUser: ", req.authUser);
+  logger.info("authUser: ", req.authUser);
   const chosenOne_id = req.body.chosenOne_id;
   const playerName = req.authUser.username;
   if (true) {
-    console.log(
+    logger.info(
       `${playerName} called addPlayer on ${gameType}:${gameMode}:${matchmakingType}`
     );
   }
@@ -41,16 +41,16 @@ router.post("/addPlayer", async (req, res) => {
       matchmakingType
     ));
   } catch (error) {
-    console.log(error);
+    logger.info(error);
     res.sendStatus(400);
   }
 
-  // console.log("requestEventName ", requestEventName);
-  // console.log("responseEventName ", responseEventName);
+  // logger.info("requestEventName ", requestEventName);
+  // logger.info("responseEventName ", responseEventName);
 
   matchmakingEventEmitter.once(responseEventName, async (roster) => {
-    console.log(`MatchmakingService response to AddPlayer from ${playerName}`);
-    console.log("Roster ", roster);
+    logger.info(`MatchmakingService response to AddPlayer from ${playerName}`);
+    logger.info("Roster ", roster);
     if (roster == false) {
       res.json({
         wasCancelled: true,
@@ -74,14 +74,14 @@ router.post("/removePlayer", async (req, res) => {
   try {
     validateRequestsGameDetails(gameType, gameMode, matchmakingType);
   } catch (error) {
-    console.log(error);
+    logger.info(error);
     req.sendStatus(400);
   }
 
   const client_id = req.authUser.id;
   if (true) {
     const playerName = req.authUser.username;
-    console.log(
+    logger.info(
       `${playerName} called removePlayer on ${gameType}:${gameMode}:${matchmakingType}`
     );
   }
@@ -97,16 +97,16 @@ router.post("/removePlayer", async (req, res) => {
 });
 
 router.post("/quickplay/quickdraw/search/checkInvite", async (req, res) => {
-  //console.log("Invites Searched for ", req.body.client_id);
+  //logger.info("Invites Searched for ", req.body.client_id);
   const client_id = req.authUser.id;
   if (false) {
     const playerName = req.authUser.username;
-    console.log(`${playerName} called Q:Q:R:RR`);
+    logger.info(`${playerName} called Q:Q:R:RR`);
   }
   const otherPlayer_id = req.body.otherPlayer_id;
   const eventName = client_id + "Q:Q:S:CI";
   matchmakingEventEmitter.once(eventName, (isJoinable) => {
-    //console.log("found Joinable: ", isJoinable);
+    //logger.info("found Joinable: ", isJoinable);
     res.send(isJoinable);
   });
   matchmakingEventEmitter.emit(
@@ -168,15 +168,15 @@ function getEventNamesForAddingPlayers(
     matchmakingType.charAt(0).toUpperCase() +
     "-New";
 
-  // console.log("before returning");
-  // console.log({ requestEventName, responseEventName });
+  // logger.info("before returning");
+  // logger.info({ requestEventName, responseEventName });
   return { requestEventName, responseEventName };
 }
 
 function capitalizeFirstLetter(text) {
   let firstLetter = text.charAt(0).toUpperCase();
   let restOfText = text.slice(1);
-  // console.log(
+  // logger.info(
   //   `capitalize first letter called on ${text}. first letter is ${firstLetter} and restOfText is ${restOfText}`
   // );
   return firstLetter + restOfText;

@@ -1,3 +1,4 @@
+const logger = require("./utils/logger");
 const dotenv = require("dotenv");
 const path = require("path");
 dotenv.config({ path: path.join(__dirname, "../config", ".env") });
@@ -13,8 +14,8 @@ const bcrypt = require("bcrypt");
 
 //POSTS
 router.post("/login", async (req, res) => {
-  //console.log("/login request");
-  //console.log(req);
+  //logger.info("/login request");
+  //logger.info(req);
   const userFoundInDb = await User.findOne({
     where: {
       username: {
@@ -27,7 +28,7 @@ router.post("/login", async (req, res) => {
     return res.status(404).send("Cannot find user");
   }
   try {
-    //console.log(userFoundInDb);
+    //logger.info(userFoundInDb);
     if (
       await bcrypt.compare(req.body.password, userFoundInDb.hashed_password)
     ) {
@@ -52,7 +53,7 @@ router.post("/login", async (req, res) => {
       res.status(401).send("Incorrect Password");
     }
   } catch (e) {
-    console.log(e);
+    logger.info(e);
     res.status(500).send();
   }
 });
@@ -73,8 +74,8 @@ router.post("/token", async (req, res) => {
 
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
-    //console.log("RefreshToken user param");
-    //console.log(user);
+    //logger.info("RefreshToken user param");
+    //logger.info(user);
     const accessToken = generateAccessToken({
       //must pass a user without timestamps
       username: user.username,
