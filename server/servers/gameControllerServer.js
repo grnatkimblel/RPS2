@@ -2,31 +2,33 @@ const dotenv = require("dotenv");
 const path = require("path");
 dotenv.config({ path: path.join(__dirname, "../config", ".env") });
 
-const jwt = require("jsonwebtoken");
-
+// const jwt = require("jsonwebtoken");
+const logger = require("../utils/logger");
 const db = require("../models");
-
+const socket = require("../gameSocket");
 const express = require("express");
 const cors = require("cors");
+
 const { createServer } = require("http");
-const { Server } = require("socket.io");
-const authenticateToken = require("../helper/authenticateToken");
+// const { Server } = require("socket.io");
+// const authenticateToken = require("../helper/authenticateToken");
 
 const PORT = 8200;
 const app = express();
 const server = createServer(app);
-const { instrument } = require("@socket.io/admin-ui");
-//io lives here Server side
-const io = new Server(server, {
-  cors: {
-    origin: ["http://localhost:3000", "https://admin.socket.io"],
-    credentials: true,
-  },
-});
-instrument(io, { auth: false, mode: "development" });
+// const server = createServer(app);
+// const { instrument } = require("@socket.io/admin-ui");
+// //io lives here Server side
+// const io = new Server(server, {
+//   cors: {
+//     origin: ["http://localhost:3000", "https://admin.socket.io"],
+//     credentials: true,
+//   },
+// });
+// instrument(io, { auth: false, mode: "development" });
 app.use(express.json());
 app.use(cors());
-
+io = socket(server);
 //Socket Authentication Middleware
 /*
  * the Socket instance is not actually connected when the middleware gets executed,
@@ -34,32 +36,32 @@ app.use(cors());
  * connection eventually fail.
  */
 
-io.use((socket, next) => {
-  console.log("");
-  console.log("Socket Middleware running");
-  if (socket.handshake.auth.token) {
-    jwt.verify(
-      socket.handshake.auth.token,
-      process.env.ACCESS_TOKEN_SECRET,
-      (err, user) => {
-        if (err) next(new Error("Unauthorized"));
-        console.log("Socket Authentication Successful");
-        console.log("socket auth user");
-        console.log(user);
-        console.log("End of Middleware");
-        console.log("");
-        socket.client_id = user.id; //this is an arbitrarilly added field to attach client details to the socket instance
-        socket.authUser = user;
-        next();
-      }
-    );
-  } else {
-    next(new Error("no auth token"));
-  }
-});
+// io.use((socket, next) => {
+//   logger.info("");
+//   logger.info("Socket Middleware running");
+//   if (socket.handshake.auth.token) {
+//     jwt.verify(
+//       socket.handshake.auth.token,
+//       process.env.ACCESS_TOKEN_SECRET,
+//       (err, user) => {
+//         if (err) next(new Error("Unauthorized"));
+//         logger.info("Socket Authentication Successful");
+//         logger.info("socket auth user");
+//         logger.info(user);
+//         logger.info("End of Middleware");
+//         logger.info("");
+//         socket.client_id = user.id; //this is an arbitrarily added field to attach client details to the socket instance
+//         socket.authUser = user;
+//         next();
+//       }
+//     );
+//   } else {
+//     next(new Error("no auth token"));
+//   }
+// });
 
-//Socket.io Handlers
-const { registerGameControllerHandlers } = require("../routes/Game_Controller");
+// //Socket.io Handlers
+// const { registerGameControllerHandlers } = require("../routes/Game_Controller");
 
 //Routers
 const { router: gameControllerRouter } = require("../routes/Game_Controller");
@@ -69,30 +71,36 @@ app.use("/api/game", gameControllerRouter);
 /*
 
 */
-io.on("connection", (socket) => {
-  console.log(`User ${socket.id} connected`);
-  registerGameControllerHandlers(io, socket);
+// io.on("connection", (socket) => {
+//   logger.info(`User ${socket.id} connected`);
+//   registerGameControllerHandlers(io, socket);
 
-  socket.on("disconnect", (reason) => {
-    console.log(`User ${socket.authUser.username} disconnected`);
-  });
-});
+//   socket.on("disconnect", (reason) => {
+//     logger.info(`User ${socket.authUser.username} disconnected`);
+//   });
+// });
 
-io.on("new_namespace", (namespace) => {
-  console.log(namespace.name);
-});
+// io.on("new_namespace", (namespace) => {
+//   logger.info(namespace.name);
+// });
 
-io.of("/").adapter.on("create-room", (room) => {
-  //console.log(`room ${room} was created`);
-});
+// io.of("/").adapter.on("create-room", (room) => {
+//   //logger.info(`room ${room} was created`);
+// });
 
-io.of("/").adapter.on("join-room", (room, id) => {
-  //console.log(`socket ${id} has joined room ${room}`);
-});
+// io.of("/").adapter.on("join-room", (room, id) => {
+//   //logger.info(`socket ${id} has joined room ${room}`);
+// });
 
+<<<<<<< Updated upstream
 dbSyncParam = process.env.NODE_ENV == "test" ? {force: true} : {}
 db.sequelize.sync(dbSyncParam).then(() => {
   app.listen(PORT, () => {
     console.log(`listening on port http://localhost:${PORT}`);
+=======
+db.sequelize.sync().then(() => {
+  server.listen(PORT, () => {
+    logger.info(`listening on port http://localhost:${PORT}`);
+>>>>>>> Stashed changes
   });
 });
