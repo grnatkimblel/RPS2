@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "start npm run start && start npm run startAuthServer && start npm run startGameServer",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ./servers/index.js",
-    "startAuthServer": "nodemon ./servers/authServer.js",
-    "startGameServer": "nodemon ./servers/gameControllerServer.js"
+    "dev-Server_All:Windows": "start npm run dev-Server_Index && start npm run dev-Server_Auth && start npm run dev-Server_Game",
+    "dev-Server_Index": "nodemon ./servers/index.js",
+    "dev_Server_Auth": "nodemon ./servers/authServer.js",
+    "dev-Server_Game": "nodemon ./servers/gameControllerServer.js"
   },
   "keywords": [],
   "author": "",

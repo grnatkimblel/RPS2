@@ -90,8 +90,9 @@ io.of("/").adapter.on("join-room", (room, id) => {
   //console.log(`socket ${id} has joined room ${room}`);
 });
 
-db.sequelize.sync().then(() => {
-  server.listen(PORT, () => {
+dbSyncParam = process.env.NODE_ENV == "test" ? {force: true} : {}
+db.sequelize.sync(dbSyncParam).then(() => {
+  app.listen(PORT, () => {
     console.log(`listening on port http://localhost:${PORT}`);
   });
 });

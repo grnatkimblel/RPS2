@@ -13,7 +13,8 @@ const userRouter = require("../routes/User_Auth");
 
 app.use("/api/auth", userRouter);
 
-db.sequelize.sync({}).then(() => {
+dbSyncParam = process.env.NODE_ENV == "test" ? {force: true} : {}
+db.sequelize.sync(dbSyncParam).then(() => {
   app.listen(PORT, () => {
     console.log(`listening on port http://localhost:${PORT}`);
   });
