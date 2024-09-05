@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const logger = require("./utils/logger");
+const logger = require("../utils/logger");
 const authenticateToken = require("../helper/authenticateToken");
 const { matchmakingEventEmitter } = require("../MatchmakingService");
 
@@ -10,6 +10,8 @@ router.use(authenticateToken);
 const validGameTypes = ["quickplay", "ranked"];
 const validGameModes = ["quickdraw", "tdm", "s&d"];
 const validMatchmakingTypes = ["random", "search"];
+
+doLogging = true;
 
 router.post("/addPlayer", async (req, res) => {
   const gameType = req.body.gameType;
@@ -23,10 +25,10 @@ router.post("/addPlayer", async (req, res) => {
   }
 
   const client_id = req.authUser.id;
-  logger.info("authUser: ", req.authUser);
   const chosenOne_id = req.body.chosenOne_id;
   const playerName = req.authUser.username;
-  if (true) {
+  if (doLogging) {
+    logger.info("authUser: ", req.authUser);
     logger.info(
       `${playerName} called addPlayer on ${gameType}:${gameMode}:${matchmakingType}`
     );
@@ -48,7 +50,7 @@ router.post("/addPlayer", async (req, res) => {
   // logger.info("requestEventName ", requestEventName);
   // logger.info("responseEventName ", responseEventName);
 
-  matchmakingEventEmitter.once(responseEventName, async (roster) => {
+  matchmakingEventEmitter.once(responseEventName, (roster) => {
     logger.info(`MatchmakingService response to AddPlayer from ${playerName}`);
     logger.info("Roster ", roster);
     if (roster == false) {
@@ -79,7 +81,7 @@ router.post("/removePlayer", async (req, res) => {
   }
 
   const client_id = req.authUser.id;
-  if (true) {
+  if (doLogging) {
     const playerName = req.authUser.username;
     logger.info(
       `${playerName} called removePlayer on ${gameType}:${gameMode}:${matchmakingType}`
@@ -99,7 +101,7 @@ router.post("/removePlayer", async (req, res) => {
 router.post("/quickplay/quickdraw/search/checkInvite", async (req, res) => {
   //logger.info("Invites Searched for ", req.body.client_id);
   const client_id = req.authUser.id;
-  if (false) {
+  if (doLogging) {
     const playerName = req.authUser.username;
     logger.info(`${playerName} called Q:Q:R:RR`);
   }

@@ -4,11 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev-Server_All:Windows": "start npm run dev-Server_Index && start npm run dev-Server_Auth && start npm run dev-Server_Game",
-    "dev-Server_Index": "nodemon ./servers/index.js",
-    "dev_Server_Auth": "nodemon ./servers/authServer.js",
-    "dev-Server_Game": "nodemon ./servers/gameControllerServer.js"
+    "test": "cross-env NODE_ENV='test' node --test",
+    "dev": "cross-env NODE_ENV='development' nodemon ./servers/main.js"
   },
   "keywords": [],
   "author": "",
@@ -31,5 +28,9 @@
   "optionalDependencies": {
     "bufferutil": "^4.0.8",
     "utf-8-validate": "^5.0.10"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "supertest": "^7.0.0"
   }
 }

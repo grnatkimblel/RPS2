@@ -1,10 +1,5 @@
-const dotenv = require("dotenv");
-const path = require("path");
-dotenv.config({ path: path.join(__dirname, "../config", ".env") });
-
 // const jwt = require("jsonwebtoken");
-const logger = require("../utils/logger");
-const db = require("../models");
+
 const socket = require("../gameSocket");
 const express = require("express");
 const cors = require("cors");
@@ -13,7 +8,6 @@ const { createServer } = require("http");
 // const { Server } = require("socket.io");
 // const authenticateToken = require("../helper/authenticateToken");
 
-const PORT = 8200;
 const app = express();
 const server = createServer(app);
 // const server = createServer(app);
@@ -92,15 +86,4 @@ app.use("/api/game", gameControllerRouter);
 //   //logger.info(`socket ${id} has joined room ${room}`);
 // });
 
-<<<<<<< Updated upstream
-dbSyncParam = process.env.NODE_ENV == "test" ? {force: true} : {}
-db.sequelize.sync(dbSyncParam).then(() => {
-  app.listen(PORT, () => {
-    console.log(`listening on port http://localhost:${PORT}`);
-=======
-db.sequelize.sync().then(() => {
-  server.listen(PORT, () => {
-    logger.info(`listening on port http://localhost:${PORT}`);
->>>>>>> Stashed changes
-  });
-});
+module.exports = app;

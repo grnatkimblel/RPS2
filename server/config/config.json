@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "root",
-    "password": "XYkmvw27",
+    "password": null,
     "database": "FullStackRPS_DEV",
     "host": "127.0.0.1",
     "dialect": "mysql"

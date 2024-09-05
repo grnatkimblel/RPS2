@@ -1,10 +1,6 @@
-const logger = require("../utils/logger");
-const db = require("../models");
-
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const PORT = 8100;
 
 app.use(express.json());
 app.use(cors());
@@ -14,9 +10,4 @@ const userRouter = require("../routes/User_Auth");
 
 app.use("/api/auth", userRouter);
 
-dbSyncParam = process.env.NODE_ENV == "test" ? {force: true} : {}
-db.sequelize.sync(dbSyncParam).then(() => {
-  app.listen(PORT, () => {
-    logger.info(`listening on port http://localhost:${PORT}`);
-  });
-});
+module.exports = app;

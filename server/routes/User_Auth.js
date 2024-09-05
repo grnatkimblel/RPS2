@@ -1,4 +1,4 @@
-const logger = require("./utils/logger");
+const logger = require("../utils/logger");
 const dotenv = require("dotenv");
 const path = require("path");
 dotenv.config({ path: path.join(__dirname, "../config", ".env") });
@@ -40,7 +40,7 @@ router.post("/login", async (req, res) => {
       await RefreshToken.create({
         refresh_token: refreshToken,
       });
-      res.json({
+      res.status(200).json({
         accessToken: accessToken,
         refreshToken: refreshToken,
         user: {

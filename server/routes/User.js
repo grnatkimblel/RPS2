@@ -1,14 +1,12 @@
-const authenticateToken = require("../helper/authenticateToken");
+const { User, RefreshToken } = require("../models");
 const { getUsersByList, getUsersByName } = require("../helper/getUsers");
+const logger = require("../utils/logger");
+const authenticateToken = require("../helper/authenticateToken");
+
 const express = require("express");
 const router = express.Router();
-const logger = require("./utils/logger");
-const { User, RefreshToken } = require("../models");
-const { Op } = require("sequelize");
 
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { matchmakingEventEmitter } = require("../MatchmakingService");
 
 //POSTS
 router.post("/createUser", async (req, res) => {
@@ -26,8 +24,7 @@ router.post("/createUser", async (req, res) => {
     //logger.info("user to be created");
     //logger.info(user);
     const createdUser = await User.create(user);
-    res.json(createdUser.toJSON());
-    res.status(201).send();
+    res.status(201).json(createdUser.toJSON());
     logger.info("Created user: " + createdUser.username);
   } catch {
     res.status(500).send();
