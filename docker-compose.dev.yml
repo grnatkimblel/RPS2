@@ -1,0 +1,103 @@
+version: "3"
+
+services:
+  client:
+    build:
+      context: "./client"
+      dockerfile: dev.Dockerfile
+      args:
+        - REACT_APP_HOST_URL=http://localhost:8080/
+    volumes:
+      - ./client:/usr/src/app
+    container_name: client
+    environment:
+      - WATCHPACK_POLLING=true
+    networks:
+      - public
+    tty: true
+    command: npm run start
+    depends_on:
+      - server
+
+  nginx:
+    image: nginx:1.20.1
+    container_name: nginx
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
+    networks:
+      - public
+    depends_on:
+      - server
+      - client
+
+  server:
+    build:
+      args:
+        - NODE_ENV=development
+      context: ./server
+      dockerfile: dev.Dockerfile
+    container_name: server
+    networks:
+      - public
+      # - private
+    tty: true
+    volumes:
+      - ./server:/usr/src/app
+      - /usr/src/app/node_modules # anonymous volume for node_modules only
+    command: npm run dev
+    depends_on:
+      db-dev:
+        condition: service_healthy
+      db-test:
+        condition: service_healthy
+
+  db-dev:
+    image: mysql:8.0
+    container_name: mysql-dev
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: database_dev
+      MYSQL_USER: devuser
+      MYSQL_PASSWORD: devpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+    networks:
+      - public
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  db-test:
+    image: mysql:8.0
+    container_name: mysql-test
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: database_test
+      MYSQL_USER: testuser
+      MYSQL_PASSWORD: testpassword
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_test_data:/var/lib/mysql
+    networks:
+      - public
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  debug-helper:
+    image: busybox
+volumes:
+  mysql_dev_data:
+  mysql_test_data:
+
+networks:
+  public:

@@ -37,6 +37,7 @@ function App() {
 
   const loginHelper = async (credentials) => {
     //authorizes user and returns access tokens and user account info
+    console.log(process.env.REACT_APP_HOST_URL);
     let res = await fetch(API_ROUTES.LOGIN, {
       headers: {
         "Content-Type": "application/json",

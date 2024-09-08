@@ -71,7 +71,7 @@ function CreateAccount({ navigate, login }) {
 
               //console.log("Status:" + res.status);
 
-              if (res.status == 200) {
+              if (res.status == 201) {
                 await login(userCredentials);
               } else {
                 console.error("Registration failed");

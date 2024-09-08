@@ -29,14 +29,19 @@ matchmakingEventEmitter.on(
             //logger.info(playerQueue.quickplay_Quickdraw_Random);
             if (client_id != player_id) {
               const roster = createQuickDrawRoster(player_id, client_id);
-              //logger.info(roster);
-              for (player_id in roster.players)
+              logger.info(roster);
+              for (player in roster.players) {
+                logger.info("removing ", roster.players[player]);
                 removePlayerFromList(
-                  player_id,
+                  roster.players[player],
                   playerQueue.quickplay_Quickdraw_Random
                 );
+              }
               const clientEventName = client_id + "Q:Q:R-New";
-              const playerEventName = player_id + "Q:Q:R-New";
+              const playerEventName = roster.players["player_1"] + "Q:Q:R-New";
+              logger.info("matchmaker");
+              logger.info(clientEventName);
+              logger.info(playerEventName);
               matchmakingEventEmitter.emit(clientEventName, roster);
               matchmakingEventEmitter.emit(playerEventName, roster);
             }

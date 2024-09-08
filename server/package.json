@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV='test' node --test",
-    "dev": "cross-env NODE_ENV='development' nodemon ./servers/main.js"
+    "test": "NODE_ENV='test' node --test",
+    "dev": "NODE_ENV='development' nodemon --legacy-watch ./servers/main.js"
   },
   "keywords": [],
   "author": "",
