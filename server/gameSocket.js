@@ -2,7 +2,7 @@ const { createServer } = require("http");
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
 const authenticateToken = require("./helper/authenticateToken");
-
+const logger = require("./utils/logger");
 //Socket.io Handlers
 const { registerGameControllerHandlers } = require("./routes/Game_Controller");
 
@@ -10,10 +10,10 @@ module.exports = (server) => {
   const { instrument } = require("@socket.io/admin-ui");
   //io lives here Server side
   const io = new Server(server, {
-    cors: {
-      origin: ["http://localhost:3000", "https://admin.socket.io"],
-      credentials: true,
-    },
+    // cors: {
+    //   origin: ["http://localhost:3000", "https://admin.socket.io"],
+    //   credentials: true,
+    // },
   });
   instrument(io, { auth: false, mode: "development" });
 
