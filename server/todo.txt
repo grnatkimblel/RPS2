@@ -1,1 +1,3 @@
-Need to setup a dev way to test server, currently client has one url since the proxy should redirect. So maybe a test proxy?
+make all matchmaking service events accept gamemode gametype args, the same methods will service all gametypes.
+
+change all instances of interactable to interactive

@@ -1,4 +1,4 @@
-const PAGES = {
+const PAGES = Object.freeze({
   INITIAL: "",
   LOGIN: "login",
   CREATE_ACCOUNT: "create_account",
@@ -10,7 +10,8 @@ const PAGES = {
     RANDOM_OPPONENT: "online.random_opponent",
     SEARCH_OPPONENT: "online.search_opponent",
     QUICKDRAW_ARENA: "online.quickdraw_arena",
+    TDM_ARENA: "online.tdm_arena",
   },
-};
+});
 
 export default PAGES;

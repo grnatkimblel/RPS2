@@ -1,44 +1,86 @@
-const EventEmitter = require("events");
 const matchmakingEventEmitter = new EventEmitter();
-const { v4: uuidv4 } = require("uuid");
-const logger = require("./utils/logger");
+import EventEmitter from "events";
+import { v4 as uuidv4 } from "uuid";
+import logger from "./utils/logger.js";
+import {
+  GAMEMODES,
+  GAMEMODE_TYPES,
+  MATCHMAKING_TYPES,
+} from "./shared/enums/gameEnums.js"; //This file name is set in docker compose;
 
-let playerQueue = {
-  quickplay_Quickdraw_Random: [],
-  quickplay_Quickdraw_Search: new Map(), // player_id: player_id
+const playerQueue = {
+  [GAMEMODE_TYPES.QUICKPLAY]: {
+    [GAMEMODES.QUICKDRAW]: {
+      [MATCHMAKING_TYPES.RANDOM]: [],
+      [MATCHMAKING_TYPES.SEARCH]: new Map(),
+    },
+    [GAMEMODES.TDM]: {
+      [MATCHMAKING_TYPES.RANDOM]: [],
+      // [MATCHMAKING_TYPES.SEARCH]: new Map()
+    },
+    // [GAMEMODES.SEARCH]: {
+    //   [MATCHMAKING_TYPES.RANDOM]: [],
+    //   [MATCHMAKING_TYPES.SEARCH]: new Map()
+    // }
+  },
+  [GAMEMODE_TYPES.RANKED]: {
+    // [GAMEMODES.QUICKDRAW]: {
+    //   [MATCHMAKING_TYPES.RANDOM]: [],
+    // },
+    // [GAMEMODES.TDM]: {
+    //   [MATCHMAKING_TYPES.RANDOM]: [],
+    // },
+    // [GAMEMODES.SEARCH]: {
+    //   [MATCHMAKING_TYPES.RANDOM]: [],
+    // }
+  },
 };
-let matchMaker = null;
-matchmakingEventEmitter.on(
-  "Quickplay:Quickdraw:Random:newPlayer",
-  (client_id) => {
-    logger.info("Q:Q:R: Add Player");
 
-    logger.info(client_id);
+let matchMaker = null;
+
+matchmakingEventEmitter.on(
+  "Random-AddPlayer",
+  (client_id, gameType, gameMode) => {
+    logger.info("MatchMakingService    AddPlayer called");
+
+    logger.info("MatchMakingService    ", client_id, gameType, gameMode);
     logger.info("");
-    if (playerQueue.quickplay_Quickdraw_Random.includes(client_id)) return;
-    playerQueue.quickplay_Quickdraw_Random.push(client_id);
-    logger.info("Q:Q:R: Player Added");
-    logger.info(playerQueue.quickplay_Quickdraw_Random);
+    let requestQueue =
+      playerQueue[gameType][gameMode][MATCHMAKING_TYPES.RANDOM];
+
+    if (requestQueue.includes(client_id)) return;
+    requestQueue.push(client_id);
+    logger.info(gameType, gameMode, "Player Added");
+    logger.info(requestQueue);
 
     if (matchMaker == null)
       matchMaker = setInterval(() => {
         //this will need to change
-        logger.info("Q:Q:R: matchmaking sweep");
-        if (playerQueue.quickplay_Quickdraw_Random.length > 1) {
-          playerQueue.quickplay_Quickdraw_Random.forEach((player_id) => {
-            //logger.info(playerQueue.quickplay_Quickdraw_Random);
+        logger.info(gameType, gameMode, "matchmaking sweep");
+        if (requestQueue.length > 1) {
+          requestQueue.forEach((player_id) => {
+            logger.info(requestQueue);
             if (client_id != player_id) {
-              const roster = createQuickDrawRoster(player_id, client_id);
+              const roster = createTwoPlayerRoster(player_id, client_id);
               logger.info(roster);
-              for (player in roster.players) {
+              for (let player in roster.players) {
                 logger.info("removing ", roster.players[player]);
-                removePlayerFromList(
-                  roster.players[player],
-                  playerQueue.quickplay_Quickdraw_Random
-                );
+                removePlayerFromList(roster.players[player], requestQueue);
               }
-              const clientEventName = client_id + "Q:Q:R-New";
-              const playerEventName = roster.players["player_1"] + "Q:Q:R-New";
+              const clientEventName =
+                client_id +
+                ">" +
+                gameType +
+                ":" +
+                gameMode +
+                ":Random-AddPlayerResponse";
+              const playerEventName =
+                roster.players["player_1"] +
+                ">" +
+                gameType +
+                ":" +
+                gameMode +
+                ":Random-AddPlayerResponse";
               logger.info("matchmaker");
               logger.info(clientEventName);
               logger.info(playerEventName);
@@ -48,7 +90,7 @@ matchmakingEventEmitter.on(
           });
         }
         //if( playerQueue.length) == 1, { nothing }
-        if (playerQueue.quickplay_Quickdraw_Random.length == 0) {
+        if (requestQueue.length == 0) {
           clearInterval(matchMaker);
           matchMaker = null;
         }
@@ -57,73 +99,107 @@ matchmakingEventEmitter.on(
 );
 
 matchmakingEventEmitter.on(
-  "Quickplay:Quickdraw:Random:removePlayer",
-  (client_id) => {
-    logger.info("Q:Q:R: Remove Player");
-    removePlayerFromList(client_id, playerQueue.quickplay_Quickdraw_Random);
-    logger.info("QQR Queue after removal");
-    logger.info(playerQueue.quickplay_Quickdraw_Random);
-    if (playerQueue.quickplay_Quickdraw_Random.length == 0) {
+  "Random-RemovePlayer",
+  (client_id, gameType, gameMode) => {
+    logger.info(gameType, gameMode, "Remove Player");
+    let requestQueue =
+      playerQueue[gameType][gameMode][MATCHMAKING_TYPES.RANDOM];
+    removePlayerFromList(client_id, requestQueue);
+    logger.info(gameType, gameMode, "Random Queue after removal");
+    logger.info(requestQueue);
+    if (requestQueue.length == 0) {
       clearInterval(matchMaker);
       matchMaker = null;
     }
     //respond to the pending queue
-    const eventName = client_id + "Q:Q:R-New";
+    const eventName =
+      client_id +
+      ">" +
+      gameType +
+      ":" +
+      gameMode +
+      ":" +
+      ":Random-AddPlayerResponse";
     matchmakingEventEmitter.emit(eventName, false);
   }
 );
 
 matchmakingEventEmitter.on(
-  "Quickplay:Quickdraw:Search:newInvite",
-  (client_id, chosenOne_id) => {
-    logger.info("Q:Q:S: New Invite");
+  "Search-AddPlayer",
+  (client_id, chosenOne_id, gameType, gameMode) => {
+    logger.info(gameType, gameMode, "Search: New Invite");
+    let requestQueue =
+      playerQueue[gameType][gameMode][MATCHMAKING_TYPES.SEARCH];
     //if the other player already has invites pending, check them for the client
-    if (playerQueue.quickplay_Quickdraw_Search.has(chosenOne_id)) {
-      const chosenOneInvitee =
-        playerQueue.quickplay_Quickdraw_Search.get(chosenOne_id);
+    if (requestQueue.has(chosenOne_id)) {
+      const chosenOneInvitee = requestQueue.get(chosenOne_id);
       if (chosenOneInvitee == client_id) {
-        const roster = createQuickDrawRoster(chosenOne_id, client_id);
+        const roster = createTwoPlayerRoster(chosenOne_id, client_id);
 
         //remove player from list
-        playerQueue.quickplay_Quickdraw_Search.delete(chosenOne_id);
-        const clientEventName = client_id + "Q:Q:S-New";
-        const chosenOneEventName = chosenOne_id + "Q:Q:S-New";
+        requestQueue.delete(chosenOne_id);
+        const clientEventName =
+          client_id +
+          ">" +
+          gameType +
+          ":" +
+          gameMode +
+          ":" +
+          "Search-AddPlayer";
+        const chosenOneEventName =
+          chosenOne_id +
+          ">" +
+          gameType +
+          ":" +
+          gameMode +
+          ":" +
+          "Search-AddPlayer";
         matchmakingEventEmitter.emit(clientEventName, roster);
         matchmakingEventEmitter.emit(chosenOneEventName, roster);
       }
     }
     //if the other player doesnt have pending invites to the client, the client needs
     //to create an invite in the list
-    playerQueue.quickplay_Quickdraw_Search.set(client_id, chosenOne_id);
+    requestQueue.set(client_id, chosenOne_id);
     // logger.info("Invite from ", client_id, "to", chosenOne_id);
   }
 );
 
 matchmakingEventEmitter.on(
-  "Quickplay:Quickdraw:Search:removeInvite",
-  (client_id) => {
-    playerQueue.quickplay_Quickdraw_Search.delete(client_id);
-    const clientEventName = client_id + "Q:Q:S-New";
+  "Search-RemovePlayer",
+  (client_id, gameType, gameMode) => {
+    let requestQueue =
+      playerQueue[gameType][gameMode][MATCHMAKING_TYPES.SEARCH];
+    requestQueue.delete(client_id);
+    const clientEventName =
+      client_id + ">" + gameType + ":" + gameMode + ":" + "Search-AddPlayer";
     matchmakingEventEmitter.emit(clientEventName, false);
-    logger.info("Q:Q:S: Remove Invite");
+    logger.info(gameType, gameMode, "Search: Remove Invite");
   }
 );
 
 matchmakingEventEmitter.on(
-  "Quickplay:Quickdraw:Search:checkInviteToClient",
-  (client_id, otherPlayer_id) => {
-    logger.info("Q:Q:S: Check Invite");
-    const clientEventName = client_id + "Q:Q:S:CI";
+  "Search-CheckInviteToClient",
+  (client_id, otherPlayer_id, gameType, gameMode) => {
+    let requestQueue =
+      playerQueue[gameType][gameMode][MATCHMAKING_TYPES.SEARCH];
+    logger.info(gameType, gameMode, "Search: Check Invite");
+    const clientEventName =
+      client_id +
+      ">" +
+      gameType +
+      ":" +
+      gameMode +
+      ":Search:CheckInviteResponse";
     if (client_id === otherPlayer_id)
       matchmakingEventEmitter.emit(clientEventName, false);
 
     // logger.info("Invite checked from ", client_id, "to", otherPlayer_id);
-    // logger.info("playerQueue ", playerQueue.quickplay_Quickdraw_Search);
+    // logger.info("playerQueue ", playerQueue.requestQueue);
     //check if other player is inviting client
-    if (playerQueue.quickplay_Quickdraw_Search.has(otherPlayer_id)) {
+    if (playerQueue.requestQueue.has(otherPlayer_id)) {
       // logger.info("   playerQueue has ", otherPlayer_id);
-      const otherPlayerInvitee =
-        playerQueue.quickplay_Quickdraw_Search.get(otherPlayer_id);
+      const otherPlayerInvitee = playerQueue.requestQueue.get(otherPlayer_id);
       // logger.info("   otherPlayerInvitee is ", otherPlayerInvitee);
       if (otherPlayerInvitee == client_id) {
         // logger.info("   there is an invite for client from chosenOne");
@@ -136,7 +212,7 @@ matchmakingEventEmitter.on(
   }
 );
 
-function createQuickDrawRoster(player1_id, player2_id) {
+function createTwoPlayerRoster(player1_id, player2_id) {
   //figure out sessionID
   const rosterId = uuidv4();
   return {
@@ -152,5 +228,7 @@ function removePlayerFromList(player, array) {
   array.splice(array.indexOf(player), 1);
 }
 
-module.exports.matchmakingEventEmitter = matchmakingEventEmitter;
-module.exports.playerQueue = playerQueue;
+export { matchmakingEventEmitter, playerQueue };
+
+// module.exports.matchmakingEventEmitter = matchmakingEventEmitter;
+// module.exports.playerQueue = playerQueue;

@@ -5,7 +5,11 @@ import "../styles/elementSpecific.css";
 import GameModeSelector from "../components/GameModeSelector";
 import PAGES from "../enums/pages";
 import API_ROUTES from "../enums/apiRoutes";
-import { GAMEMODE_TYPES } from "../enums/gameEnums";
+import {
+  GAMEMODES,
+  GAMEMODE_TYPES,
+  MATCHMAKING_TYPES,
+} from "../shared/enums/gameEnums"; //This file name is set in docker compose
 import { useState, useRef } from "react";
 
 import OpponentSearchButton from "../components/OpponentSearchButton";
@@ -14,7 +18,7 @@ import OpponentSearchButton from "../components/OpponentSearchButton";
 function Online({ navigate, authHelper, gameInfoSetter }) {
   const [currentPage, setCurrentPage] = useState(PAGES.ONLINE.INITIAL);
   const [currentGameMode, setCurrentGameMode] = useState({
-    gameModeType: "",
+    gameType: "",
     gameMode: "",
   });
 
@@ -39,7 +43,7 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
   const gameModeChosen = () => {
     return (
       <>
-        <div className="gamemode-smalltext">{currentGameMode.gameModeType}</div>
+        <div className="gamemode-smalltext">{currentGameMode.gameType}</div>
         <button
           style={{ flex: 1 }}
           className="notInteractableColor bottomBorder"
@@ -67,9 +71,9 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
   const randomOpponent = () => {
     console.log("isrunning twicea?");
     authHelper(API_ROUTES.MATCHMAKING.ADD_PLAYER, "POST", {
-      gameType: currentGameMode.gameModeType.toLowerCase(),
-      gameMode: currentGameMode.gameMode.toLowerCase(),
-      matchmakingType: "random",
+      gameType: currentGameMode.gameType,
+      gameMode: currentGameMode.gameMode,
+      matchmakingType: MATCHMAKING_TYPES.RANDOM,
     })
       .then((res) => {
         return res.json();
@@ -93,13 +97,22 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
           })
           .then((data) => {
             gameInfoSetter(data);
-            navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
+            if (
+              currentGameMode.gameType == GAMEMODE_TYPES.QUICKPLAY &&
+              currentGameMode.gameMode == GAMEMODES.QUICKDRAW
+            )
+              navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
+            else if (
+              currentGameMode.gameType == GAMEMODE_TYPES.QUICKPLAY &&
+              currentGameMode.gameMode == GAMEMODES.TDM
+            )
+              navigate(`/${PAGES.ONLINE.TDM_ARENA}`);
           });
       });
 
     return (
       <>
-        <div className="gamemode-smalltext">{currentGameMode.gameModeType}</div>
+        <div className="gamemode-smalltext">{currentGameMode.gameType}</div>
         <button
           style={{ flex: 1 }}
           className="notInteractableColor bottomBorder"
@@ -118,9 +131,9 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
           onClick={() => {
             console.log("isrunning twiceb?");
             authHelper(API_ROUTES.MATCHMAKING.REMOVE_PLAYER, "POST", {
-              gameType: currentGameMode.gameModeType.toLowerCase(),
-              gameMode: currentGameMode.gameMode.toLowerCase(),
-              matchmakingType: "random",
+              gameType: currentGameMode.gameType,
+              gameMode: currentGameMode.gameMode,
+              matchmakingType: MATCHMAKING_TYPES.RANDOM,
             });
             setCurrentPage(PAGES.ONLINE.GAMEMODE_CHOSEN);
           }}
@@ -134,7 +147,7 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
   const onlineSearchOpponent = () => {
     return (
       <>
-        <div className="gamemode-smalltext">{currentGameMode.gameModeType}</div>
+        <div className="gamemode-smalltext">{currentGameMode.gameType}</div>
         <button
           style={{ flex: 3 }}
           className="notInteractableColor bottomBorder"

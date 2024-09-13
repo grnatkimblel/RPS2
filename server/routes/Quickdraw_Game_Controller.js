@@ -1,14 +1,15 @@
-const authenticateToken = require("../helper/authenticateToken");
-const logger = require("../utils/logger");
+import authenticateToken from "../helper/authenticateToken.js";
+import logger from "../utils/logger.js";
 
-const express = require("express");
+import express from "express";
+
+import { getUsersByList } from "../helper/getUsers.js";
+import db from "../models/index.js";
+// Get the User model from the db object
+const { GameHeader } = db;
+
 const router = express.Router();
-
 router.use(authenticateToken);
-
-const { getUsersByList } = require("../helper/getUsers");
-const { GameHeader } = require("../models");
-
 const COUNTDOWN_TIME = 3000;
 /*
 
@@ -69,7 +70,7 @@ router.post("/quickdraw/pregame", async (req, res) => {
   });
 });
 
-router.post("/quickplay/run", async (req, res) => {
+router.post("/quickdraw/run", async (req, res) => {
   const client_id = req.authUser.id;
   const session_id = req.body.session_id;
 
@@ -86,13 +87,13 @@ router.post("/quickplay/run", async (req, res) => {
   res.sendStatus(200);
 });
 
-router.post("/quickplay/startGame", async (req, res) => {
+router.post("/quickdraw/startGame", async (req, res) => {
   //Both clients must call this api before any actions are taken
   const session_id = req.body.session_id;
   const client_id = req.authUser.id;
   logger.info("startGame called");
   if (activeRooms.has(session_id)) {
-    game = activeRooms.get(session_id);
+    let game = activeRooms.get(session_id);
     if (game.players.player_1 == client_id) {
       game.checkInStatus.player_1 = true;
     } else {
@@ -201,14 +202,15 @@ function registerGameControllerHandlers(io, socket) {
 
   const playHand = (client_id, sessionId, hand) => {
     const debug = false;
+    let hands;
     // if (debug) {
     logger.info(client_id + " played a hand");
     // }
-    game = activeRooms.get(sessionId);
-    isPlayer_1 = game.players.player_1 == client_id;
-    game = activeRooms.get(sessionId);
-    thisRound = game.rounds[game.rounds.length - 1];
-    now = Date.now();
+    let game = activeRooms.get(sessionId);
+    let isPlayer_1 = game.players.player_1 == client_id;
+    // game = activeRooms.get(sessionId);
+    let thisRound = game.rounds[game.rounds.length - 1];
+    let now = Date.now();
     // logger.info("game");
     // logger.info(game);
 
@@ -247,7 +249,7 @@ function registerGameControllerHandlers(io, socket) {
       };
       io.to(sessionId).emit("ReceiveHand", isPlayer_1, hand);
 
-      temp = activeRooms.get(sessionId);
+      let temp = activeRooms.get(sessionId);
       if (debug) {
         logger.info("after hands");
         logger.info(temp.rounds[temp.rounds.length - 1].hands);
@@ -299,9 +301,9 @@ function registerGameControllerHandlers(io, socket) {
     io.to(session_id).emit("PlayerRan");
   };
 
-  socket.on("run", run);
-  socket.on("register", register);
-  socket.on("playHand", playHand);
+  socket.on("quickdraw_run", run);
+  socket.on("quickdraw_register", register);
+  socket.on("quickdraw_playHand", playHand);
 }
 
 async function doGame(io, gameInfo) {
@@ -320,10 +322,10 @@ async function doRound(io, gameInfo) {
     // logger.info("drawDelaySeconds: " + drawDelaySeconds);
     logger.info("emitting BeginReadyPhase");
     io.to(session_id).emit("BeginReadyPhase", drawTime);
-    now = Date.now();
+    let now = Date.now();
 
     //##TODO create a more complete object to store in active Rooms. may need player 1 and player two, gotta get them somehow
-    game = activeRooms.get(session_id);
+    let game = activeRooms.get(session_id);
     game.rounds.push({
       roundNumber: game.rounds.length + 1,
       readyTime: now,
@@ -364,7 +366,7 @@ async function doRound(io, gameInfo) {
 
 function updateGameStateAfterRound(io, gameInfo) {
   const session_id = gameInfo.sessionId;
-  game = activeRooms.get(session_id);
+  let game = activeRooms.get(session_id);
   let p1Score = 0;
   let p2Score = 0;
   let p1CBM = 0;
@@ -457,7 +459,7 @@ function didPlayer1GetCBM(p1HandTime, p2HandTime) {
 }
 
 function createPotentialGame(roster) {
-  potentialGame = {
+  let potentialGame = {
     isFinished: false,
     players: {
       player_1: roster.players.player_1,
@@ -499,4 +501,4 @@ function createPotentialGame(roster) {
   return potentialGame;
 }
 
-module.exports = { router, registerGameControllerHandlers };
+export { router, registerGameControllerHandlers };

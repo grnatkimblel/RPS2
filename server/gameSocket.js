@@ -1,13 +1,14 @@
-const { createServer } = require("http");
-const { Server } = require("socket.io");
-const jwt = require("jsonwebtoken");
-const authenticateToken = require("./helper/authenticateToken");
-const logger = require("./utils/logger");
+import { createServer } from "http";
+import { Server } from "socket.io";
+import jwt from "jsonwebtoken";
+import authenticateToken from "./helper/authenticateToken.js";
+import logger from "./utils/logger.js";
 //Socket.io Handlers
-const { registerGameControllerHandlers } = require("./routes/Game_Controller");
+import { registerGameControllerHandlers } from "./routes/Quickdraw_Game_Controller.js";
+import { instrument } from "@socket.io/admin-ui";
+import { Socket } from "dgram";
 
-module.exports = (server) => {
-  const { instrument } = require("@socket.io/admin-ui");
+export default (server) => {
   //io lives here Server side
   const io = new Server(server, {
     // cors: {
@@ -42,11 +43,11 @@ module.exports = (server) => {
   });
 
   io.on("connection", (socket) => {
-    logger.info(`User ${socket.id} connected`);
+    logger.info(`Socket: User ${socket.id} connected`);
     registerGameControllerHandlers(io, socket);
 
     socket.on("disconnect", (reason) => {
-      logger.info(`User ${socket.authUser.username} disconnected`);
+      logger.info(`Socket: User ${socket.authUser.username} disconnected`);
     });
   });
 

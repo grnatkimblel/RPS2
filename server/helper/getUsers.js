@@ -1,7 +1,8 @@
-const { authenticateToken } = require("../helper/authenticateToken");
+import authenticateToken from "../helper/authenticateToken.js";
 
-const { User } = require("../models");
-const { Op } = require("sequelize");
+import db from "../models/index.js";
+const { User } = db;
+import { Op } from "sequelize";
 
 async function getUsersByName(searchText) {
   console.log("returning searched players");
@@ -25,7 +26,4 @@ async function getUsersByList(listOfPlayers) {
   );
 }
 
-module.exports = {
-  getUsersByList,
-  getUsersByName,
-};
+export { getUsersByList, getUsersByName };

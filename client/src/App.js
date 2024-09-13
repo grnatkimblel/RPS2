@@ -17,6 +17,7 @@ import MainMenu from "./routes/mainMenu.js";
 import Online from "./routes/online";
 import Account from "./routes/account";
 import QuickdrawArena from "./routes/quickdrawArena";
+import TDMArena from "./routes/tdmArena";
 
 function App() {
   const navigate = useNavigate();
@@ -159,6 +160,19 @@ function App() {
         path={`/${PAGES.ONLINE.QUICKDRAW_ARENA}`}
         element={
           <QuickdrawArena
+            authHelper={authorizeThenCallHttp}
+            navigate={navigate}
+            userInfo={userInfo}
+            gameInfo={currentGameInfo}
+            gameInfoSetter={setCurrentGameInfo}
+            refreshToken={refreshToken}
+          />
+        }
+      />
+      <Route
+        path={`/${PAGES.ONLINE.TDM_ARENA}`}
+        element={
+          <TDMArena
             authHelper={authorizeThenCallHttp}
             navigate={navigate}
             userInfo={userInfo}

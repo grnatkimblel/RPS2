@@ -1,16 +1,23 @@
-const logger = require("../utils/logger");
-const dotenv = require("dotenv");
-const path = require("path");
+import logger from "../utils/logger.js";
+import dotenv from "dotenv";
+import path from "path";
+
+import express from "express";
+
+import db from "../models/index.js";
+// Get the User model from the db object
+const { User, RefreshToken } = db;
+import { Op } from "sequelize";
+import { fileURLToPath } from "url";
+
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+
+// Determine the current directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, "../config", ".env") });
-
-const express = require("express");
 const router = express.Router();
-
-const { User, RefreshToken } = require("../models");
-const { Op } = require("sequelize");
-
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
 
 //POSTS
 router.post("/login", async (req, res) => {
@@ -91,4 +98,4 @@ function generateAccessToken(user) {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "10m" });
 }
 
-module.exports = router;
+export default router;

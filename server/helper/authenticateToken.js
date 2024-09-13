@@ -1,8 +1,13 @@
-const dotenv = require("dotenv");
-const path = require("path");
-dotenv.config({ path: path.join(__dirname, "../config", ".env") });
+import dotenv from "dotenv";
+import path from "path";
+import jwt from "jsonwebtoken";
+import { fileURLToPath } from "url";
 
-const jwt = require("jsonwebtoken");
+// Determine the current directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, "../config", ".env") });
 
 //MIDDLEWARE
 function authenticateToken(req, res, next) {
@@ -21,4 +26,4 @@ function authenticateToken(req, res, next) {
   });
 }
 
-module.exports = authenticateToken;
+export default authenticateToken;

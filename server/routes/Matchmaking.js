@@ -1,17 +1,20 @@
-const express = require("express");
-const router = express.Router();
-const logger = require("../utils/logger");
-const authenticateToken = require("../helper/authenticateToken");
-const { matchmakingEventEmitter } = require("../MatchmakingService");
+import express from "express";
+import logger from "../utils/logger.js";
+import authenticateToken from "../helper/authenticateToken.js";
+import { matchmakingEventEmitter } from "../MatchmakingService.js";
 
-const { getUsersByList } = require("../helper/getUsers");
+import { getUsersByList } from "../helper/getUsers.js";
+
+import {
+  GAMEMODES,
+  GAMEMODE_TYPES,
+  MATCHMAKING_TYPES,
+} from "../shared/enums/gameEnums.js"; //This file name is set in docker compose;
+
+const router = express.Router();
 router.use(authenticateToken);
 
-const validGameTypes = ["quickplay", "ranked"];
-const validGameModes = ["quickdraw", "tdm", "s&d"];
-const validMatchmakingTypes = ["random", "search"];
-
-doLogging = true;
+let doLogging = true;
 
 router.post("/addPlayer", async (req, res) => {
   const gameType = req.body.gameType;
@@ -66,7 +69,22 @@ router.post("/addPlayer", async (req, res) => {
     }
   });
 
-  matchmakingEventEmitter.emit(requestEventName, client_id, chosenOne_id);
+  if (matchmakingType == MATCHMAKING_TYPES.RANDOM) {
+    matchmakingEventEmitter.emit(
+      `${matchmakingType}-AddPlayer`,
+      client_id,
+      gameType,
+      gameMode
+    );
+  } else if (matchmakingType == MATCHMAKING_TYPES.SEARCH) {
+    matchmakingEventEmitter.emit(
+      `${matchmakingType}-AddPlayer`,
+      client_id,
+      chosenOne_id,
+      gameType,
+      gameMode
+    );
+  }
 });
 
 router.post("/removePlayer", async (req, res) => {
@@ -88,44 +106,56 @@ router.post("/removePlayer", async (req, res) => {
     );
   }
 
-  let requestEventName = `${capitalizeFirstLetter(
-    gameType
-  )}:${capitalizeFirstLetter(gameMode)}:${capitalizeFirstLetter(
-    matchmakingType
-  )}:${matchmakingType == "random" ? "removePlayer" : "removeInvite"}`;
-
-  matchmakingEventEmitter.emit(requestEventName, client_id);
+  matchmakingEventEmitter.emit(
+    `${matchmakingType}-RemovePlayer`,
+    client_id,
+    gameType,
+    gameMode
+  );
   res.sendStatus(200);
 });
 
-router.post("/quickplay/quickdraw/search/checkInvite", async (req, res) => {
+router.post("search/checkInvite", async (req, res) => {
   //logger.info("Invites Searched for ", req.body.client_id);
   const client_id = req.authUser.id;
   if (doLogging) {
     const playerName = req.authUser.username;
-    logger.info(`${playerName} called Q:Q:R:RR`);
+    logger.info(
+      `${playerName} called ${gameType}:${gameMode}:Search:CheckInvite`
+    );
   }
   const otherPlayer_id = req.body.otherPlayer_id;
-  const eventName = client_id + "Q:Q:S:CI";
+  const gameType = req.body.gameType;
+  const gameMode = req.body.gameMode;
+  const eventName =
+    client_id + ">" + gameType + ":" + gameMode + ":Search:CheckInviteResponse";
   matchmakingEventEmitter.once(eventName, (isJoinable) => {
     //logger.info("found Joinable: ", isJoinable);
     res.send(isJoinable);
   });
   matchmakingEventEmitter.emit(
-    "Quickplay:Quickdraw:Search:checkInviteToClient",
+    "Search-CheckInviteToClient",
     client_id,
-    otherPlayer_id
+    otherPlayer_id,
+    gameType,
+    gameMode
   );
 });
 
 function validateRequestsGameDetails(gameType, gameMode, matchmakingType) {
-  if (!validGameTypes.includes(gameType)) {
+  // logger.info("Object.values(GAMEMODE_TYPES)");
+  // logger.info(Object.values(GAMEMODE_TYPES));
+  // logger.info("gameType");
+  // logger.info(gameType);
+  // logger.info("is Object.values(GAMEMODE_TYPES).includes(gameType)");
+  // logger.info(Object.values(GAMEMODE_TYPES).includes(gameType));
+  if (!Object.values(GAMEMODE_TYPES).includes(gameType)) {
     throw new Error("/addPlayer called with bad gameType:", gameType);
   }
-  if (!validGameModes.includes(gameMode)) {
+  if (!Object.values(GAMEMODES).includes(gameMode)) {
     throw new Error("/addPlayer called with bad gameMode:", gameMode);
   }
-  if (!validMatchmakingTypes.includes(matchmakingType)) {
+  if (!Object.values(MATCHMAKING_TYPES).includes(matchmakingType)) {
     throw new Error(
       "/addPlayer called with bad matchmakingType:",
       matchmakingType
@@ -142,46 +172,30 @@ function getEventNamesForAddingPlayers(
   let requestEventName;
   let responseEventName;
 
-  if (gameType == "ranked") {
-    if (matchmakingType == "search") {
+  if (gameType == GAMEMODE_TYPES.RANKED) {
+    if (matchmakingType == MATCHMAKING_TYPES.SEARCH) {
       throw new Error(
         "Invalid addPlayer request. Ranked Search is an invalid gameType matchmakingType combo"
       );
     }
   }
 
-  requestEventName = `${capitalizeFirstLetter(
-    gameType
-  )}:${capitalizeFirstLetter(gameMode)}:${capitalizeFirstLetter(
-    matchmakingType
-  )}:${matchmakingType == "random" ? "newPlayer" : "newInvite"}`;
-
-  let responseEventGameModeName =
-    gameMode == "quickdraw"
-      ? gameMode.charAt(0).toUpperCase()
-      : gameMode.toUpperCase();
+  // let matchmakingAddType = MATCHMAKING_TYPES.RANDOM ? "newPlayer" : "newInvite";
+  requestEventName = `${gameType}:${gameMode}:${matchmakingType}-AddPlayer`; //ex. Quickplay:Quickdraw:Random-addPlayer
 
   responseEventName =
     client_id +
-    gameType.charAt(0).toUpperCase() +
+    ">" +
+    gameType +
     ":" +
-    responseEventGameModeName +
+    gameMode +
     ":" +
-    matchmakingType.charAt(0).toUpperCase() +
-    "-New";
+    matchmakingType +
+    "-AddPlayerResponse"; // ex. client_id>Quickplayer:Quickdraw:Random-addPlayerResponse
 
   // logger.info("before returning");
   // logger.info({ requestEventName, responseEventName });
   return { requestEventName, responseEventName };
 }
 
-function capitalizeFirstLetter(text) {
-  let firstLetter = text.charAt(0).toUpperCase();
-  let restOfText = text.slice(1);
-  // logger.info(
-  //   `capitalize first letter called on ${text}. first letter is ${firstLetter} and restOfText is ${restOfText}`
-  // );
-  return firstLetter + restOfText;
-}
-
-module.exports = router;
+export default router;

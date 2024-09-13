@@ -1,12 +1,14 @@
-const { User, RefreshToken } = require("../models");
-const { getUsersByList, getUsersByName } = require("../helper/getUsers");
-const logger = require("../utils/logger");
-const authenticateToken = require("../helper/authenticateToken");
+import db from "../models/index.js";
+// Get the User model from the db object
+const { User, RefreshToken } = db;
+import { getUsersByList, getUsersByName } from "../helper/getUsers.js";
+import logger from "../utils/logger.js";
+import authenticateToken from "../helper/authenticateToken.js";
 
-const express = require("express");
+import express from "express";
+import bcrypt from "bcrypt";
+
 const router = express.Router();
-
-const bcrypt = require("bcrypt");
 
 //POSTS
 router.post("/createUser", async (req, res) => {
@@ -79,4 +81,4 @@ router.delete("/logout", authenticateToken, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

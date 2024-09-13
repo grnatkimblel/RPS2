@@ -36,8 +36,8 @@ function MainMenu({ navigate, userInfo, onLogout }) {
       >
         <button
           style={{ flex: 1 }}
-          className="notInteractableColor"
-          onClick={() => navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`)}
+          className="defaultColor"
+          onClick={() => navigate(`/${PAGES.ONLINE.TDM_ARENA}`)}
         >
           Local
         </button>

@@ -8,7 +8,7 @@ gameHeader : {
 }
 */
 
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
   const GameHeader = sequelize.define("GameHeader", {
     game_id: {
       primaryKey: true,
@@ -16,10 +16,18 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     winner: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
     },
     loser: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
+    },
+    player_1_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+    player_2_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
     },
   });
 

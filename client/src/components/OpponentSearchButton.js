@@ -39,6 +39,8 @@ function OpponentSearchButton({ authHelper, gameInfoSetter, currentGameMode }) {
             "POST",
             {
               otherPlayer_id: opponent.id,
+              gameType: currentGameMode.gameType,
+              gameMode: currentGameMode.gameMode,
             }
           );
           const isJoinable = await response.json();

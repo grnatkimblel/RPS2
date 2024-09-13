@@ -1,4 +1,7 @@
-module.exports = (sequelize, DataTypes) => {
+// models/User.js
+import { DataTypes } from "sequelize";
+
+export default (sequelize) => {
   const User = sequelize.define(
     "User",
     {

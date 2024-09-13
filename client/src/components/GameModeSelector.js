@@ -1,5 +1,5 @@
 import PAGES from "../enums/pages";
-import { GAMEMODES, GAMEMODE_TYPES } from "../enums/gameEnums";
+import { GAMEMODES, GAMEMODE_TYPES } from "../shared/enums/gameEnums"; //This file name is set in docker compose
 
 import { useState } from "react";
 
@@ -15,7 +15,7 @@ function GameModeSelector({
       case GAMEMODE_TYPES.QUICKPLAY:
         //console.log("quickplay selected");
         gameModeSetter({
-          gameModeType: gameModeType,
+          gameType: GAMEMODE_TYPES.QUICKPLAY,
           gameMode: childGameMode,
         });
         break;
@@ -23,7 +23,7 @@ function GameModeSelector({
       case GAMEMODE_TYPES.RANKED:
         //console.log("ranked selected");
         gameModeSetter({
-          gameModeType: gameModeType,
+          gameType: GAMEMODE_TYPES.RANKED,
           gameMode: childGameMode,
         });
         break;
@@ -81,7 +81,7 @@ function GameModeSelector({
             <div className="gamemode-smalltext">{gameModeType}</div>
             <button
               style={{ width: "100%", height: "100%" }}
-              className={"notInteractableColor " + bonusStyles}
+              className={"defaultColor " + bonusStyles}
               onClick={() => setGameMode(GAMEMODES.TDM)}
             >
               TDM

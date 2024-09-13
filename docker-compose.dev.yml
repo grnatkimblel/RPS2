@@ -9,6 +9,7 @@ services:
         - REACT_APP_HOST_URL=http://localhost:8080/
     volumes:
       - ./client:/usr/src/app
+      - ./sharedCode:/usr/src/app/src/shared
     container_name: client
     environment:
       - WATCHPACK_POLLING=true
@@ -45,6 +46,7 @@ services:
     tty: true
     volumes:
       - ./server:/usr/src/app
+      - ./sharedCode:/usr/src/app/shared
       - /usr/src/app/node_modules # anonymous volume for node_modules only
     command: npm run dev
     depends_on:

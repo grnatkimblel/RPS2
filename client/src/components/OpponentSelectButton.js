@@ -1,5 +1,6 @@
 import { useState } from "react";
 import API_ROUTES from "../enums/apiRoutes";
+import { MATCHMAKING_TYPES } from "../shared/enums/gameEnums";
 
 function OpponentSelectButton({
   opponentInfo,
@@ -16,9 +17,9 @@ function OpponentSelectButton({
   const sendInvitation = () => {
     setIsGreen(true);
     authHelper(API_ROUTES.MATCHMAKING.ADD_PLAYER, "POST", {
-      gameType: currentGameMode.gameModeType.toLowerCase(),
-      gameMode: currentGameMode.gameMode.toLowerCase(),
-      matchmakingType: "search",
+      gameType: currentGameMode.gameModeType,
+      gameMode: currentGameMode.gameMode,
+      matchmakingType: MATCHMAKING_TYPES.SEARCH,
 
       chosenOne_id: opponentInfo.id,
     }).then(async (res) => {
@@ -37,9 +38,9 @@ function OpponentSelectButton({
     setIsGreen(false);
     if (invitationSent) {
       authHelper(API_ROUTES.MATCHMAKING.REMOVE_PLAYER, "POST", {
-        gameType: currentGameMode.gameModeType.toLowerCase(),
-        gameMode: currentGameMode.gameMode.toLowerCase(),
-        matchmakingType: "search",
+        gameType: currentGameMode.gameModeType,
+        gameMode: currentGameMode.gameMode,
+        matchmakingType: MATCHMAKING_TYPES.SEARCH,
       });
       setInvitationSent(false);
     }

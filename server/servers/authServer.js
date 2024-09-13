@@ -1,13 +1,13 @@
-const express = require("express");
-const cors = require("cors");
+import express from "express";
+import cors from "cors";
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
 //Routers
-const userRouter = require("../routes/User_Auth");
+import userRouter from "../routes/User_Auth.js";
 
 app.use("/api/auth", userRouter);
 
-module.exports = app;
+export default app;

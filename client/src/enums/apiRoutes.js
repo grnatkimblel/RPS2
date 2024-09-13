@@ -1,4 +1,4 @@
-const API_ROUTES = {
+const API_ROUTES = Object.freeze({
   LOGIN: process.env.REACT_APP_HOST_URL + "api/auth/login",
   LOGOUT: process.env.REACT_APP_HOST_URL + "api/menu/user/logout",
   REGISTER: process.env.REACT_APP_HOST_URL + "api/menu/user/createUser",
@@ -19,10 +19,10 @@ const API_ROUTES = {
     QUICKDRAW: {
       PREGAME: process.env.REACT_APP_HOST_URL + "api/game/quickdraw/pregame",
       START_GAME:
-        process.env.REACT_APP_HOST_URL + "api/game/quickplay/startGame",
-      RUN: process.env.REACT_APP_HOST_URL + "api/game/quickplay/run",
+        process.env.REACT_APP_HOST_URL + "api/game/quickdraw/startGame",
+      RUN: process.env.REACT_APP_HOST_URL + "api/game/quickdraw/run",
     },
   },
-};
+});
 
 export default API_ROUTES;

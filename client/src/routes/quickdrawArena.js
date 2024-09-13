@@ -11,7 +11,7 @@ import DrumrollURL from "../audio/Drumroll.ogg";
 import useSound from "use-sound";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import useSocket from "../hooks/useSocket";
-import { Socket } from "socket.io-client";
+//import { Socket } from "socket.io-client";
 
 // require("react-dom");
 // window.React2 = require("react");
@@ -52,9 +52,9 @@ gameHeader : {
 function QuickdrawArena({
   authHelper,
   navigate,
-  userInfo,
-  gameInfo,
-  gameInfoSetter,
+  userInfo, //client information
+  gameInfo, //game connection info, received from matchmaking service
+  gameInfoSetter, //needed to reset when user runs or game ends
   refreshToken,
 }) {
   const PREGAME_PHASE_TEXT = "OR-RPS";
@@ -273,7 +273,7 @@ function QuickdrawArena({
   }, [socket, isRegistered, isSocketSetup]);
 
   function registerSocket(socket, gameInfo) {
-    socket.emit("register", gameInfo);
+    socket.emit("quickdraw_register", gameInfo);
   }
 
   //for debugging
@@ -301,7 +301,12 @@ function QuickdrawArena({
       console.log("playing hand: " + hand);
       console.log("gameDisplayState.gamePhase: " + gameDisplayState.gamePhase);
 
-      socket.emit("playHand", userInfo.userId, gameInfo.sessionId, hand);
+      socket.emit(
+        "quickdraw_playHand",
+        userInfo.userId,
+        gameInfo.sessionId,
+        hand
+      );
 
       //set display client side, other clients will experience a delay before this is reflected
       if (gameDisplayState.gamePhase == GAME_PHASES.DRAW) {
@@ -403,12 +408,13 @@ function QuickdrawArena({
   }, [gameInfo, authHelper]);
 
   const run = useCallback(async () => {
-    socket.emit("run", gameInfo.sessionId);
+    socket.emit("quickdraw_run", gameInfo.sessionId);
     setIsConnected(false);
     // await authHelper(API_ROUTES.GAME.QUICKDRAW.RUN, "POST", {
     //   session_id: gameInfo.sessionId,
     // });
-    gameInfoSetter({});
+    // gameInfoSetter({});
+    navigate(PAGES.MAIN_MENU);
   }, [socket, authHelper]);
 
   const getScoreCards = (playerScore, isLeft) => {

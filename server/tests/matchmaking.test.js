@@ -1,18 +1,15 @@
-const { test, before, after, describe, it } = require("node:test");
-const assert = require("node:assert/strict");
-const supertest = require("supertest");
+import { test, before, after, describe, it } from "node:test";
+import assert from "node:assert/strict";
+import supertest from "supertest";
 
-const { Op } = require("sequelize");
-const db = require("../models/index.js");
-const { User, RefreshToken, GameHeader } = require("../models/index.js");
-const {
-  matchmakingEventEmitter,
-  playerQueue,
-} = require("../MatchmakingService");
+import { Op } from "sequelize";
+import db from "../models/index.js";
+import { User, RefreshToken, GameHeader } from "../models/index.js";
+import { matchmakingEventEmitter, playerQueue } from "../MatchmakingService";
 
-const authApp = require("../servers/authServer.js");
-const userApp = require("../servers/menuServer.js");
-const gameApp = require("../servers/gameControllerServer.js");
+import authApp from "../servers/authServer.js";
+import userApp from "../servers/menuServer.js";
+import gameApp from "../servers/gameControllerServer.js";
 const authApi = supertest(authApp);
 const userApi = supertest(userApp);
 const gameApi = supertest(gameApp);
