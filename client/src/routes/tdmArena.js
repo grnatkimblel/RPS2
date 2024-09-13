@@ -107,20 +107,21 @@ function TDMArena({
 
   useEffect(() => {
     const myP5 = new p5(Sketch, p5Ref.current);
+    let unsubscribeSocket;
     if (socket && socket.connected) {
       //subscribe to all events
-      let unsubscribeSocket = subscribeSocket(socket);
+      unsubscribeSocket = subscribeSocket(socket);
     }
     return () => {
       myP5.remove();
-      if (unsubscribeSocket) unsubscribeSocket();
+      if (unsubscribeSocket != null) unsubscribeSocket();
     };
   }, [socket]);
 
   function subscribeSocket(socket) {
     socket.on("startGame", (payload) => {
-      logger.info("GameStarted");
-      logger.info("payload");
+      console.log("GameStarted");
+      console.log("payload");
     });
     socket.on("receiveGameState", (gameState) => {});
     return () => {

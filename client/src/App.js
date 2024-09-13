@@ -18,6 +18,7 @@ import Online from "./routes/online";
 import Account from "./routes/account";
 import QuickdrawArena from "./routes/quickdrawArena";
 import TDMArena from "./routes/tdmArena";
+import QuicklogToQueue from "./testPages/quicklogToQueue.js";
 
 function App() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ function App() {
   //all http calls prior to quickdraw arena are made in response to events, so changing these to be useEffects is not gonna work i dont think.
   //changing to allow refreshTokens to only exist in the cookie means CORS bs, not impossible just not what im tryna fuck with rn.
 
-  const loginHelper = async (credentials) => {
+  const loginHelper = async (credentials, nextPage) => {
     //authorizes user and returns access tokens and user account info
     console.log(process.env.REACT_APP_HOST_URL);
     let res = await fetch(API_ROUTES.LOGIN, {
@@ -58,7 +59,7 @@ function App() {
         userId: body.user.userId,
         emoji: body.user.emoji,
       });
-      navigate(`/${PAGES.MAIN_MENU}`);
+      navigate(`/${nextPage}`);
     } else {
       let body = await res.text();
       console.log(body);
@@ -110,9 +111,21 @@ function App() {
 
   return (
     <Routes>
-      <Route
+      {/* <Route
         path={`/${PAGES.INITIAL}`}
         element={<Root navigate={navigate} />}
+      /> */}
+      <Route
+        path={`/${PAGES.INITIAL}`}
+        element={
+          <QuicklogToQueue
+            navigate={navigate}
+            login={loginHelper}
+            authHelper={authorizeThenCallHttp}
+            userInfo={userInfo}
+            gameInfoSetter={setCurrentGameInfo}
+          />
+        }
       />
       <Route
         path={`/${PAGES.LOGIN}`}

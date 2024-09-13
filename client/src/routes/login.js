@@ -48,7 +48,7 @@ function Login({ navigate, login }) {
             });
           }}
           OnClick={async () => {
-            await login(userCredentials);
+            await login(userCredentials, PAGES.MAIN_MENU);
           }}
         />
       </div>
