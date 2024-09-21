@@ -10,6 +10,8 @@ export default function useSocket(refreshToken, isConnected) {
   const [isSocketConnected, setIsSocketConnected] = useState(false);
 
   useEffect(() => {
+    console.log("useSocket called. isConnected:", isConnected);
+    let ignore = false;
     if (isConnected) {
       const initializeSocket = async () => {
         try {
@@ -28,6 +30,7 @@ export default function useSocket(refreshToken, isConnected) {
           //On Socket Connect Events
           newSocket.on("connect", () => {
             console.log("Socket connected To Server");
+            console.log(newSocket);
             setIsSocketConnected(true);
           });
           newSocket.on("connect_error", (err) => {
@@ -41,11 +44,12 @@ export default function useSocket(refreshToken, isConnected) {
             console.log(err.context);
           });
           newSocket.on("disconnect", () => {
-            console.log("Socket disconnected To Server");
+            console.log("Socket disconnected from Server");
           });
-
-          newSocket.connect(); //this is not instantaneous
-          setSocket(newSocket);
+          if (!ignore) {
+            newSocket.connect(); //this is not instantaneous
+            setSocket(newSocket);
+          }
         } catch (error) {
           console.error("Error initializing socket:", error);
         }
@@ -61,6 +65,7 @@ export default function useSocket(refreshToken, isConnected) {
     }
     return () => {
       console.log("SocketCleanup");
+      ignore = true;
       if (socket) {
         console.log("SocketCleanup actually");
         socket.off("connect");

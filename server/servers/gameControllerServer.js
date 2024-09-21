@@ -14,7 +14,9 @@ const io = socket(server);
 
 //Routers
 import { router as QuickdrawGameControllerRouter } from "../routes/Quickdraw_Game_Controller.js";
+import { router as TDMGameControllerRouter } from "../routes/TDM_Game_Controller.js";
 
 app.use("/api/game", QuickdrawGameControllerRouter);
+app.use("/api/game", TDMGameControllerRouter);
 
 export default server;

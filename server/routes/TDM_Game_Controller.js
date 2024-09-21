@@ -8,7 +8,14 @@ router.use(authenticateToken);
 
 //maps sessionId's to GameState objects
 let activeRooms = new Map();
+//maps sessionId's to InputQueues
+let inputQueue = new Map();
 
+let gameTicksSoFar = 0;
+let setTimeoutsCalled = 0;
+let setImmediatesCalled = 0;
+let previousTick;
+const GAME_TICKS_LENGTH = 100; //in ms
 const GAME_TIME_LIMIT = 180;
 const hands = {
   ROCK: "rock",
@@ -17,13 +24,13 @@ const hands = {
 };
 
 //prob need to make a map object
-const mapSizes = [(1000, 945)];
+const mapSizes = [{ w: 1000, h: 945 }];
 /*
 Lets describe the Game State
 GameState:
     Round State:
         Score: int
-        TimeLeft: int (ms since 1980)
+        EndTime: int (ms since 1980)
 
     Map State:
         Size: (x,y) tuple
@@ -36,7 +43,7 @@ GameState:
             - After dying players may be unable to respawn for a period of time
             hand: Enum
             - All players are either Rock, Paper, or Scissors
-            position: (x,y) tuple
+            position: {x,y}
             - x,y coordinates in the bounds of the map size
             team: int
             - MAYBE more than 2 teams but super unlikely, mostly just to future proof
@@ -67,32 +74,145 @@ function registerGameControllerHandlers(io, socket) {
       io.to(session_id).emit("test", "   Room Full");
       logger.info("starting TDM");
       io.to(session_id).emit("startGame", activeRooms.get(session_id));
+      previousTick = Date.now();
+      gameLoop(io, gameInfo);
     }
   });
+
+  socket.on("playerInput", (session_id, playerInputQueue) => {
+    let client_id = socket.client_id;
+    let inputToPush = {
+      userId: client_id,
+      inputs: playerInputQueue,
+      currentTime: Date.now(),
+    };
+    let currentQueue;
+    if (inputQueue.has(session_id)) {
+      currentQueue = inputQueue.get(session_id);
+      currentQueue.push(inputToPush);
+    } else {
+      currentQueue = new Array(inputToPush);
+    }
+    inputQueue.set(session_id, currentQueue);
+    // logger.info("");
+    // logger.info(inputQueue.get(session_id));
+  });
+}
+
+//Credit to alex@timetocode.com
+//https://github.com/timetocode/node-game-loop/blob/master/gameLoop.js
+
+function gameLoop(io, gameInfo) {
+  let now = Date.now();
+  gameTicksSoFar += 1;
+
+  if (previousTick + GAME_TICKS_LENGTH <= now) {
+    let delta = (now - previousTick) / 1000;
+    previousTick = now;
+    doGameTick(io, gameInfo);
+    // logger.info(
+    //   "delta",
+    //   delta,
+    //   "(target: " + GAME_TICKS_LENGTH + " ms)",
+    //   "node ticks",
+    //   gameTicksSoFar,
+    //   "setTimeoutCalled",
+    //   setTimeoutsCalled,
+    //   "setImmediateCalled",
+    //   setImmediatesCalled
+    // );
+    /*
+    this is mad accurate, takes 20000 calls to execute on time tho. Im just trusting that dude
+    SetTimeout is called around 70-80 times, setImmediate is called the other 20,000+. Rarely its below 10k tho.
+    */
+    gameTicksSoFar = 0;
+    setTimeoutsCalled = 0;
+    setImmediatesCalled = 0;
+  }
+
+  if (Date.now() - previousTick < GAME_TICKS_LENGTH - 16) {
+    setTimeoutsCalled += 1;
+    setTimeout(() => {
+      gameLoop(io, gameInfo);
+    });
+  } else {
+    setImmediatesCalled += 1;
+    setImmediate(() => {
+      gameLoop(io, gameInfo);
+    });
+  }
+}
+
+function doGameTick(io, gameInfo) {
+  // logger.info("gameInfo");
+  // logger.info(gameInfo);
+  // logger.info("inputQueue");
+  // logger.info(inputQueue);
+  const session_id = gameInfo.sessionId;
+  let sessionGameState = activeRooms.get(session_id);
+  let sessionInputQueue = inputQueue.get(session_id);
+  //flatten inputs into a single array
+  if (sessionInputQueue) {
+    let flatInputArray = [];
+
+    sessionInputQueue.forEach((packet) => {
+      const packetLength = packet.inputs.length;
+      packet.inputs.forEach((input, index) => {
+        let gameInput = { ...input };
+        gameInput.userId = packet.userId;
+        gameInput.timestamp = Math.floor(
+          packet.currentTime - (packetLength - (index + 1)) * 16.667
+        );
+        flatInputArray.push(gameInput);
+      });
+    });
+    if (flatInputArray.length > 0) {
+      flatInputArray.sort((a, b) => b.timestamp - a.timestamp); //we want these sorted greatest to least so we can pop() from the end of the array into the update fn
+      while (flatInputArray.length > 0) {
+        sessionGameState = updateGameState(
+          sessionGameState,
+          flatInputArray.pop()
+        );
+      }
+      io.to(session_id).emit("receiveGameState", sessionGameState);
+    }
+    // logger.info(flatInputArray);
+    // Object.keys(sessionGameState.players).forEach((player) =>
+    //   logger.info(sessionGameState.players[player].position)
+    // );
+  }
+  //sort all input in time
+  //eventually sort inputs taking into consideration the time between inputs allowing users to have inputs weaving through packets
+  // logger.info(sessionInputQueue);
+  inputQueue.delete(session_id);
 }
 
 //hacked together from quickdraw matchmaking
 function createNewGameState(gameInfo) {
+  console.log("mapSizes");
+  console.log(mapSizes);
   let playerList = [];
-  let playerGameStates = Map();
-  playerList.append(gameInfo.player1.userId);
-  playerList.append(gameInfo.player2.userId);
+  let playerGameStates = {};
+  playerList.push(gameInfo.player1.userId);
+  playerList.push(gameInfo.player2.userId);
 
   playerList.forEach((playerId, index) => {
-    playerGameStates.set(playerId, {
+    playerGameStates[playerId] = {
       id: playerId,
       isAlive: true,
       hand: hands.ROCK,
       position: {
-        x: (mapSizes[0][0] / 10) * index + 1,
-        y: (mapSizes[0][1] / 10) * index,
+        x: (mapSizes[0].w / 10) * (index + 2),
+        y: (mapSizes[0].h / 10) * 2,
       },
       team: index,
       isMobile: true,
-    });
+    };
   });
 
-  newGameState = {
+  console.log("playerGameStates");
+  console.log(playerGameStates);
+  let newGameState = {
     isFinished: false,
     players: playerGameStates,
     round: {
@@ -105,3 +225,19 @@ function createNewGameState(gameInfo) {
   //logger.info(shellObject);
   return newGameState;
 }
+
+function updateGameState(gameState, input) {
+  let inputClient = input.userId;
+  //change hands
+  //move players
+  let playerState = gameState.players[inputClient];
+  if (input.up) playerState.position.y -= 1;
+  if (input.down) playerState.position.y += 1;
+  if (input.left) playerState.position.x -= 1;
+  if (input.right) playerState.position.x += 1;
+  //check collisions
+
+  return gameState;
+}
+
+export { registerGameControllerHandlers };

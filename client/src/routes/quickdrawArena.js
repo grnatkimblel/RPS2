@@ -108,7 +108,7 @@ function QuickdrawArena({
   const socket = useSocket(refreshToken, isConnected);
   const [isSocketSetup, setIsSocketSetup] = useState(false);
 
-  function setUpSocket(socket) {
+  function subscribeSocket(socket) {
     // console.log("socket instanceof Socket");
     // console.log(socket instanceof Socket);
 
@@ -249,11 +249,11 @@ function QuickdrawArena({
     // console.log("socket handler UseEffect Running");
 
     if (socket && socket.connected) {
-      // console.log("setupSocket");
-      let cleanupFunction = setUpSocket(socket);
+      // console.log("subscribeSocket");
+      let unsubscribeSocket = subscribeSocket(socket);
       setIsSocketSetup(true);
 
-      return cleanupFunction;
+      return unsubscribeSocket;
     } else {
       // console.log("Socket UseEffect: Socket unable to be setup");
     }
@@ -303,7 +303,7 @@ function QuickdrawArena({
 
       socket.emit(
         "quickdraw_playHand",
-        userInfo.userId,
+        //userInfo.userId, //the socket knows the client when its authorized
         gameInfo.sessionId,
         hand
       );

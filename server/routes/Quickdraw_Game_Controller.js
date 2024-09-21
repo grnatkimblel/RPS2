@@ -200,9 +200,10 @@ function registerGameControllerHandlers(io, socket) {
     }
   };
 
-  const playHand = (client_id, sessionId, hand) => {
+  const playHand = (sessionId, hand) => {
     const debug = false;
     let hands;
+    let client_id = socket.client_id;
     // if (debug) {
     logger.info(client_id + " played a hand");
     // }

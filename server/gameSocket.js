@@ -4,17 +4,18 @@ import jwt from "jsonwebtoken";
 import authenticateToken from "./helper/authenticateToken.js";
 import logger from "./utils/logger.js";
 //Socket.io Handlers
-import { registerGameControllerHandlers } from "./routes/Quickdraw_Game_Controller.js";
+import { registerGameControllerHandlers as QuickdrawGameControllerHandlers } from "./routes/Quickdraw_Game_Controller.js";
+import { registerGameControllerHandlers as TDMGameControllerHandlers } from "./routes/TDM_Game_Controller.js";
 import { instrument } from "@socket.io/admin-ui";
 import { Socket } from "dgram";
 
 export default (server) => {
   //io lives here Server side
   const io = new Server(server, {
-    // cors: {
-    //   origin: ["http://localhost:3000", "https://admin.socket.io"],
-    //   credentials: true,
-    // },
+    cors: {
+      origin: ["http://localhost:3000", "https://admin.socket.io"],
+      credentials: true,
+    },
   });
   instrument(io, { auth: false, mode: "development" });
 
@@ -44,7 +45,8 @@ export default (server) => {
 
   io.on("connection", (socket) => {
     logger.info(`Socket: User ${socket.id} connected`);
-    registerGameControllerHandlers(io, socket);
+    QuickdrawGameControllerHandlers(io, socket);
+    TDMGameControllerHandlers(io, socket);
 
     socket.on("disconnect", (reason) => {
       logger.info(`Socket: User ${socket.authUser.username} disconnected`);
