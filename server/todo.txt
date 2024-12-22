@@ -1,1 +1,20 @@
-change all instances of interactable to interactive
+Netcode Techniques:
+ - Client Side Interpolation
+    - Client will interpolate between its previous and latest position data when it receives a gamestate
+ - Client Side Reconciliation
+    - Client will allow the user to retain the client players position provided the incoming gamestate is consistent with the clients past. If not, reconciliation, 
+      where the clients inputs are recorded and re-simulated starting from the latest received gamestate, is performed to re-synchronize the client with the server
+ - Client Side Prediction
+    - This replaces client side interpolation.
+    - Client displays other players positions updating without gamestate directive, instead predicting the other clients will continue their previous behavior. 
+      They too will be subject to reconciliation in the case that the latest gamestate is not consistent.
+
+
+Client needs to accept gamestate function and initial gamestate as delivered by server.
+
+Packets should have unique identifiers assigned to them before they are sent. When the server updates the gamestate, 
+all packets that were processed have their ids put into a list and sent back with the gamestate
+Clients can check the received gamestate to see what of their sent packets have been acknowledged. This allows for reconciliation.
+
+
+Client side reconciliation is triggered for client who have no unacknowledged packets to resolve

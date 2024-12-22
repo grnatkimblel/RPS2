@@ -1,5 +1,6 @@
 import authenticateToken from "../helper/authenticateToken.js";
 import logger from "../utils/logger.js";
+import updateGameState from "../shared/updateGameState.js";
 
 import express from "express";
 const router = express.Router();
@@ -79,11 +80,12 @@ function registerGameControllerHandlers(io, socket) {
     }
   });
 
-  socket.on("playerInput", (session_id, playerInputQueue) => {
+  socket.on("playerInput", (session_id, packet) => {
     let client_id = socket.client_id;
     let inputToPush = {
       userId: client_id,
-      inputs: playerInputQueue,
+      packetId: packet.packetId,
+      inputs: packet.inputQueue,
       currentTime: Date.now(),
     };
     let currentQueue;
@@ -91,7 +93,7 @@ function registerGameControllerHandlers(io, socket) {
       currentQueue = inputQueue.get(session_id);
       currentQueue.push(inputToPush);
     } else {
-      currentQueue = new Array(inputToPush);
+      currentQueue = [inputToPush];
     }
     inputQueue.set(session_id, currentQueue);
     // logger.info("");
@@ -154,8 +156,10 @@ function doGameTick(io, gameInfo) {
   //flatten inputs into a single array
   if (sessionInputQueue) {
     let flatInputArray = [];
-
+    let acknowledgedPacketIds = [];
     sessionInputQueue.forEach((packet) => {
+      // logger.info(packet);
+      acknowledgedPacketIds.push(packet.packetId);
       const packetLength = packet.inputs.length;
       packet.inputs.forEach((input, index) => {
         let gameInput = { ...input };
@@ -169,12 +173,17 @@ function doGameTick(io, gameInfo) {
     if (flatInputArray.length > 0) {
       flatInputArray.sort((a, b) => b.timestamp - a.timestamp); //we want these sorted greatest to least so we can pop() from the end of the array into the update fn
       while (flatInputArray.length > 0) {
+        //add the list of packetId's outside the update to keep it clean
         sessionGameState = updateGameState(
           sessionGameState,
           flatInputArray.pop()
         );
       }
-      io.to(session_id).emit("receiveGameState", sessionGameState);
+      io.to(session_id).emit(
+        "receiveGameState",
+        sessionGameState,
+        acknowledgedPacketIds
+      ); // send the gamestate and list of acknowledged packets
     }
     // logger.info(flatInputArray);
     // Object.keys(sessionGameState.players).forEach((player) =>
@@ -224,20 +233,6 @@ function createNewGameState(gameInfo) {
 
   //logger.info(shellObject);
   return newGameState;
-}
-
-function updateGameState(gameState, input) {
-  let inputClient = input.userId;
-  //change hands
-  //move players
-  let playerState = gameState.players[inputClient];
-  if (input.up) playerState.position.y -= 1;
-  if (input.down) playerState.position.y += 1;
-  if (input.left) playerState.position.x -= 1;
-  if (input.right) playerState.position.x += 1;
-  //check collisions
-
-  return gameState;
 }
 
 export { registerGameControllerHandlers };
