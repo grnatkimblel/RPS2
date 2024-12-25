@@ -157,35 +157,41 @@ function TDMArena({
       console.log(unAcknowledgedGamestates.length);
       console.log(latestAcknowledgedGamestateIndex);
       console.log(unAcknowledgedGamestates[latestAcknowledgedGamestateIndex]);
-      if (
-        !isGamestatesEqual(
-          unAcknowledgedGamestates[latestAcknowledgedGamestateIndex].gameState,
-          authoritativeGamestate
-        )
-      ) {
-        //if it does, accept  the authoritativeGamestate as truth and replay packets and inputs since then.
-        //you can use the packets stored and the current input queue to view all inputs between the acknowledged gamestate and the present.
+      if (unAcknowledgedGamestates.length == 0) {
+        //no input from user but still has received input, maybe this shouldnt be here but whatever
         gameState.current = authoritativeGamestate;
-        unAcknowledgedGamestates = unAcknowledgedGamestates.slice(
-          latestAcknowledgedGamestateIndex + 1
-        );
-        //remove the acknowledged gamestate from the unacknowledged gamestate list
-        unAcknowledgedGamestates.forEach((tuple) => {
-          tuple.packet.inputQueue.forEach((input) => {
+      } else {
+        if (
+          !isGamestatesEqual(
+            unAcknowledgedGamestates[latestAcknowledgedGamestateIndex]
+              .gameState,
+            authoritativeGamestate
+          )
+        ) {
+          //if it does, accept  the authoritativeGamestate as truth and replay packets and inputs since then.
+          //you can use the packets stored and the current input queue to view all inputs between the acknowledged gamestate and the present.
+          gameState.current = authoritativeGamestate;
+          unAcknowledgedGamestates = unAcknowledgedGamestates.slice(
+            latestAcknowledgedGamestateIndex + 1
+          );
+          //remove the acknowledged gamestate from the unacknowledged gamestate list
+          unAcknowledgedGamestates.forEach((tuple) => {
+            tuple.packet.inputQueue.forEach((input) => {
+              gameState.current = updateGameState(gameState.current, {
+                ...input,
+                userId: userInfo.userId,
+              });
+            });
+          });
+          inputQueue.forEach((input) => {
             gameState.current = updateGameState(gameState.current, {
               ...input,
               userId: userInfo.userId,
             });
           });
-        });
-        inputQueue.forEach((input) => {
-          gameState.current = updateGameState(gameState.current, {
-            ...input,
-            userId: userInfo.userId,
-          });
-        });
-        //when interpolation is implemented, be careful to make sure that the displayed state is different from the reference states.
-        // -  a state with positions transitioning would never match the servers state
+          //when interpolation is implemented, be careful to make sure that the displayed state is different from the reference states.
+          // -  a state with positions transitioning would never match the servers state
+        }
       }
     };
 
