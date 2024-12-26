@@ -70,9 +70,20 @@ function TDMArena({
     let inputQueue = [];
     let unAcknowledgedGamestates = [];
     let isInputThisPacket = false;
-    let emptyInput = { up: false, down: false, left: false, right: false };
+    let emptyInput = {
+      up: false,
+      down: false,
+      left: false,
+      right: false,
+      rock: false,
+      paper: false,
+      scissors: false,
+    };
     let currentInput = {};
     Object.assign(currentInput, emptyInput);
+
+    const PLAYER_HITBOX_SIZE = 45;
+    const PLAYER_EMOJI_SIZE = 35;
 
     function areInputsSame(Input1, Input2) {
       for (const key in Input1) {
@@ -158,7 +169,7 @@ function TDMArena({
       console.log(latestAcknowledgedGamestateIndex);
       console.log(unAcknowledgedGamestates[latestAcknowledgedGamestateIndex]);
       if (unAcknowledgedGamestates.length == 0) {
-        //no input from user but still has received input, maybe this shouldnt be here but whatever
+        //no input from user but still has received input
         gameState.current = authoritativeGamestate;
       } else {
         if (
@@ -203,12 +214,23 @@ function TDMArena({
       // console.log("Framerate: ", p.millis() / (1000 * tickCount));
       tickCount += 1;
       p.background(0);
-      p.fill(255);
+      p.stroke(237, 50, 222); //hitbox color
       // console.log(gameState.current);
       for (let player of Object.keys(gameState.current.players)) {
-        let position = gameState.current.players[player].position;
+        let currentPlayerState = gameState.current.players[player];
+        let position = currentPlayerState.position;
+        let playerHandEmoji =
+          currentPlayerState.hand == "rock"
+            ? "🗿"
+            : currentPlayerState.hand == "paper"
+            ? "📄"
+            : currentPlayerState.hand == "scissors"
+            ? "✂️"
+            : "☣️";
         // console.log(position);
-        p.rect(position.x, position.y, 50, 50);
+        p.circle(position.x, position.y, PLAYER_HITBOX_SIZE);
+        p.textSize(PLAYER_EMOJI_SIZE);
+        p.text(playerHandEmoji, position.x - 23, position.y + 12); //align text with hitbox
       }
       if (p.keyIsDown(68)) {
         // playerPositions[PLAYER_NUMBER].x += 1;
@@ -236,6 +258,27 @@ function TDMArena({
         currentInput = {
           ...currentInput,
           down: true,
+        };
+      }
+      if (p.keyIsDown(p.LEFT_ARROW)) {
+        // playerPositions[PLAYER_NUMBER].y += 1;
+        currentInput = {
+          ...currentInput,
+          rock: true,
+        };
+      }
+      if (p.keyIsDown(p.UP_ARROW)) {
+        // playerPositions[PLAYER_NUMBER].y += 1;
+        currentInput = {
+          ...currentInput,
+          paper: true,
+        };
+      }
+      if (p.keyIsDown(p.RIGHT_ARROW)) {
+        // playerPositions[PLAYER_NUMBER].y += 1;
+        currentInput = {
+          ...currentInput,
+          scissors: true,
         };
       }
       clientSidePrediction(currentInput); //must occur first to provide a post input gamestate to unAcknowledgedGamestates
