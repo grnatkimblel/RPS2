@@ -179,6 +179,11 @@ function doGameTick(io, gameInfo) {
           flatInputArray.pop()
         );
       }
+      logger.info("acknowledging: ");
+      logger.info(acknowledgedPacketIds);
+      logger.info("sessionGameState: ");
+      logger.info(sessionGameState);
+      activeRooms.set(session_id, sessionGameState); //comment out to test reconciliation
       io.to(session_id).emit(
         "receiveGameState",
         sessionGameState,
@@ -216,12 +221,14 @@ function createNewGameState(gameInfo) {
       },
       team: index,
       isMobile: true,
+      score: 0,
     };
   });
 
   console.log("playerGameStates");
   console.log(playerGameStates);
   let newGameState = {
+    mapSize: { x: 1000, y: 945 },
     isFinished: false,
     players: playerGameStates,
     round: {
