@@ -103,7 +103,10 @@ function updateGameState(gameState, input) {
       */
 
       if (playerDistance <= MIN_DISTANCE) {
-        if (newGameState.players[otherPlayerId].isAlive) {
+        if (
+          newGameState.players[otherPlayerId].isAlive &&
+          newGameState.players[input.userId].isAlive
+        ) {
           //opponent is alive and will collide
           if (
             newGameState.players[otherPlayerId].team !=
@@ -120,11 +123,12 @@ function updateGameState(gameState, input) {
               //tie, do nothing
             } else {
               const collisionResult = handleCollision(
-                newGameState.players[otherPlayerId].hand,
-                newGameState.players[input.userId].hand
+                newGameState.players[otherPlayerId],
+                newGameState.players[input.userId]
               );
               if (collisionResult.winner) {
-                //
+                collisionResult.winner.score += 1;
+                collisionResult.loser.isAlive = false;
               }
             }
           }

@@ -179,10 +179,10 @@ function doGameTick(io, gameInfo) {
           flatInputArray.pop()
         );
       }
-      logger.info("acknowledging: ");
-      logger.info(acknowledgedPacketIds);
-      logger.info("sessionGameState: ");
-      logger.info(sessionGameState);
+      // logger.info("acknowledging: ");
+      // logger.info(acknowledgedPacketIds);
+      // logger.info("sessionGameState: ");
+      // logger.info(sessionGameState);
       activeRooms.set(session_id, sessionGameState); //comment out to test reconciliation
       io.to(session_id).emit(
         "receiveGameState",

@@ -11,6 +11,7 @@ services:
     container_name: client
     environment:
       - WATCHPACK_POLLING=true
+      - WDS_SOCKET_PORT=0
     networks:
       - public
     tty: true
