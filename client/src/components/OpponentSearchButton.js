@@ -68,7 +68,7 @@ function OpponentSearchButton({ authHelper, gameInfoSetter, currentGameMode }) {
       if (res == undefined) return;
       res.json().then(async (body) => {
         if (!ignore) {
-          // console.log("getUsers Response ", body);
+          console.log("getUsers Response ", body);
           const nonNullOpponents = body.filter((x) => x != null);
           setOpponents(nonNullOpponents);
           const opponentsWithInviteData = await updateIsJoinableStatus(

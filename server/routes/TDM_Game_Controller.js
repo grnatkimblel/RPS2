@@ -238,7 +238,6 @@ function createNewGameState(gameInfo) {
     },
   };
 
-  //logger.info(shellObject);
   return newGameState;
 }
 

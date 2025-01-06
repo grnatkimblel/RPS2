@@ -12,7 +12,7 @@ const API_ROUTES = Object.freeze({
     SEARCH: {
       CHECK_INVITE:
         process.env.REACT_APP_HOST_URL +
-        "api/menu/matchmaking/quickplay/quickdraw/search/checkInvite",
+        "api/menu/matchmaking/search/checkInvite",
     },
   },
   GAME: {

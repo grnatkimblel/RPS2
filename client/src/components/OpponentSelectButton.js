@@ -16,8 +16,9 @@ function OpponentSelectButton({
 
   const sendInvitation = () => {
     setIsGreen(true);
+    // console.log(currentGameMode);
     authHelper(API_ROUTES.MATCHMAKING.ADD_PLAYER, "POST", {
-      gameType: currentGameMode.gameModeType,
+      gameType: currentGameMode.gameType,
       gameMode: currentGameMode.gameMode,
       matchmakingType: MATCHMAKING_TYPES.SEARCH,
 
@@ -27,6 +28,7 @@ function OpponentSelectButton({
       console.log(
         "OpponentSelectButton received response from Search:NewInvite Endpoint"
       );
+      console.log(data);
       gameInfoSetter(data);
       // navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
     });
@@ -38,22 +40,13 @@ function OpponentSelectButton({
     setIsGreen(false);
     if (invitationSent) {
       authHelper(API_ROUTES.MATCHMAKING.REMOVE_PLAYER, "POST", {
-        gameType: currentGameMode.gameModeType,
+        gameType: currentGameMode.gameType,
         gameMode: currentGameMode.gameMode,
         matchmakingType: MATCHMAKING_TYPES.SEARCH,
       });
       setInvitationSent(false);
     }
   };
-
-  // console.log("OpponentSelectButton: ");
-  // console.log(
-  //   "     opponentName: ",
-  //   opponentInfo.username,
-  //   " isJoinable: ",
-  //   opponentInfo.isJoinable
-  // );
-  // console.log("     isGreen: ", isGreen);
 
   return (
     <button

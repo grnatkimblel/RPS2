@@ -111,11 +111,11 @@ function App() {
 
   return (
     <Routes>
-      {/* <Route
+      <Route
         path={`/${PAGES.INITIAL}`}
         element={<Root navigate={navigate} />}
-      /> */}
-      <Route
+      />
+      {/* <Route
         path={`/${PAGES.INITIAL}`}
         element={
           <QuicklogToQueue
@@ -126,7 +126,7 @@ function App() {
             gameInfoSetter={setCurrentGameInfo}
           />
         }
-      />
+      /> */}
       <Route
         path={`/${PAGES.LOGIN}`}
         element={<Login navigate={navigate} login={loginHelper} />}

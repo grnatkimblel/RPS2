@@ -37,20 +37,18 @@ router.post("/addPlayer", async (req, res) => {
     );
   }
 
-  let requestEventName, responseEventName;
+  let responseEventName;
   try {
-    ({ requestEventName, responseEventName } = getEventNamesForAddingPlayers(
+    responseEventName = getEventNamesForAddingPlayers(
       client_id,
       gameType,
       gameMode,
       matchmakingType
-    ));
+    );
   } catch (error) {
     logger.info(error);
     res.sendStatus(400);
   }
-
-  // logger.info("requestEventName ", requestEventName);
   // logger.info("responseEventName ", responseEventName);
 
   matchmakingEventEmitter.once(responseEventName, (roster) => {
@@ -71,16 +69,16 @@ router.post("/addPlayer", async (req, res) => {
 
   if (matchmakingType == MATCHMAKING_TYPES.RANDOM) {
     matchmakingEventEmitter.emit(
-      `${matchmakingType}-AddPlayer`,
+      `${MATCHMAKING_TYPES.RANDOM}-AddPlayer`,
       client_id,
       gameType,
       gameMode
     );
   } else if (matchmakingType == MATCHMAKING_TYPES.SEARCH) {
     matchmakingEventEmitter.emit(
-      `${matchmakingType}-AddPlayer`,
+      `${MATCHMAKING_TYPES.SEARCH}-AddPlayer`,
       client_id,
-      chosenOne_id,
+      chosenOne_id, //theres an extra argument for this one
       gameType,
       gameMode
     );
@@ -115,22 +113,22 @@ router.post("/removePlayer", async (req, res) => {
   res.sendStatus(200);
 });
 
-router.post("search/checkInvite", async (req, res) => {
+router.post("/search/checkInvite", async (req, res) => {
   //logger.info("Invites Searched for ", req.body.client_id);
   const client_id = req.authUser.id;
-  if (doLogging) {
-    const playerName = req.authUser.username;
-    logger.info(
-      `${playerName} called ${gameType}:${gameMode}:Search:CheckInvite`
-    );
-  }
   const otherPlayer_id = req.body.otherPlayer_id;
   const gameType = req.body.gameType;
   const gameMode = req.body.gameMode;
+  if (doLogging) {
+    const playerName = req.authUser.username;
+    logger.info(
+      `${playerName} called ${gameType}:${gameMode}:Search-CheckInviteToClient`
+    );
+  }
   const eventName =
-    client_id + ">" + gameType + ":" + gameMode + ":Search:CheckInviteResponse";
+    client_id + ">" + gameType + ":" + gameMode + ":Search-CheckInviteResponse";
   matchmakingEventEmitter.once(eventName, (isJoinable) => {
-    //logger.info("found Joinable: ", isJoinable);
+    logger.info("found Joinable: ", isJoinable);
     res.send(isJoinable);
   });
   matchmakingEventEmitter.emit(
@@ -143,12 +141,12 @@ router.post("search/checkInvite", async (req, res) => {
 });
 
 function validateRequestsGameDetails(gameType, gameMode, matchmakingType) {
-  // logger.info("Object.values(GAMEMODE_TYPES)");
-  // logger.info(Object.values(GAMEMODE_TYPES));
-  // logger.info("gameType");
-  // logger.info(gameType);
-  // logger.info("is Object.values(GAMEMODE_TYPES).includes(gameType)");
-  // logger.info(Object.values(GAMEMODE_TYPES).includes(gameType));
+  logger.info("Object.values(GAMEMODE_TYPES)");
+  logger.info(Object.values(GAMEMODE_TYPES));
+  logger.info("gameType");
+  logger.info(gameType);
+  logger.info("is Object.values(GAMEMODE_TYPES).includes(gameType)");
+  logger.info(Object.values(GAMEMODE_TYPES).includes(gameType));
   if (!Object.values(GAMEMODE_TYPES).includes(gameType)) {
     throw new Error("/addPlayer called with bad gameType:", gameType);
   }
@@ -169,7 +167,6 @@ function getEventNamesForAddingPlayers(
   gameMode,
   matchmakingType
 ) {
-  let requestEventName;
   let responseEventName;
 
   if (gameType == GAMEMODE_TYPES.RANKED) {
@@ -179,10 +176,6 @@ function getEventNamesForAddingPlayers(
       );
     }
   }
-
-  // let matchmakingAddType = MATCHMAKING_TYPES.RANDOM ? "newPlayer" : "newInvite";
-  requestEventName = `${gameType}:${gameMode}:${matchmakingType}-AddPlayer`; //ex. Quickplay:Quickdraw:Random-addPlayer
-
   responseEventName =
     client_id +
     ">" +
@@ -193,9 +186,7 @@ function getEventNamesForAddingPlayers(
     matchmakingType +
     "-AddPlayerResponse"; // ex. client_id>Quickplayer:Quickdraw:Random-addPlayerResponse
 
-  // logger.info("before returning");
-  // logger.info({ requestEventName, responseEventName });
-  return { requestEventName, responseEventName };
+  return responseEventName;
 }
 
 export default router;

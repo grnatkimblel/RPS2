@@ -16,5 +16,17 @@ Packets should have unique identifiers assigned to them before they are sent. Wh
 all packets that were processed have their ids put into a list and sent back with the gamestate
 Clients can check the received gamestate to see what of their sent packets have been acknowledged. This allows for reconciliation.
 
-reconsiliation just doesnt actually work yet
 also the socketio admin UI is showing that the sockets are transmitting kilobytes of data over a couple seconds of continuous input, need to shrink this acknowledgedPacketIds
+
+Create Matchmaking System that can service TDM
+ - Create Pregame Lobby Page for TDM
+Handle player death and respawn
+Handle displaying game time
+Handle game ending conditions
+Get lobby into a game
+
+
+Need to determine how matchmaking service talks to 
+matchmaking queue when checking search-add Player and
+random add player, basically how should a roster be made
+whos job is that.

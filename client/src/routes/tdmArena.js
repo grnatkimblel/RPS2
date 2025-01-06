@@ -265,7 +265,7 @@ function TDMArena({
       // console.log("Framerate: ", p.millis() / (1000 * tickCount));
       tickCount += 1;
       p.background(0);
-      p.fill(255);
+      let emojiColor = p.color(255, 255, 255, 128);
       p.text(gameState.current.round.player_1_score.toString(), 50, 50);
       p.text(gameState.current.round.player_2_score.toString(), 500, 50);
 
