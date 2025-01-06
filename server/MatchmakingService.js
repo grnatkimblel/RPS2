@@ -52,6 +52,21 @@ const matchmakingQueues = {
 
 let matchMaker = null;
 
+/*
+AddPlayer is responsible for adding a new players to the pool of players waiting to 
+play a game. 
+There are two parts of this function:
+1. Add the player to the appropriate queue
+2. Poll the queue checking to see if the queue size is large enough to create a new game
+3. Respond to the user with their roster details when it is ready.
+
+ReWrite
+1. Add the player to the appropriate queue
+2. Check if the queue size is equal to the queue.validRosterSizeMin
+  true. generate roster, emit to all clients the roster details
+  false. nothing
+*/
+
 matchmakingEventEmitter.on(
   "Random-AddPlayer",
   (client_id, gameType, gameMode) => {
@@ -61,51 +76,83 @@ matchmakingEventEmitter.on(
     // logger.info("");
     let matchmakingQueue =
       matchmakingQueues[gameType][gameMode][MATCHMAKING_TYPES.RANDOM];
-    matchmakingQueue.addPlayer(client_id);
+    matchmakingQueue.addPlayer(client_id); //could be avoided when numPlayers == validRosterSizeMin - 1
     logger.info(matchmakingQueue);
-    if (matchMaker == null)
-      matchMaker = setInterval(() => {
-        //this will need to change
-        logger.info(gameType, gameMode, "matchmaking sweep");
-        if (matchmakingQueue.getNumPlayers() > 1) {
-          logger.info("create roster");
-          matchmakingQueue.getQueue().forEach((player_id) => {
-            logger.info(matchmakingQueue);
-            if (client_id != player_id) {
-              const roster = createTwoPlayerRoster(player_id, client_id);
-              logger.info(roster);
-              for (let player in roster.players) {
-                logger.info("removing ", roster.players[player]);
-                matchmakingQueue.removePlayer(roster.players[player]);
-                // removePlayerFromList(roster.players[player], matchmakingQueue);
-              }
-              const clientEventName = getEventStringName(
-                client_id,
-                gameType,
-                gameMode,
-                "Random-AddPlayerResponse"
-              );
 
-              const playerEventName = getEventStringName(
-                roster.players["player_1"],
-                gameType,
-                gameMode,
-                "Random-AddPlayerResponse"
-              );
+    if (
+      matchmakingQueue.getNumPlayers() >= matchmakingQueue.validRosterSizeMin
+    ) {
+      let playerIdList = matchmakingQueue.getQueue();
+      logger.info("playerIdList");
+      logger.info(playerIdList);
+      //first in first out,
+      const rosterIds = playerIdList.slice(
+        0,
+        matchmakingQueue.validRosterSizeMin + 1
+      );
+      logger.info("rosterIds");
+      logger.info(rosterIds);
+      //create roster
+      const roster = createRoster(...rosterIds);
+      logger.info("roster");
+      logger.info(roster);
+      for (const playerId of rosterIds) {
+        //send roster to all players in it
+        matchmakingQueue.removePlayer(playerId);
+        const playerEventName = getEventStringName(
+          playerId,
+          gameType,
+          gameMode,
+          "Random-AddPlayerResponse"
+        );
+        matchmakingEventEmitter.emit(playerEventName, roster);
+      }
+    }
+    // if (matchMaker == null) {
+    //   matchMaker = setInterval(() => {
+    //     //this will need to change
+    //     logger.info(gameType, gameMode, "matchmaking sweep");
+    //     if (matchmakingQueue.getNumPlayers() > 1) {
+    //       logger.info("create roster");
+    //       matchmakingQueue.getQueue().forEach((player_id) => {
+    //         logger.info(matchmakingQueue);
+    //         if (client_id != player_id) {
+    //           const roster = createTwoPlayerRoster(player_id, client_id);
+    //           logger.info(roster);
+    //           for (let player in roster.players) {
+    //             logger.info("removing ", roster.players[player]);
+    //             matchmakingQueue.removePlayer(roster.players[player]);
+    //             // removePlayerFromList(roster.players[player], matchmakingQueue);
+    //           }
+    //           const clientEventName = getEventStringName(
+    //             client_id,
+    //             gameType,
+    //             gameMode,
+    //             "Random-AddPlayerResponse"
+    //           );
 
-              logger.info("matchmaker");
-              logger.info(clientEventName);
-              logger.info(playerEventName);
-              matchmakingEventEmitter.emit(clientEventName, roster);
-              matchmakingEventEmitter.emit(playerEventName, roster);
-            }
-          });
-        }
-        if (matchmakingQueue.getNumPlayers() == 0) {
-          clearInterval(matchMaker);
-          matchMaker = null;
-        }
-      }, 2000);
+    //           const playerEventName = getEventStringName(
+    //             roster.players["player_1"],
+    //             gameType,
+    //             gameMode,
+    //             "Random-AddPlayerResponse"
+    //           );
+
+    //           logger.info("matchmaker");
+    //           logger.info(clientEventName);
+    //           logger.info(playerEventName);
+    //           matchmakingEventEmitter.emit(clientEventName, roster);
+    //           matchmakingEventEmitter.emit(playerEventName, roster);
+    //         }
+    //       });
+    //     }
+
+    //     if (matchmakingQueue.getNumPlayers() == 0) {
+    //       clearInterval(matchMaker);
+    //       matchMaker = null;
+    //     }
+    //   }, 2000);
+    // }
   }
 );
 
@@ -117,10 +164,10 @@ matchmakingEventEmitter.on(
       matchmakingQueues[gameType][gameMode][MATCHMAKING_TYPES.RANDOM];
     matchmakingQueue.removePlayer(client_id);
 
-    if (matchmakingQueue.getNumPlayers() == 0) {
-      clearInterval(matchMaker);
-      matchMaker = null;
-    }
+    // if (matchmakingQueue.getNumPlayers() == 0) {
+    //   clearInterval(matchMaker);
+    //   matchMaker = null;
+    // }
     //respond to the pending queue
     const eventName = getEventStringName(
       client_id,
@@ -128,7 +175,7 @@ matchmakingEventEmitter.on(
       gameMode,
       "Random-AddPlayerResponse"
     );
-    matchmakingEventEmitter.emit(eventName, false);
+    matchmakingEventEmitter.emit(eventName, false); //this could be handled on matchmaking side but its more readable this way?
   }
 );
 
@@ -142,7 +189,7 @@ matchmakingEventEmitter.on(
     if (matchmakingQueue.hasPlayer(chosenOne_id)) {
       const chosenOneInvitee = matchmakingQueue.getInvitee(chosenOne_id);
       if (chosenOneInvitee == client_id) {
-        const roster = createTwoPlayerRoster(chosenOne_id, client_id);
+        const roster = createRoster(chosenOne_id, client_id);
 
         //remove player from list
         matchmakingQueue.removePlayer(chosenOne_id);
@@ -215,15 +262,24 @@ matchmakingEventEmitter.on(
   }
 );
 
-function createTwoPlayerRoster(player1_id, player2_id) {
+// function createTwoPlayerRoster(player1_id, player2_id) {
+//   //figure out sessionID
+//   const rosterId = uuidv4();
+//   return {
+//     rosterId: rosterId,
+//     players: {
+//       player_1: player1_id,
+//       player_2: player2_id,
+//     },
+//   };
+// }
+
+function createRoster(...playerIds) {
   //figure out sessionID
   const rosterId = uuidv4();
   return {
     rosterId: rosterId,
-    players: {
-      player_1: player1_id,
-      player_2: player2_id,
-    },
+    players: playerIds,
   };
 }
 

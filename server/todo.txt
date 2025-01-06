@@ -29,4 +29,9 @@ Get lobby into a game
 Need to determine how matchmaking service talks to 
 matchmaking queue when checking search-add Player and
 random add player, basically how should a roster be made
-whos job is that.
+whos job is that?
+
+The queue is only a data structure, let there be something else that creates rosters using the queue
+
+need to change Random-AddPlayer to allow many players in a roster based on the Queue
+Include a short timeout after the min number is reached to allow more players for a larger roster

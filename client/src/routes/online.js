@@ -10,7 +10,7 @@ import {
   GAMEMODE_TYPES,
   MATCHMAKING_TYPES,
 } from "../shared/enums/gameEnums"; //This file name is set in docker compose
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import OpponentSearchButton from "../components/OpponentSearchButton";
 // import { useLocation } from "react-router-dom";
@@ -60,7 +60,48 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
         <button
           style={{ flex: 3 }}
           className="defaultColor"
-          onClick={() => setCurrentPage(PAGES.ONLINE.RANDOM_OPPONENT)}
+          onClick={() => {
+            setCurrentPage(PAGES.ONLINE.RANDOM_OPPONENT);
+            authHelper(API_ROUTES.MATCHMAKING.ADD_PLAYER, "POST", {
+              gameType: currentGameMode.gameType,
+              gameMode: currentGameMode.gameMode,
+              matchmakingType: MATCHMAKING_TYPES.RANDOM,
+            })
+              .then((res) => {
+                return res.json();
+              })
+              .then((data) => {
+                console.log(data);
+                if (data.wasCancelled) {
+                  return null;
+                } else {
+                  return data.roster;
+                }
+              })
+              .then((roster) => {
+                if (roster == null) return;
+                console.log("roster to be sent to pregame ", roster);
+                authHelper(API_ROUTES.GAME.QUICKDRAW.PREGAME, "POST", {
+                  roster,
+                })
+                  .then((res) => {
+                    return res.json();
+                  })
+                  .then((data) => {
+                    gameInfoSetter(data);
+                    if (
+                      currentGameMode.gameType == GAMEMODE_TYPES.QUICKPLAY &&
+                      currentGameMode.gameMode == GAMEMODES.QUICKDRAW
+                    )
+                      navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
+                    else if (
+                      currentGameMode.gameType == GAMEMODE_TYPES.QUICKPLAY &&
+                      currentGameMode.gameMode == GAMEMODES.TDM
+                    )
+                      navigate(`/${PAGES.ONLINE.TDM_ARENA}`);
+                  });
+              });
+          }}
         >
           Random Opponent
         </button>
@@ -69,47 +110,6 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
   };
 
   const randomOpponent = () => {
-    console.log("isrunning twicea?");
-    authHelper(API_ROUTES.MATCHMAKING.ADD_PLAYER, "POST", {
-      gameType: currentGameMode.gameType,
-      gameMode: currentGameMode.gameMode,
-      matchmakingType: MATCHMAKING_TYPES.RANDOM,
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        console.log(data);
-        if (data.wasCancelled) {
-          return null;
-        } else {
-          return data.roster;
-        }
-      })
-      .then((roster) => {
-        if (roster == null) return;
-        console.log("roster to be sent to pregame ", roster);
-        authHelper(API_ROUTES.GAME.QUICKDRAW.PREGAME, "POST", {
-          roster,
-        })
-          .then((res) => {
-            return res.json();
-          })
-          .then((data) => {
-            gameInfoSetter(data);
-            if (
-              currentGameMode.gameType == GAMEMODE_TYPES.QUICKPLAY &&
-              currentGameMode.gameMode == GAMEMODES.QUICKDRAW
-            )
-              navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
-            else if (
-              currentGameMode.gameType == GAMEMODE_TYPES.QUICKPLAY &&
-              currentGameMode.gameMode == GAMEMODES.TDM
-            )
-              navigate(`/${PAGES.ONLINE.TDM_ARENA}`);
-          });
-      });
-
     return (
       <>
         <div className="gamemode-smalltext">{currentGameMode.gameType}</div>

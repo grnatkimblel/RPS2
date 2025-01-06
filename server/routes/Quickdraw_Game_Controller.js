@@ -15,10 +15,10 @@ const COUNTDOWN_TIME = 3000;
 
 game = {
   rosterId: rosterId,
-  players: {
-    player_1: player1_id,
-    player_2: player2_id,
-  },
+  players: [
+    player1_id,
+    player2_id,
+],
   checkInStatus: {
       player_1: false,
       player_2: false,
@@ -42,10 +42,7 @@ router.post("/quickdraw/pregame", async (req, res) => {
   const roster = req.body.roster;
   logger.info(roster);
   const players = roster.players;
-  const fullPlayerInfo = await getUsersByList([
-    players.player_1,
-    players.player_2,
-  ]);
+  const fullPlayerInfo = await getUsersByList(players);
   // logger.info(fullPlayerInfo);
   const player_1_info = {
     username: fullPlayerInfo[0].username,
@@ -94,7 +91,7 @@ router.post("/quickdraw/startGame", async (req, res) => {
   logger.info("startGame called");
   if (activeRooms.has(session_id)) {
     let game = activeRooms.get(session_id);
-    if (game.players.player_1 == client_id) {
+    if (game.players[0] == client_id) {
       game.checkInStatus.player_1 = true;
     } else {
       game.checkInStatus.player_2 = true;
@@ -110,8 +107,8 @@ router.post("/quickdraw/startGame", async (req, res) => {
         defaults: {
           winner: null,
           loser: null,
-          player_1_id: game.players.player_1,
-          player_2_id: game.players.player_2,
+          player_1_id: game.players[0],
+          player_2_id: game.players[1],
         },
       });
       logger.info("Created GameHeader gameId: " + createdGameHeader.game_id);
@@ -208,7 +205,7 @@ function registerGameControllerHandlers(io, socket) {
     logger.info(client_id + " played a hand");
     // }
     let game = activeRooms.get(sessionId);
-    let isPlayer_1 = game.players.player_1 == client_id;
+    let isPlayer_1 = game.players[0] == client_id;
     // game = activeRooms.get(sessionId);
     let thisRound = game.rounds[game.rounds.length - 1];
     let now = Date.now();
@@ -463,8 +460,8 @@ function createPotentialGame(roster) {
   let potentialGame = {
     isFinished: false,
     players: {
-      player_1: roster.players.player_1,
-      player_2: roster.players.player_2,
+      player_1: roster.players[0],
+      player_2: roster.players[1],
     },
     header: {
       numRoundsToWin: 3,

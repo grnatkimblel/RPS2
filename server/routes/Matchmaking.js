@@ -31,7 +31,7 @@ router.post("/addPlayer", async (req, res) => {
   const chosenOne_id = req.body.chosenOne_id;
   const playerName = req.authUser.username;
   if (doLogging) {
-    logger.info("authUser: ", req.authUser);
+    // logger.info("authUser: ", req.authUser);
     logger.info(
       `${playerName} called addPlayer on ${gameType}:${gameMode}:${matchmakingType}`
     );
@@ -141,12 +141,12 @@ router.post("/search/checkInvite", async (req, res) => {
 });
 
 function validateRequestsGameDetails(gameType, gameMode, matchmakingType) {
-  logger.info("Object.values(GAMEMODE_TYPES)");
-  logger.info(Object.values(GAMEMODE_TYPES));
-  logger.info("gameType");
-  logger.info(gameType);
-  logger.info("is Object.values(GAMEMODE_TYPES).includes(gameType)");
-  logger.info(Object.values(GAMEMODE_TYPES).includes(gameType));
+  // logger.info("Object.values(GAMEMODE_TYPES)");
+  // logger.info(Object.values(GAMEMODE_TYPES));
+  // logger.info("gameType");
+  // logger.info(gameType);
+  // logger.info("is Object.values(GAMEMODE_TYPES).includes(gameType)");
+  // logger.info(Object.values(GAMEMODE_TYPES).includes(gameType));
   if (!Object.values(GAMEMODE_TYPES).includes(gameType)) {
     throw new Error("/addPlayer called with bad gameType:", gameType);
   }
