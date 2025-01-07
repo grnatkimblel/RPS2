@@ -1,6 +1,7 @@
 import authenticateToken from "../helper/authenticateToken.js";
 import logger from "../utils/logger.js";
 import updateGameState from "../shared/updateGameState.js";
+import { getUsersByList } from "../helper/getUsers.js";
 
 import express from "express";
 const router = express.Router();
@@ -16,6 +17,7 @@ let gameTicksSoFar = 0;
 let setTimeoutsCalled = 0;
 let setImmediatesCalled = 0;
 let previousTick;
+const COUNTDOWN_TIME = 7;
 const GAME_TICKS_LENGTH = 100; //in ms
 const GAME_TIME_LIMIT = 180;
 const hands = {
@@ -53,10 +55,33 @@ GameState:
             - Players are stunned when they tie for example
 */
 
+//this is about populating screens before the sockets get involved
+router.post("/tdm/pregame", async (req, res) => {
+  logger.info(" /tdm/pregame called successfully");
+  const roster = req.body.roster;
+  // logger.info(roster);
+  const players = roster.players;
+  const fullPlayerInfo = await getUsersByList(players);
+  // logger.info(fullPlayerInfo);
+  const sanitizedPlayerInfo = fullPlayerInfo.map((playerInfo) => {
+    return {
+      username: playerInfo.username,
+      userId: playerInfo.id,
+      emoji: playerInfo.player_emoji,
+    };
+  });
+
+  res.json({
+    sessionId: roster.rosterId,
+    players: sanitizedPlayerInfo,
+  });
+});
+
+//this is about ensuring all players have socket connections before starting the game
 function registerGameControllerHandlers(io, socket) {
   socket.on("tdm_register", (gameInfo) => {
-    logger.info("gameInfo: ");
-    logger.info(gameInfo);
+    // logger.info("gameInfo: ");
+    // logger.info(gameInfo);
     const session_id = gameInfo.sessionId;
     socket.join(session_id);
     const numSocketsInRoom = socket.adapter.rooms.get(session_id).size;
@@ -68,10 +93,14 @@ function registerGameControllerHandlers(io, socket) {
         " Size: " +
         numSocketsInRoom
     );
-    if (numSocketsInRoom == 2) {
-      //temp
-      if (!activeRooms.has(session_id))
-        activeRooms.set(session_id, createNewGameState(gameInfo));
+    if (numSocketsInRoom == 4) {
+      if (!activeRooms.has(session_id)) {
+        const gameStartTime = Date.now() + COUNTDOWN_TIME;
+        activeRooms.set(
+          session_id,
+          createNewGameState(gameInfo, gameStartTime)
+        );
+      }
       io.to(session_id).emit("test", "   Room Full");
       logger.info("starting TDM");
       io.to(session_id).emit("startGame", activeRooms.get(session_id));
@@ -202,38 +231,41 @@ function doGameTick(io, gameInfo) {
 }
 
 //hacked together from quickdraw matchmaking
-function createNewGameState(gameInfo) {
-  console.log("mapSizes");
-  console.log(mapSizes);
+function createNewGameState(gameInfo, gameStartTime) {
+  // console.log("mapSizes");
+  // console.log(mapSizes);
+  console.log("gameInfo");
+  console.log(gameInfo);
   let playerList = [];
   let playerGameStates = {};
-  playerList.push(gameInfo.player1.userId);
-  playerList.push(gameInfo.player2.userId);
+  playerList.push(...gameInfo.players);
+  logger.info(playerList);
 
-  playerList.forEach((playerId, index) => {
-    playerGameStates[playerId] = {
-      id: playerId,
+  playerList.forEach((player, index) => {
+    playerGameStates[player.userId] = {
+      id: player.userId,
       isAlive: true,
       hand: hands.ROCK,
       position: {
         x: (mapSizes[0].w / 10) * (index + 2),
         y: (mapSizes[0].h / 10) * 2,
       },
-      team: index,
+      team: index % 2,
       isMobile: true,
       score: 0,
     };
   });
 
-  console.log("playerGameStates");
-  console.log(playerGameStates);
+  // console.log("playerGameStates");
+  // console.log(playerGameStates);
   let newGameState = {
+    gameStartTime: gameStartTime,
     mapSize: { x: 1000, y: 945 },
     isFinished: false,
     players: playerGameStates,
     round: {
-      player_1_score: 0,
-      player_2_score: 0,
+      team_1_score: 0,
+      team_2_score: 0,
       gameEndTime: Date.now() + GAME_TIME_LIMIT * 1000,
     },
   };
@@ -241,4 +273,4 @@ function createNewGameState(gameInfo) {
   return newGameState;
 }
 
-export { registerGameControllerHandlers };
+export { router, registerGameControllerHandlers };

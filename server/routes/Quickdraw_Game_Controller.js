@@ -54,14 +54,19 @@ router.post("/quickdraw/pregame", async (req, res) => {
     userId: fullPlayerInfo[1].id,
     emoji: fullPlayerInfo[1].player_emoji,
   };
-  const roundStartTime = Date.now() + COUNTDOWN_TIME;
 
-  if (!activeRooms.has(roster.rosterId))
-    activeRooms.set(roster.rosterId, createPotentialGame(roster));
+  if (!activeRooms.has(roster.rosterId)) {
+    //countdown time is created when the room is added, all other players will get the exact same time
+    const roundStartTime = Date.now() + COUNTDOWN_TIME;
+    activeRooms.set(
+      roster.rosterId,
+      createPotentialGame(roster, roundStartTime)
+    );
+  }
 
   res.json({
     sessionId: roster.rosterId,
-    roundStartTime: roundStartTime,
+    roundStartTime: activeRooms.get(roster.rosterId).roundStartTime,
     player1: player_1_info,
     player2: player_2_info,
   });
@@ -456,8 +461,9 @@ function didPlayer1GetCBM(p1HandTime, p2HandTime) {
   return p2HandTime == null ? true : false;
 }
 
-function createPotentialGame(roster) {
+function createPotentialGame(roster, roundStartTime) {
   let potentialGame = {
+    roundStartTime: roundStartTime,
     isFinished: false,
     players: {
       player_1: roster.players[0],

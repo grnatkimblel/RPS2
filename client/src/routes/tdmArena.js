@@ -59,9 +59,6 @@ function TDMArena({
     useState(false);
   const TICKRATE_DIVISOR = 6;
   const CLIENT_FRAMERATE = 60;
-  //this will need to change
-  const PLAYER_NUMBER =
-    gameInfo.player1.username == userInfo.username ? "player_1" : "player_2";
 
   const WIDTH = 1000;
   const HEIGHT = 945;
@@ -266,8 +263,8 @@ function TDMArena({
       tickCount += 1;
       p.background(0);
       let emojiColor = p.color(255, 255, 255, 128);
-      p.text(gameState.current.round.player_1_score.toString(), 50, 50);
-      p.text(gameState.current.round.player_2_score.toString(), 500, 50);
+      p.text(gameState.current.round.team_1_score.toString(), 50, 50);
+      p.text(gameState.current.round.team_2_score.toString(), 500, 50);
 
       p.stroke(237, 50, 222); //hitbox color
       // console.log(gameState.current);
@@ -290,49 +287,42 @@ function TDMArena({
         }
       }
       if (p.keyIsDown(68)) {
-        // playerPositions[PLAYER_NUMBER].x += 1;
         currentInput = {
           ...currentInput,
           right: true,
         };
       }
       if (p.keyIsDown(65)) {
-        // playerPositions[PLAYER_NUMBER].x -= 1;
         currentInput = {
           ...currentInput,
           left: true,
         };
       }
       if (p.keyIsDown(87)) {
-        // playerPositions[PLAYER_NUMBER].y -= 1;
         currentInput = {
           ...currentInput,
           up: true,
         };
       }
       if (p.keyIsDown(83)) {
-        // playerPositions[PLAYER_NUMBER].y += 1;
         currentInput = {
           ...currentInput,
           down: true,
         };
       }
       if (p.keyIsDown(p.LEFT_ARROW)) {
-        // playerPositions[PLAYER_NUMBER].y += 1;
         currentInput = {
           ...currentInput,
           rock: true,
         };
       }
       if (p.keyIsDown(p.UP_ARROW)) {
-        // playerPositions[PLAYER_NUMBER].y += 1;
         currentInput = {
           ...currentInput,
           paper: true,
         };
       }
       if (p.keyIsDown(p.RIGHT_ARROW)) {
-        // playerPositions[PLAYER_NUMBER].y += 1;
         currentInput = {
           ...currentInput,
           scissors: true,

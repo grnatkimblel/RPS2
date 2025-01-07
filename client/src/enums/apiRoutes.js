@@ -22,6 +22,9 @@ const API_ROUTES = Object.freeze({
         process.env.REACT_APP_HOST_URL + "api/game/quickdraw/startGame",
       RUN: process.env.REACT_APP_HOST_URL + "api/game/quickdraw/run",
     },
+    TDM: {
+      PREGAME: process.env.REACT_APP_HOST_URL + "api/game/tdm/pregame",
+    },
   },
 });
 

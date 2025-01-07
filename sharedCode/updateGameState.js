@@ -127,15 +127,14 @@ function updateGameState(gameState, input) {
   }
 
   //calculate team score
-  let i = 0;
+
   for (const playerId in newGameState.players) {
     //this will require recalculating a teams score based on the players on that teams score each update
-    if (i == 0) {
-      newGameState.round.player_1_score = newGameState.players[playerId].score;
-    } else if (i == 1) {
-      newGameState.round.player_2_score = newGameState.players[playerId].score;
+    if (newGameState.players[playerId].team == 0) {
+      newGameState.round.team_1_score = newGameState.players[playerId].score;
+    } else if (newGameState.players[playerId].team == 1) {
+      newGameState.round.team_2_score = newGameState.players[playerId].score;
     }
-    i += 1;
   }
 
   return newGameState;

@@ -81,25 +81,32 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
               .then((roster) => {
                 if (roster == null) return;
                 console.log("roster to be sent to pregame ", roster);
-                authHelper(API_ROUTES.GAME.QUICKDRAW.PREGAME, "POST", {
+                const apiRoute =
+                  currentGameMode.gameMode === GAMEMODES.QUICKDRAW
+                    ? API_ROUTES.GAME.QUICKDRAW.PREGAME
+                    : currentGameMode.gameMode === GAMEMODES.TDM
+                    ? API_ROUTES.GAME.TDM.PREGAME
+                    : null;
+                //call the right pregame based on the gamemode
+                return authHelper(apiRoute, "POST", {
                   roster,
-                })
-                  .then((res) => {
-                    return res.json();
-                  })
-                  .then((data) => {
-                    gameInfoSetter(data);
-                    if (
-                      currentGameMode.gameType == GAMEMODE_TYPES.QUICKPLAY &&
-                      currentGameMode.gameMode == GAMEMODES.QUICKDRAW
-                    )
-                      navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
-                    else if (
-                      currentGameMode.gameType == GAMEMODE_TYPES.QUICKPLAY &&
-                      currentGameMode.gameMode == GAMEMODES.TDM
-                    )
-                      navigate(`/${PAGES.ONLINE.TDM_ARENA}`);
-                  });
+                });
+              })
+              .then((res) => {
+                return res.json();
+              })
+              .then((data) => {
+                gameInfoSetter(data);
+                if (
+                  currentGameMode.gameType == GAMEMODE_TYPES.QUICKPLAY &&
+                  currentGameMode.gameMode == GAMEMODES.QUICKDRAW
+                )
+                  navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
+                else if (
+                  currentGameMode.gameType == GAMEMODE_TYPES.QUICKPLAY &&
+                  currentGameMode.gameMode == GAMEMODES.TDM
+                )
+                  navigate(`/${PAGES.ONLINE.TDM_ARENA}`);
               });
           }}
         >

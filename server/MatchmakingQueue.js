@@ -53,13 +53,13 @@ class MatchmakingQueue {
   }
 
   addPlayer(client_id, chosenOne_id) {
-    logger.info("MatchMakingQueue    AddPlayer called");
-    logger.info(
-      "MatchMakingQueue    ",
-      client_id,
-      this.gameType,
-      this.gameMode
-    );
+    // logger.info("MatchMakingQueue    AddPlayer called");
+    // logger.info(
+    //   "MatchMakingQueue    ",
+    //   client_id,
+    //   this.gameType,
+    //   this.gameMode
+    // );
     if (this.matchmakingType == MATCHMAKING_TYPES.RANDOM) {
       if (this.playerQueue.includes(client_id)) return false;
       this.playerQueue.push(client_id);
@@ -70,13 +70,13 @@ class MatchmakingQueue {
   }
 
   removePlayer(client_id) {
-    logger.info("MatchMakingQueue    RemovePlayer called");
-    logger.info(
-      "MatchMakingQueue    ",
-      client_id,
-      this.gameType,
-      this.gameMode
-    );
+    // logger.info("MatchMakingQueue    RemovePlayer called");
+    // logger.info(
+    //   "MatchMakingQueue    ",
+    //   client_id,
+    //   this.gameType,
+    //   this.gameMode
+    // );
     if (this.matchmakingType == MATCHMAKING_TYPES.RANDOM) {
       this.playerQueue.splice(this.playerQueue.indexOf(client_id), 1);
       logger.info(this.gameType, this.gameMode, "Random Queue after removal");
@@ -89,14 +89,14 @@ class MatchmakingQueue {
   }
 
   checkInviteToClient(client_id, chosenOne_id) {
-    logger.info("MatchMakingQueue    checkInviteToClient called");
-    logger.info("MatchMakingQueue    ", this.gameType, this.gameMode);
-    logger.info(
-      "MatchMakingQueue   client: ",
-      client_id,
-      "chosenOne: ",
-      chosenOne_id
-    );
+    // logger.info("MatchMakingQueue    checkInviteToClient called");
+    // logger.info("MatchMakingQueue    ", this.gameType, this.gameMode);
+    // logger.info(
+    //   "MatchMakingQueue   client: ",
+    //   client_id,
+    //   "chosenOne: ",
+    //   chosenOne_id
+    // );
     if (client_id === chosenOne_id) return false;
     if (this.playerQueue.has(chosenOne_id)) {
       const chosenOnesInvitee = this.playerQueue.get(chosenOne_id);

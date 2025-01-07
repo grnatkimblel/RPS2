@@ -52,7 +52,7 @@ router.post("/addPlayer", async (req, res) => {
   // logger.info("responseEventName ", responseEventName);
 
   matchmakingEventEmitter.once(responseEventName, (roster) => {
-    logger.info(`MatchmakingService response to AddPlayer from ${playerName}`);
+    // logger.info(`MatchmakingService response to AddPlayer from ${playerName}`);
     logger.info("Roster ", roster);
     if (roster == false) {
       res.json({

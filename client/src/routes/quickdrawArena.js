@@ -273,6 +273,7 @@ function QuickdrawArena({
   }, [socket, isRegistered, isSocketSetup]);
 
   function registerSocket(socket, gameInfo) {
+    console.log(gameInfo);
     socket.emit("quickdraw_register", gameInfo);
   }
 
