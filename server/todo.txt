@@ -10,28 +10,13 @@ Netcode Techniques:
       They too will be subject to reconciliation in the case that the latest gamestate is not consistent.
 
 
-Client needs to accept gamestate function and initial gamestate as delivered by server.
-
-Packets should have unique identifiers assigned to them before they are sent. When the server updates the gamestate, 
-all packets that were processed have their ids put into a list and sent back with the gamestate
-Clients can check the received gamestate to see what of their sent packets have been acknowledged. This allows for reconciliation.
-
 also the socketio admin UI is showing that the sockets are transmitting kilobytes of data over a couple seconds of continuous input, need to shrink this acknowledgedPacketIds
 
-Create Matchmaking System that can service TDM
- - Create Pregame Lobby Page for TDM
 Handle player death and respawn
 Handle displaying game time
 Handle game ending conditions
-Get lobby into a game
 
-
-Need to determine how matchmaking service talks to 
-matchmaking queue when checking search-add Player and
-random add player, basically how should a roster be made
-whos job is that?
-
-The queue is only a data structure, let there be something else that creates rosters using the queue
-
-need to change Random-AddPlayer to allow many players in a roster based on the Queue
 Include a short timeout after the min number is reached to allow more players for a larger roster
+
+Quickdraw is broken, some users inputs are counting for both players, this is happening from
+quicklog so may need to check against the normal flow

@@ -16,12 +16,18 @@ gamestate:
 */
 
 const PLAYER_HITBOX_SIZE = 45;
-const MIN_DISTANCE = 45 * 45;
+const MIN_DISTANCE_SQUARED = 45 * 45;
+const RESPAWN_TIME = 5;
 
 function distanceSquared(pos1, pos2) {
   const dx = pos1.x - pos2.x;
   const dy = pos1.y - pos2.y;
   return dx * dx + dy * dy;
+}
+
+function getRandomHand() {
+  const random = Math.random();
+  return random >= 0.33 ? "rock" : random >= 0.66 ? "paper" : "scissors";
 }
 
 function getNewPlayerPosition(position, input, bounds) {
@@ -59,6 +65,26 @@ function updateGameState(gameState, input) {
   let newGameState = JSON.parse(JSON.stringify(gameState)); // Deep copy to get fresh state
   let newPlayerState = newGameState.players[input.userId]; //extract the input user state
 
+  //spawn dead players
+  for (const playerId in newGameState.players) {
+    let now = Date.now();
+    if (!newGameState.players[playerId].isAlive) {
+      if (newGameState.players[playerId].spawnTime <= now) {
+        // console.log(
+        //   "player" + newGameState.players[playerId] + "is respawning"
+        // );
+        // console.log("newGameState.players[playerId].spawnTime");
+        // console.log(newGameState.players[playerId].spawnTime);
+        // console.log("now");
+        // console.log(now);
+        newGameState.players[playerId].position =
+          newGameState.players[playerId].spawnPoint;
+        newGameState.players[playerId].isAlive = true;
+        newGameState.players[playerId].hand = getRandomHand();
+      }
+    }
+  }
+
   //change hands
   if (input.rock) newPlayerState.hand = "rock";
   if (input.paper) newPlayerState.hand = "paper";
@@ -71,71 +97,84 @@ function updateGameState(gameState, input) {
     input,
     newGameState.mapSize
   );
+  let playerMovementLockout = false;
 
   //check collisions (only if player is moving?)
   for (const otherPlayerId in newGameState.players) {
     if (otherPlayerId != input.userId) {
       let otherPlayerPosition = newGameState.players[otherPlayerId].position;
-      let playerDistance = distanceSquared(
+      let playerDistanceSquared = distanceSquared(
         potentialPlayerPosition,
         otherPlayerPosition
       );
       /*
+     |-------------------------------------------------------------------------|
+     | Player is Opponent | Opponent is dead | Will Collide | Action           |
+     |--------------------|------------------|--------------|------------------|
+     | No                 | No               | No           | Update Position  |
+     | No                 | No               | Yes          | Update Position  |
+     | No                 | Yes              | No           | Update Position  |
+     | No                 | Yes              | Yes          | Update Position  |
+     | Yes                | No               | No           | Update Position  |
+     | Yes                | No               | Yes          | Handle Collision |
+     | Yes                | Yes              | No           | Update Position  |
+     | Yes                | Yes              | Yes          | Update Position  |
+     |-------------------------------------------------------------------------|
       opponent is dead and wont collide - update position
       opponent is not dead and wont collide - update position
       opponent is dead and will collide - update position
       opponent is not dead and will collide - do kill logic , if not tie update position
       */
 
-      if (playerDistance <= MIN_DISTANCE) {
-        if (
-          newGameState.players[otherPlayerId].isAlive &&
-          newGameState.players[input.userId].isAlive
-        ) {
-          //opponent is alive and will collide
-          if (
-            newGameState.players[otherPlayerId].team !=
-            newGameState.players[input.userId].team
-          ) {
-            //players will collide, handle collision
+      if (
+        playerDistanceSquared <= MIN_DISTANCE_SQUARED &&
+        newGameState.players[otherPlayerId].team !=
+          newGameState.players[input.userId].team &&
+        newGameState.players[otherPlayerId].isAlive &&
+        newGameState.players[input.userId].isAlive
+      ) {
+        console.log("player will collide with alive opponent");
+        //other player will collide
+        //other player is opponent
+        //other player is alive
 
-            //players are on different teams
-            //rock, paper, scissors
-            if (
-              newGameState.players[otherPlayerId].hand ==
-              newGameState.players[input.userId].hand
-            ) {
-              //tie, do nothing
-            } else {
-              const collisionResult = handleCollision(
-                newGameState.players[otherPlayerId],
-                newGameState.players[input.userId]
-              );
-              if (collisionResult.winner) {
-                collisionResult.winner.score += 1;
-                collisionResult.loser.isAlive = false;
-              }
-            }
-          }
+        const collisionResult = handleCollision(
+          newGameState.players[otherPlayerId],
+          newGameState.players[input.userId]
+        );
+        if (collisionResult.winner) {
+          collisionResult.winner.score += 1;
+          collisionResult.loser.isAlive = false;
+          collisionResult.loser.spawnTime = Date.now() + RESPAWN_TIME * 1000;
+          if (collisionResult.winner.id == input.userId)
+            if (!playerMovementLockout)
+              //move user if they won
+              newGameState.players[input.userId].position =
+                potentialPlayerPosition;
         } else {
-          newGameState.players[input.userId].position = potentialPlayerPosition;
+          playerMovementLockout = true;
         }
       } else {
-        newGameState.players[input.userId].position = potentialPlayerPosition;
+        if (!playerMovementLockout)
+          newGameState.players[input.userId].position = potentialPlayerPosition;
       }
     }
   }
 
   //calculate team score
-
+  let team1ScoreCount = 0;
+  let team2ScoreCount = 0;
   for (const playerId in newGameState.players) {
     //this will require recalculating a teams score based on the players on that teams score each update
     if (newGameState.players[playerId].team == 0) {
-      newGameState.round.team_1_score = newGameState.players[playerId].score;
+      team1ScoreCount += newGameState.players[playerId].score;
     } else if (newGameState.players[playerId].team == 1) {
-      newGameState.round.team_2_score = newGameState.players[playerId].score;
+      team2ScoreCount += newGameState.players[playerId].score;
     }
   }
+
+  newGameState.round.team_1_score = team1ScoreCount;
+  newGameState.round.team_2_score = team2ScoreCount;
 
   return newGameState;
 }

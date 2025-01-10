@@ -246,6 +246,11 @@ function createNewGameState(gameInfo, gameStartTime) {
       id: player.userId,
       isAlive: true,
       hand: hands.ROCK,
+      spawnTime: gameStartTime,
+      spawnPoint: {
+        x: (mapSizes[0].w / 10) * (index + 2),
+        y: (mapSizes[0].h / 10) * 2,
+      },
       position: {
         x: (mapSizes[0].w / 10) * (index + 2),
         y: (mapSizes[0].h / 10) * 2,

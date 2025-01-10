@@ -83,27 +83,20 @@ function TDMArena({
     const PLAYER_EMOJI_SIZE = 35;
 
     function areInputsSame(Input1, Input2) {
-      for (const key in Input1) {
-        // console.log(key);
-        // console.log(Input1[key]);
-        // console.log(Input2[key]);
+      // console.log(Object.keys(Input1))
+      // console.log(Object.keys(Input1).every((key) => Input1[key] == Input2[key]))
+      return Object.keys(Input1).every((key) => Input1[key] == Input2[key]);
 
-        if (Input1[key] != Input2[key]) {
-          return false;
-        }
-      }
-      return true;
+      // for (const key in Input1) {
+      //   if (Input1[key] != Input2[key]) {
+      //     return false;
+      //   }
+      // }
+      // return true;
     }
 
     //for use in determining if the clients previous gamestate matches the result of the servers authoritative state
     function isGamestatesEqual(currentGamestate, targetGamestate) {
-      // console.log("isGamestatesEqual");
-      // console.log("currentGamestate");
-      // console.log(currentGamestate);
-      // console.log("targetGamestate");
-      // console.log(targetGamestate);
-      // console.log("userInfo.userId");
-      // console.log(userInfo.userId);
       let currentPlayerPosition =
         currentGamestate.players[userInfo.userId].position;
       let targetPlayerPosition =
@@ -162,13 +155,6 @@ function TDMArena({
     ) => {
       //check each unAcknowledgedGamestate to see if its packets have been acknowledged by the server. Keep a reference to the latest gamestate that has been acknowledged.
       let latestAcknowledgedGamestateIndex;
-      // console.log("authoritativeGamestate: ");
-      // console.log(authoritativeGamestate);
-
-      // console.log("unAcknowledgedGamestates");
-      // console.log(unAcknowledgedGamestates);
-      // console.log("acknowledgedPacketIds");
-      // console.log(acknowledgedPacketIds);
 
       unAcknowledgedGamestates.forEach((tuple, i) => {
         if (acknowledgedPacketIds.includes(tuple.packet.packetId)) {
@@ -177,26 +163,17 @@ function TDMArena({
       }); // if the above is false, then the previous gamestate is the latest gamestate that has been acknowledged and is the one to check against the authorative gamestate
       //check that the gamestate represented by the acknowledged packets does not disagree with the current gamestate.
 
-      // console.log(
-      //   "unAcknowledgedGamestates.length: " + unAcknowledgedGamestates.length
-      // );
-      // console.log(
-      //   "latestAcknowledgedGamestateIndex: " + latestAcknowledgedGamestateIndex
-      // );
-      // console.log("unAcknowledgedGamestates[latestAcknowledgedGamestateIndex]");
-      // console.log(unAcknowledgedGamestates[latestAcknowledgedGamestateIndex]);
+      // console.log("authoritativeGamestate");
+      // console.log(authoritativeGamestate);
+      // console.log("latestAcknowledgedGamestateIndex");
+      // console.log(latestAcknowledgedGamestateIndex);
+      // console.log("unAcknowledgedGamestates");
+      // console.log(unAcknowledgedGamestates);
+
       if (unAcknowledgedGamestates.length == 0) {
         //no input from user but still has received input
         gameState.current = authoritativeGamestate;
       } else {
-        // console.log("isGamestatesEqual:");
-        // console.log(
-        //   isGamestatesEqual(
-        //     unAcknowledgedGamestates[latestAcknowledgedGamestateIndex]
-        //       .gameState,
-        //     authoritativeGamestate
-        //   )
-        // );
         if (
           !isGamestatesEqual(
             unAcknowledgedGamestates[latestAcknowledgedGamestateIndex]
@@ -204,24 +181,16 @@ function TDMArena({
             authoritativeGamestate
           )
         ) {
-          // console.log("client and server disagree over gamestate, reconciling");
-          // console.log("latestGamestate position");
-          // console.log(
-          //   unAcknowledgedGamestates[latestAcknowledgedGamestateIndex].gameState
-          //     .players[userInfo.userId].position
-          // );
-          // console.log("authoritativeGamestate position");
-          // console.log(authoritativeGamestate.players[userInfo.userId].position);
+          console.log("client and server disagree over gamestate, reconciling");
+
           //if it does, accept  the authoritativeGamestate as truth and replay packets and inputs since then.
           //you can use the packets stored and the current input queue to view all inputs between the acknowledged gamestate and the present.
           gameState.current = authoritativeGamestate;
-          // console.log("unacknowledged gamestates before slicing");
-          // console.log(unAcknowledgedGamestates);
+
           unAcknowledgedGamestates = unAcknowledgedGamestates.slice(
             latestAcknowledgedGamestateIndex + 1
           );
-          // console.log("unacknowledged gamestates to reconcile from");
-          // console.log(unAcknowledgedGamestates);
+
           //remove the acknowledged gamestate from the unacknowledged gamestate list
           unAcknowledgedGamestates.forEach((tuple) => {
             tuple.packet.inputQueue.forEach((input) => {
@@ -231,16 +200,14 @@ function TDMArena({
               });
             });
           });
-          // console.log("unsent inputQueue to reconcile from");
-          // console.log(inputQueue);
+
           inputQueue.forEach((input) => {
             gameState.current = updateGameState(gameState.current, {
               ...input,
               userId: userInfo.userId,
             });
           });
-          // console.log("position after reconsiliation");
-          // console.log(gameState.current.players[userInfo.userId].position);
+
           //when interpolation is implemented, be careful to make sure that the displayed state is different from the reference states.
           // -  a state with positions transitioning would never match the servers state
         } else {
@@ -249,8 +216,6 @@ function TDMArena({
             latestAcknowledgedGamestateIndex + 1
           );
         }
-        // console.log("unAcknowledgedGamestates after slice");
-        // console.log(unAcknowledgedGamestates);
       }
     };
 
@@ -262,11 +227,13 @@ function TDMArena({
       // console.log("Framerate: ", p.millis() / (1000 * tickCount));
       tickCount += 1;
       p.background(0);
-      let emojiColor = p.color(255, 255, 255, 128);
+      // let emojiColor = p.color(255, 255, 255, 128);
+      p.fill("red");
       p.text(gameState.current.round.team_1_score.toString(), 50, 50);
+      p.fill("blue");
       p.text(gameState.current.round.team_2_score.toString(), 500, 50);
 
-      p.stroke(237, 50, 222); //hitbox color
+      // p.stroke(237, 50, 222); //hitbox color
       // console.log(gameState.current);
       for (let player of Object.keys(gameState.current.players)) {
         let currentPlayerState = gameState.current.players[player];
@@ -281,6 +248,9 @@ function TDMArena({
             : "☣️";
         // console.log(position);
         if (currentPlayerState.isAlive) {
+          if (currentPlayerState.team == 0) p.fill("red");
+          if (currentPlayerState.team == 1) p.fill("blue");
+
           p.circle(position.x, position.y, PLAYER_HITBOX_SIZE);
           p.textSize(PLAYER_EMOJI_SIZE);
           p.text(playerHandEmoji, position.x - 23, position.y + 12); //align text with hitbox
@@ -334,6 +304,7 @@ function TDMArena({
     };
   };
 
+  //registration when socket connects
   useEffect(() => {
     let unsubscribeSocket;
     console.log(
@@ -354,6 +325,7 @@ function TDMArena({
     };
   }, [socket, socket?.connected]);
 
+  //draw p5 skecth on receiving gamestate
   useEffect(() => {
     let myP5;
     if (isInitialGamestateReceived) {
@@ -366,6 +338,7 @@ function TDMArena({
     };
   }, [isInitialGamestateReceived]);
 
+  //startGame and receiveGameState socket events
   function subscribeSocket(socket) {
     socket.on("startGame", (payload) => {
       console.log("GameStarted");
@@ -378,6 +351,7 @@ function TDMArena({
       // gameState.current = serverGameState;
       //console.log(clientSideReconciliationRef.current);
       console.log("    Receiving New GameState");
+      console.log(serverGameState);
       clientSideReconciliationRef.current(serverGameState, acknowledgedPackets);
     });
     return () => {
