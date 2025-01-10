@@ -86,20 +86,12 @@ function registerGameControllerHandlers(io, socket) {
     socket.join(session_id);
     const numSocketsInRoom = socket.adapter.rooms.get(session_id).size;
     logger.info(
-      "Socket " +
-        socket.authUser.username +
-        " Registered on Room: " +
-        session_id +
-        " Size: " +
-        numSocketsInRoom
+      "Socket " + socket.authUser.username + " Registered on Room: " + session_id + " Size: " + numSocketsInRoom
     );
     if (numSocketsInRoom == 4) {
       if (!activeRooms.has(session_id)) {
         const gameStartTime = Date.now() + COUNTDOWN_TIME;
-        activeRooms.set(
-          session_id,
-          createNewGameState(gameInfo, gameStartTime)
-        );
+        activeRooms.set(session_id, createNewGameState(gameInfo, gameStartTime));
       }
       io.to(session_id).emit("test", "   Room Full");
       logger.info("starting TDM");
@@ -193,9 +185,7 @@ function doGameTick(io, gameInfo) {
       packet.inputs.forEach((input, index) => {
         let gameInput = { ...input };
         gameInput.userId = packet.userId;
-        gameInput.timestamp = Math.floor(
-          packet.currentTime - (packetLength - (index + 1)) * 16.667
-        );
+        gameInput.timestamp = Math.floor(packet.currentTime - (packetLength - (index + 1)) * 16.667);
         flatInputArray.push(gameInput);
       });
     });
@@ -203,21 +193,14 @@ function doGameTick(io, gameInfo) {
       flatInputArray.sort((a, b) => b.timestamp - a.timestamp); //we want these sorted greatest to least so we can pop() from the end of the array into the update fn
       while (flatInputArray.length > 0) {
         //add the list of packetId's outside the update to keep it clean
-        sessionGameState = updateGameState(
-          sessionGameState,
-          flatInputArray.pop()
-        );
+        sessionGameState = updateGameState(sessionGameState, flatInputArray.pop());
       }
       // logger.info("acknowledging: ");
       // logger.info(acknowledgedPacketIds);
       // logger.info("sessionGameState: ");
       // logger.info(sessionGameState);
       activeRooms.set(session_id, sessionGameState); //comment out to test reconciliation
-      io.to(session_id).emit(
-        "receiveGameState",
-        sessionGameState,
-        acknowledgedPacketIds
-      ); // send the gamestate and list of acknowledged packets
+      io.to(session_id).emit("receiveGameState", sessionGameState, acknowledgedPacketIds); // send the gamestate and list of acknowledged packets
     }
     // logger.info(flatInputArray);
     // Object.keys(sessionGameState.players).forEach((player) =>

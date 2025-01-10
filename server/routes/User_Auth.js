@@ -36,14 +36,9 @@ router.post("/login", async (req, res) => {
   }
   try {
     //logger.info(userFoundInDb);
-    if (
-      await bcrypt.compare(req.body.password, userFoundInDb.hashed_password)
-    ) {
+    if (await bcrypt.compare(req.body.password, userFoundInDb.hashed_password)) {
       const accessToken = generateAccessToken(userFoundInDb);
-      const refreshToken = jwt.sign(
-        userFoundInDb,
-        process.env.REFRESH_TOKEN_SECRET
-      );
+      const refreshToken = jwt.sign(userFoundInDb, process.env.REFRESH_TOKEN_SECRET);
       await RefreshToken.create({
         refresh_token: refreshToken,
       });

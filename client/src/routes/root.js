@@ -13,11 +13,7 @@ function Root({ navigate }) {
           height: "100%",
         }}
       >
-        <button
-          style={{ flex: 1 }}
-          className="defaultColor"
-          onClick={() => navigate(`/${PAGES.LOGIN}`)}
-        >
+        <button style={{ flex: 1 }} className="defaultColor" onClick={() => navigate(`/${PAGES.LOGIN}`)}>
           Login
         </button>
         <button

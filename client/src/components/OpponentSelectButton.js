@@ -2,14 +2,7 @@ import { useState } from "react";
 import API_ROUTES from "../enums/apiRoutes";
 import { MATCHMAKING_TYPES } from "../shared/enums/gameEnums";
 
-function OpponentSelectButton({
-  opponentInfo,
-  styles,
-  classes,
-  authHelper,
-  currentGameMode,
-  gameInfoSetter,
-}) {
+function OpponentSelectButton({ opponentInfo, styles, classes, authHelper, currentGameMode, gameInfoSetter }) {
   const [isGreen, setIsGreen] = useState(opponentInfo.isJoinable);
   const [isButtonPressed, setIsButtonPressed] = useState(false);
   const [invitationSent, setInvitationSent] = useState(false);
@@ -25,9 +18,7 @@ function OpponentSelectButton({
       chosenOne_id: opponentInfo.id,
     }).then(async (res) => {
       const data = await res.json();
-      console.log(
-        "OpponentSelectButton received response from Search:NewInvite Endpoint"
-      );
+      console.log("OpponentSelectButton received response from Search:NewInvite Endpoint");
       console.log(data);
       gameInfoSetter(data);
       // navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
@@ -51,10 +42,7 @@ function OpponentSelectButton({
   return (
     <button
       style={styles}
-      className={
-        classes +
-        (isGreen || opponentInfo.isJoinable ? " submittable" : "  defaultColor")
-      }
+      className={classes + (isGreen || opponentInfo.isJoinable ? " submittable" : "  defaultColor")}
       onClick={(e) => {
         e.stopPropagation();
       }}

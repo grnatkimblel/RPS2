@@ -21,10 +21,7 @@ function OpponentSearchButton({ authHelper, gameInfoSetter, currentGameMode }) {
       isJoinable: false,
     });
   }
-  let dummyListOfRecentPlayers = [
-    "881ff655-2ce3-4de4-9d2d-79ac25b45842",
-    "447a2806-e6a5-4d74-afff-e86cde8fe8a0",
-  ];
+  let dummyListOfRecentPlayers = ["881ff655-2ce3-4de4-9d2d-79ac25b45842", "447a2806-e6a5-4d74-afff-e86cde8fe8a0"];
   const [opponents, setOpponents] = useState([]);
 
   const updateIsJoinableStatus = useCallback(
@@ -34,15 +31,11 @@ function OpponentSearchButton({ authHelper, gameInfoSetter, currentGameMode }) {
       return await Promise.all(
         opponentsList.map(async (opponent) => {
           // console.log("opponent in updateIsJoinableStatus ", opponent);
-          const response = await authHelper(
-            API_ROUTES.MATCHMAKING.SEARCH.CHECK_INVITE,
-            "POST",
-            {
-              otherPlayer_id: opponent.id,
-              gameType: currentGameMode.gameType,
-              gameMode: currentGameMode.gameMode,
-            }
-          );
+          const response = await authHelper(API_ROUTES.MATCHMAKING.SEARCH.CHECK_INVITE, "POST", {
+            otherPlayer_id: opponent.id,
+            gameType: currentGameMode.gameType,
+            gameMode: currentGameMode.gameMode,
+          });
           const isJoinable = await response.json();
           return { ...opponent, isJoinable: isJoinable };
         })
@@ -71,9 +64,7 @@ function OpponentSearchButton({ authHelper, gameInfoSetter, currentGameMode }) {
           console.log("getUsers Response ", body);
           const nonNullOpponents = body.filter((x) => x != null);
           setOpponents(nonNullOpponents);
-          const opponentsWithInviteData = await updateIsJoinableStatus(
-            nonNullOpponents
-          );
+          const opponentsWithInviteData = await updateIsJoinableStatus(nonNullOpponents);
           //console.log("setting opponentsDisplay to ", opponentsWithInviteData);
           setOpponentsDisplay(opponentsWithInviteData);
         }
@@ -181,9 +172,7 @@ function OpponentSearchButton({ authHelper, gameInfoSetter, currentGameMode }) {
           //console.log("opponentDisplay entry ", opponent);
           if (listStartIndex <= index && index <= listEndIndex) {
             let classes = "";
-            if (index == listStartIndex)
-              classes =
-                "secondary bottomBorder topBorder leftBorder rightBorder";
+            if (index == listStartIndex) classes = "secondary bottomBorder topBorder leftBorder rightBorder";
             else classes = "secondary bottomBorder leftBorder rightBorder";
             return (
               <OpponentSelectButton
@@ -208,10 +197,7 @@ function MoreButton({ text, OnClick, styles, noLeftBorder = false }) {
   return (
     <button
       style={styles}
-      className={
-        "secondary defaultColor bottomBorder rightBorder " +
-        (noLeftBorder ? "" : "leftBorder ")
-      }
+      className={"secondary defaultColor bottomBorder rightBorder " + (noLeftBorder ? "" : "leftBorder ")}
       onClick={OnClick}
       onMouseOver={(e) => {
         e.stopPropagation();

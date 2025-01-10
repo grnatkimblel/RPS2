@@ -20,11 +20,7 @@ function MainMenu({ navigate, userInfo, onLogout }) {
         >
           {userInfo.username}
         </button>
-        <button
-          style={{ flex: 1 }}
-          className={"defaultColor bottomBorder leftBorder"}
-          onClick={onLogout}
-        >
+        <button style={{ flex: 1 }} className={"defaultColor bottomBorder leftBorder"} onClick={onLogout}>
           Logout
         </button>
       </div>
@@ -34,11 +30,7 @@ function MainMenu({ navigate, userInfo, onLogout }) {
           height: "88%",
         }}
       >
-        <button
-          style={{ flex: 1 }}
-          className="defaultColor"
-          onClick={() => navigate(`/${PAGES.ONLINE.TDM_ARENA}`)}
-        >
+        <button style={{ flex: 1 }} className="defaultColor" onClick={() => navigate(`/${PAGES.ONLINE.TDM_ARENA}`)}>
           Local
         </button>
         <button

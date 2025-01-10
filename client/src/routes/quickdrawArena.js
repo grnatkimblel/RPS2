@@ -81,12 +81,10 @@ function QuickdrawArena({
     titleText: Math.ceil((gameInfo.roundStartTime - Date.now()) / 1000),
     gamePhase: GAME_PHASES.PRE_GAME,
     numRoundsToWin: 3,
-    player1_hand:
-      gameInfo.player1.emoji != "" ? gameInfo.player1.emoji : EMOJI_THINKING,
+    player1_hand: gameInfo.player1.emoji != "" ? gameInfo.player1.emoji : EMOJI_THINKING,
     player1_score: 0,
     player1_CBM: 0,
-    player2_hand:
-      gameInfo.player2.emoji != "" ? gameInfo.player2.emoji : EMOJI_THINKING,
+    player2_hand: gameInfo.player2.emoji != "" ? gameInfo.player2.emoji : EMOJI_THINKING,
     player2_score: 0,
     player2_CBM: 0,
   };
@@ -97,9 +95,7 @@ function QuickdrawArena({
   const [playGunshot, gunshotAudio] = useSound(GunshotURL, { volume: 0.1 });
   const [playDrumroll, drumrollAudio] = useSound(DrumrollURL, { volume: 0.1 });
 
-  const [gameDisplayState, setGameDisplayState] = useState(
-    initialGameDisplayState
-  );
+  const [gameDisplayState, setGameDisplayState] = useState(initialGameDisplayState);
   const [isRunning, setIsRunning] = useState(false);
   const [isAcceptingHandsInput, setIsAcceptingHandsInput] = useState(false);
   const [isAcceptingRunningInput, setIsAcceptingRunningInput] = useState(true);
@@ -120,14 +116,8 @@ function QuickdrawArena({
         gamePhase: GAME_PHASES.READY,
         titleText: EMOJI_READY_PHASE,
         //reset the player hands
-        player1_hand:
-          gameInfo.player1.emoji != ""
-            ? gameInfo.player1.emoji
-            : EMOJI_THINKING,
-        player2_hand:
-          gameInfo.player2.emoji != ""
-            ? gameInfo.player2.emoji
-            : EMOJI_THINKING,
+        player1_hand: gameInfo.player1.emoji != "" ? gameInfo.player1.emoji : EMOJI_THINKING,
+        player2_hand: gameInfo.player2.emoji != "" ? gameInfo.player2.emoji : EMOJI_THINKING,
       }));
       playGoodBadUglyAudio();
       setIsAcceptingHandsInput(true);
@@ -315,21 +305,11 @@ function QuickdrawArena({
           return gameInfo.player1.userId == userInfo.userId
             ? {
                 ...prev,
-                player1_hand:
-                  hand == "rock"
-                    ? EMOJI_ROCK
-                    : hand == "paper"
-                    ? EMOJI_PAPER
-                    : EMOJI_SCISSORS,
+                player1_hand: hand == "rock" ? EMOJI_ROCK : hand == "paper" ? EMOJI_PAPER : EMOJI_SCISSORS,
               }
             : {
                 ...prev,
-                player2_hand:
-                  hand == "rock"
-                    ? EMOJI_ROCK
-                    : hand == "paper"
-                    ? EMOJI_PAPER
-                    : EMOJI_SCISSORS,
+                player2_hand: hand == "rock" ? EMOJI_ROCK : hand == "paper" ? EMOJI_PAPER : EMOJI_SCISSORS,
               };
         });
       } else {
@@ -423,14 +403,8 @@ function QuickdrawArena({
     const cards = Array(gameDisplayState.numRoundsToWin)
       .fill(1)
       .map((el, i) => {
-        const scoreColor =
-          i < playerScore ? "submittable" : "notInteractableColor";
-        return (
-          <div
-            key={i}
-            className={"scoreCards " + border + " " + scoreColor}
-          ></div>
-        );
+        const scoreColor = i < playerScore ? "submittable" : "notInteractableColor";
+        return <div key={i} className={"scoreCards " + border + " " + scoreColor}></div>;
       });
     return isLeft ? cards : cards.reverse();
   };
@@ -490,16 +464,11 @@ function QuickdrawArena({
             }}
             className="notInteractableColor bottomBorder topRow"
           >
-            <button
-              style={{ marginLeft: "20px", marginTop: "-20px" }}
-              className="notInteractableColor"
-            >
+            <button style={{ marginLeft: "20px", marginTop: "-20px" }} className="notInteractableColor">
               {gameInfo.player1.username}
             </button>
 
-            <div
-              style={{ display: "flex", width: "60%", justifyContent: "end" }}
-            >
+            <div style={{ display: "flex", width: "60%", justifyContent: "end" }}>
               {getScoreCards(gameDisplayState.player1_score, true)}
             </div>
           </div>
@@ -511,14 +480,9 @@ function QuickdrawArena({
             }}
             className="notInteractableColor bottomBorder leftBorder topRow"
           >
-            <div style={{ display: "flex", width: "60%" }}>
-              {getScoreCards(gameDisplayState.player2_score, false)}
-            </div>
+            <div style={{ display: "flex", width: "60%" }}>{getScoreCards(gameDisplayState.player2_score, false)}</div>
 
-            <button
-              style={{ marginRight: "20px", marginTop: "-20px" }}
-              className="notInteractableColor"
-            >
+            <button style={{ marginRight: "20px", marginTop: "-20px" }} className="notInteractableColor">
               {gameInfo.player2.username}
             </button>
           </div>
@@ -539,9 +503,7 @@ function QuickdrawArena({
           >
             <div style={{ position: "absolute" }}>
               {/* <StatsButton /> */}
-              <span style={{ marginLeft: "15px" }}>
-                {getCBM(gameDisplayState.player1_CBM)}
-              </span>
+              <span style={{ marginLeft: "15px" }}>{getCBM(gameDisplayState.player1_CBM)}</span>
             </div>
             <div
               style={{
@@ -563,9 +525,7 @@ function QuickdrawArena({
             className="notInteractableColor bottomBorder leftBorder"
           >
             <div style={{ position: "absolute", right: "0" }}>
-              <span style={{ marginRight: "5px" }}>
-                {getCBM(gameDisplayState.player2_CBM)}
-              </span>
+              <span style={{ marginRight: "5px" }}>{getCBM(gameDisplayState.player2_CBM)}</span>
               {/* <StatsButton /> */}
             </div>
             <div
@@ -589,10 +549,7 @@ function QuickdrawArena({
           }}
         >
           <div style={{ flex: 1 }}>
-            <button
-              style={{ width: "100%", height: "100%" }}
-              className="notInteractableColor"
-            >
+            <button style={{ width: "100%", height: "100%" }} className="notInteractableColor">
               What will you do?
             </button>
           </div>
@@ -600,38 +557,23 @@ function QuickdrawArena({
             <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
               <button
                 style={{ flex: 1 }}
-                className={
-                  (isAcceptingHandsInput
-                    ? "defaultColor "
-                    : "notInteractableColor ") + "bottomBorder"
-                }
+                className={(isAcceptingHandsInput ? "defaultColor " : "notInteractableColor ") + "bottomBorder"}
                 onClick={() => playHand("rock")}
               >
                 Rock
               </button>
               <button
                 style={{ flex: 1 }}
-                className={
-                  isAcceptingHandsInput
-                    ? "defaultColor "
-                    : "notInteractableColor "
-                }
+                className={isAcceptingHandsInput ? "defaultColor " : "notInteractableColor "}
                 onClick={() => playHand("paper")}
               >
                 Paper
               </button>
             </div>
-            <div
-              style={{ flex: 1, display: "flex", flexDirection: "column" }}
-              className="leftBorder"
-            >
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }} className="leftBorder">
               <button
                 style={{ flex: 1 }}
-                className={
-                  (isAcceptingHandsInput
-                    ? "defaultColor "
-                    : "notInteractableColor ") + "bottomBorder"
-                }
+                className={(isAcceptingHandsInput ? "defaultColor " : "notInteractableColor ") + "bottomBorder"}
                 onClick={() => playHand("scissors")}
               >
                 Scissors
@@ -685,32 +627,19 @@ function StatsButton({ playerStats }) {
         <div>Reactive</div>
       </div>
       <div style={{ pointerEvents: "none" }}>
-        <button
-          style={{ pointerEvents: "auto" }}
-          className="defaultColor topBorder secondary"
-        >
+        <button style={{ pointerEvents: "auto" }} className="defaultColor topBorder secondary">
           All Time
         </button>
       </div>
     </div>
   ) : (
-    <button
-      style={{ padding: "20px" }}
-      className="stats"
-      onClick={() => setIsExpanded(true)}
-    >
+    <button style={{ padding: "20px" }} className="stats" onClick={() => setIsExpanded(true)}>
       📖
     </button>
   );
 }
 
-function RunPopup({
-  setIsAcceptingHandsInput,
-  setIsRunning,
-  isRunning,
-  run,
-  navigate,
-}) {
+function RunPopup({ setIsAcceptingHandsInput, setIsRunning, isRunning, run, navigate }) {
   if (isRunning)
     return (
       <div
@@ -726,10 +655,7 @@ function RunPopup({
         }}
         className="leftBorder rightBorder topBorder bottomBorder"
       >
-        <button
-          style={{ flex: 1, fontSize: "40px" }}
-          className="notInteractableColor"
-        >
+        <button style={{ flex: 1, fontSize: "40px" }} className="notInteractableColor">
           Are you sure you want to run?
         </button>
         <div style={{ flex: 4, display: "flex" }}>

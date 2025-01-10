@@ -5,11 +5,7 @@ import { matchmakingEventEmitter } from "../MatchmakingService.js";
 
 import { getUsersByList } from "../helper/getUsers.js";
 
-import {
-  GAMEMODES,
-  GAMEMODE_TYPES,
-  MATCHMAKING_TYPES,
-} from "../shared/enums/gameEnums.js"; //This file name is set in docker compose;
+import { GAMEMODES, GAMEMODE_TYPES, MATCHMAKING_TYPES } from "../shared/enums/gameEnums.js"; //This file name is set in docker compose;
 
 const router = express.Router();
 router.use(authenticateToken);
@@ -32,19 +28,12 @@ router.post("/addPlayer", async (req, res) => {
   const playerName = req.authUser.username;
   if (doLogging) {
     // logger.info("authUser: ", req.authUser);
-    logger.info(
-      `${playerName} called addPlayer on ${gameType}:${gameMode}:${matchmakingType}`
-    );
+    logger.info(`${playerName} called addPlayer on ${gameType}:${gameMode}:${matchmakingType}`);
   }
 
   let responseEventName;
   try {
-    responseEventName = getEventNamesForAddingPlayers(
-      client_id,
-      gameType,
-      gameMode,
-      matchmakingType
-    );
+    responseEventName = getEventNamesForAddingPlayers(client_id, gameType, gameMode, matchmakingType);
   } catch (error) {
     logger.info(error);
     res.sendStatus(400);
@@ -68,12 +57,7 @@ router.post("/addPlayer", async (req, res) => {
   });
 
   if (matchmakingType == MATCHMAKING_TYPES.RANDOM) {
-    matchmakingEventEmitter.emit(
-      `${MATCHMAKING_TYPES.RANDOM}-AddPlayer`,
-      client_id,
-      gameType,
-      gameMode
-    );
+    matchmakingEventEmitter.emit(`${MATCHMAKING_TYPES.RANDOM}-AddPlayer`, client_id, gameType, gameMode);
   } else if (matchmakingType == MATCHMAKING_TYPES.SEARCH) {
     matchmakingEventEmitter.emit(
       `${MATCHMAKING_TYPES.SEARCH}-AddPlayer`,
@@ -99,17 +83,10 @@ router.post("/removePlayer", async (req, res) => {
   const client_id = req.authUser.id;
   if (doLogging) {
     const playerName = req.authUser.username;
-    logger.info(
-      `${playerName} called removePlayer on ${gameType}:${gameMode}:${matchmakingType}`
-    );
+    logger.info(`${playerName} called removePlayer on ${gameType}:${gameMode}:${matchmakingType}`);
   }
 
-  matchmakingEventEmitter.emit(
-    `${matchmakingType}-RemovePlayer`,
-    client_id,
-    gameType,
-    gameMode
-  );
+  matchmakingEventEmitter.emit(`${matchmakingType}-RemovePlayer`, client_id, gameType, gameMode);
   res.sendStatus(200);
 });
 
@@ -121,23 +98,14 @@ router.post("/search/checkInvite", async (req, res) => {
   const gameMode = req.body.gameMode;
   if (doLogging) {
     const playerName = req.authUser.username;
-    logger.info(
-      `${playerName} called ${gameType}:${gameMode}:Search-CheckInviteToClient`
-    );
+    logger.info(`${playerName} called ${gameType}:${gameMode}:Search-CheckInviteToClient`);
   }
-  const eventName =
-    client_id + ">" + gameType + ":" + gameMode + ":Search-CheckInviteResponse";
+  const eventName = client_id + ">" + gameType + ":" + gameMode + ":Search-CheckInviteResponse";
   matchmakingEventEmitter.once(eventName, (isJoinable) => {
     logger.info("found Joinable: ", isJoinable);
     res.send(isJoinable);
   });
-  matchmakingEventEmitter.emit(
-    "Search-CheckInviteToClient",
-    client_id,
-    otherPlayer_id,
-    gameType,
-    gameMode
-  );
+  matchmakingEventEmitter.emit("Search-CheckInviteToClient", client_id, otherPlayer_id, gameType, gameMode);
 });
 
 function validateRequestsGameDetails(gameType, gameMode, matchmakingType) {
@@ -154,37 +122,19 @@ function validateRequestsGameDetails(gameType, gameMode, matchmakingType) {
     throw new Error("/addPlayer called with bad gameMode:", gameMode);
   }
   if (!Object.values(MATCHMAKING_TYPES).includes(matchmakingType)) {
-    throw new Error(
-      "/addPlayer called with bad matchmakingType:",
-      matchmakingType
-    );
+    throw new Error("/addPlayer called with bad matchmakingType:", matchmakingType);
   }
 }
 
-function getEventNamesForAddingPlayers(
-  client_id,
-  gameType,
-  gameMode,
-  matchmakingType
-) {
+function getEventNamesForAddingPlayers(client_id, gameType, gameMode, matchmakingType) {
   let responseEventName;
 
   if (gameType == GAMEMODE_TYPES.RANKED) {
     if (matchmakingType == MATCHMAKING_TYPES.SEARCH) {
-      throw new Error(
-        "Invalid addPlayer request. Ranked Search is an invalid gameType matchmakingType combo"
-      );
+      throw new Error("Invalid addPlayer request. Ranked Search is an invalid gameType matchmakingType combo");
     }
   }
-  responseEventName =
-    client_id +
-    ">" +
-    gameType +
-    ":" +
-    gameMode +
-    ":" +
-    matchmakingType +
-    "-AddPlayerResponse"; // ex. client_id>Quickplayer:Quickdraw:Random-addPlayerResponse
+  responseEventName = client_id + ">" + gameType + ":" + gameMode + ":" + matchmakingType + "-AddPlayerResponse"; // ex. client_id>Quickplayer:Quickdraw:Random-addPlayerResponse
 
   return responseEventName;
 }

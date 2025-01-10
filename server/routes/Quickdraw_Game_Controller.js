@@ -58,10 +58,7 @@ router.post("/quickdraw/pregame", async (req, res) => {
   if (!activeRooms.has(roster.rosterId)) {
     //countdown time is created when the room is added, all other players will get the exact same time
     const roundStartTime = Date.now() + COUNTDOWN_TIME;
-    activeRooms.set(
-      roster.rosterId,
-      createPotentialGame(roster, roundStartTime)
-    );
+    activeRooms.set(roster.rosterId, createPotentialGame(roster, roundStartTime));
   }
 
   res.json({
@@ -187,12 +184,7 @@ function registerGameControllerHandlers(io, socket) {
     socket.join(session_id);
     const numSocketsInRoom = socket.adapter.rooms.get(session_id).size;
     logger.info(
-      "Socket " +
-        socket.authUser.username +
-        " Registered on Room: " +
-        session_id +
-        " Size: " +
-        numSocketsInRoom
+      "Socket " + socket.authUser.username + " Registered on Room: " + session_id + " Size: " + numSocketsInRoom
     );
 
     if (numSocketsInRoom == 2) {
@@ -354,14 +346,10 @@ async function doRound(io, gameInfo) {
     setTimeout(() => {
       io.to(session_id).emit("BeginEndPhase");
       if (!game.isFinished) updateGameStateAfterRound(io, gameInfo);
-      io.to(session_id).emit(
-        "ReceiveNewGameState",
-        activeRooms.get(session_id)
-      );
+      io.to(session_id).emit("ReceiveNewGameState", activeRooms.get(session_id));
     }, endTime * 1000);
     setTimeout(() => {
-      if (activeRooms.get(session_id).isFinished)
-        io.to(session_id).emit("EndGame");
+      if (activeRooms.get(session_id).isFinished) io.to(session_id).emit("EndGame");
       resolve();
     }, (endTime + 3) * 1000);
   });
@@ -400,9 +388,7 @@ function updateGameStateAfterRound(io, gameInfo) {
         ? (p2CBM += 1)
         : void 0;
       if (didScoring(hands)) {
-        didPlayer1Win(hands.player_1.hand, hands.player_2.hand)
-          ? (p1Score += 1)
-          : (p2Score += 1);
+        didPlayer1Win(hands.player_1.hand, hands.player_2.hand) ? (p1Score += 1) : (p2Score += 1);
       }
     }
   });

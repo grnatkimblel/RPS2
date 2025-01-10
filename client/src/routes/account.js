@@ -51,9 +51,7 @@ function Account({ navigate, userInfo, authHelper }) {
           }}
         >
           {/* leftSide */}
-          <div className="notInteractableColor account-username">
-            {userInfo.username}
-          </div>
+          <div className="notInteractableColor account-username">{userInfo.username}</div>
           <div
             style={{
               height: "100%",
@@ -86,11 +84,7 @@ function Account({ navigate, userInfo, authHelper }) {
         </div>
 
         {/* rightSide */}
-        <button
-          style={{ flex: 1 }}
-          className="defaultColor leftBorder"
-          onClick={() => navigate(`/${PAGES.MAIN_MENU}`)}
-        >
+        <button style={{ flex: 1 }} className="defaultColor leftBorder" onClick={() => navigate(`/${PAGES.MAIN_MENU}`)}>
           Back
         </button>
       </div>

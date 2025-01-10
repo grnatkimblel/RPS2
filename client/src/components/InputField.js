@@ -1,13 +1,4 @@
-function InputField({
-  classes,
-  value,
-  hook,
-  title,
-  type,
-  minLength,
-  tabIndex,
-  inputRef,
-}) {
+function InputField({ classes, value, hook, title, type, minLength, tabIndex, inputRef }) {
   // im not sure if form is needed
   return (
     <input

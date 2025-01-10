@@ -1,8 +1,4 @@
-import {
-  GAMEMODES,
-  GAMEMODE_TYPES,
-  MATCHMAKING_TYPES,
-} from "./shared/enums/gameEnums.js"; //This file name is set in docker compose;
+import { GAMEMODES, GAMEMODE_TYPES, MATCHMAKING_TYPES } from "./shared/enums/gameEnums.js"; //This file name is set in docker compose;
 import logger from "./utils/logger.js";
 
 /*

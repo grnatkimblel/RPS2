@@ -3,12 +3,7 @@ import { GAMEMODES, GAMEMODE_TYPES } from "../shared/enums/gameEnums"; //This fi
 
 import { useState } from "react";
 
-function GameModeSelector({
-  gameModeType,
-  bonusStyles,
-  gameModeSetter,
-  pageSetter,
-}) {
+function GameModeSelector({ gameModeType, bonusStyles, gameModeSetter, pageSetter }) {
   let setGameMode = (childGameMode) => {
     //console.log("setGamemode called");
     switch (gameModeType) {
@@ -36,11 +31,7 @@ function GameModeSelector({
   const [pageFlavor, setPageFlavor] = useState("");
   if (pageFlavor === "") {
     return (
-      <button
-        style={{ flex: 1 }}
-        className={"defaultColor " + bonusStyles}
-        onClick={() => setPageFlavor("Expanded")}
-      >
+      <button style={{ flex: 1 }} className={"defaultColor " + bonusStyles} onClick={() => setPageFlavor("Expanded")}>
         {gameModeType}
       </button>
     );
@@ -61,9 +52,7 @@ function GameModeSelector({
         <button
           style={{ flex: 1 }}
           className={
-            gameModeType == GAMEMODE_TYPES.RANKED
-              ? "bottomBorder notInteractableColor"
-              : "bottomBorder defaultColor"
+            gameModeType == GAMEMODE_TYPES.RANKED ? "bottomBorder notInteractableColor" : "bottomBorder defaultColor"
           }
           onClick={() => setGameMode(GAMEMODES.QUICKDRAW)}
         >
@@ -91,10 +80,7 @@ function GameModeSelector({
             <div className="gamemode-smalltext">{gameModeType}</div>
             <button
               style={{ width: "100%", height: "100%" }}
-              className={
-                "notInteractableColor redTextBorder smooth-16 leftBorder " +
-                bonusStyles
-              }
+              className={"notInteractableColor redTextBorder smooth-16 leftBorder " + bonusStyles}
               onClick={() => setGameMode(GAMEMODES.SEARCH)}
             >
               S&D

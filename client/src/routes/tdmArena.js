@@ -55,8 +55,7 @@ function TDMArena({
   const gameState = useRef();
   const clientSideReconciliationRef = useRef(null);
   const socket = useSocket(refreshToken, true);
-  const [isInitialGamestateReceived, setIsInitialGamestateReceived] =
-    useState(false);
+  const [isInitialGamestateReceived, setIsInitialGamestateReceived] = useState(false);
   const TICKRATE_DIVISOR = 6;
   const CLIENT_FRAMERATE = 60;
 
@@ -97,14 +96,9 @@ function TDMArena({
 
     //for use in determining if the clients previous gamestate matches the result of the servers authoritative state
     function isGamestatesEqual(currentGamestate, targetGamestate) {
-      let currentPlayerPosition =
-        currentGamestate.players[userInfo.userId].position;
-      let targetPlayerPosition =
-        targetGamestate.players[userInfo.userId].position;
-      if (
-        currentPlayerPosition.x == targetPlayerPosition.x &&
-        currentPlayerPosition.y == targetPlayerPosition.y
-      ) {
+      let currentPlayerPosition = currentGamestate.players[userInfo.userId].position;
+      let targetPlayerPosition = targetGamestate.players[userInfo.userId].position;
+      if (currentPlayerPosition.x == targetPlayerPosition.x && currentPlayerPosition.y == targetPlayerPosition.y) {
         return true;
       }
       return false;
@@ -149,10 +143,7 @@ function TDMArena({
       gameState.current = updateGameState(gameState.current, inputWithId);
     }
 
-    clientSideReconciliationRef.current = (
-      authoritativeGamestate,
-      acknowledgedPacketIds
-    ) => {
+    clientSideReconciliationRef.current = (authoritativeGamestate, acknowledgedPacketIds) => {
       //check each unAcknowledgedGamestate to see if its packets have been acknowledged by the server. Keep a reference to the latest gamestate that has been acknowledged.
       let latestAcknowledgedGamestateIndex;
 
@@ -176,8 +167,7 @@ function TDMArena({
       } else {
         if (
           !isGamestatesEqual(
-            unAcknowledgedGamestates[latestAcknowledgedGamestateIndex]
-              .gameState,
+            unAcknowledgedGamestates[latestAcknowledgedGamestateIndex].gameState,
             authoritativeGamestate
           )
         ) {
@@ -187,9 +177,7 @@ function TDMArena({
           //you can use the packets stored and the current input queue to view all inputs between the acknowledged gamestate and the present.
           gameState.current = authoritativeGamestate;
 
-          unAcknowledgedGamestates = unAcknowledgedGamestates.slice(
-            latestAcknowledgedGamestateIndex + 1
-          );
+          unAcknowledgedGamestates = unAcknowledgedGamestates.slice(latestAcknowledgedGamestateIndex + 1);
 
           //remove the acknowledged gamestate from the unacknowledged gamestate list
           unAcknowledgedGamestates.forEach((tuple) => {
@@ -212,9 +200,7 @@ function TDMArena({
           // -  a state with positions transitioning would never match the servers state
         } else {
           //still need to trim the unacknowldged gamestates or it will grow
-          unAcknowledgedGamestates = unAcknowledgedGamestates.slice(
-            latestAcknowledgedGamestateIndex + 1
-          );
+          unAcknowledgedGamestates = unAcknowledgedGamestates.slice(latestAcknowledgedGamestateIndex + 1);
         }
       }
     };
@@ -307,10 +293,7 @@ function TDMArena({
   //registration when socket connects
   useEffect(() => {
     let unsubscribeSocket;
-    console.log(
-      "tdmArena UseEffect. socket.connected:",
-      socket && socket.connected
-    );
+    console.log("tdmArena UseEffect. socket.connected:", socket && socket.connected);
 
     if (socket && socket.connected) {
       console.log("subscribing");

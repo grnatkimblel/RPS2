@@ -3,13 +3,7 @@ import "../styles/texts.css";
 import "../styles/elementSpecific.css";
 import QuickLogButton from "./quickLogButton";
 
-function QuickLogToQueue({
-  navigate,
-  login,
-  authHelper,
-  userInfo,
-  gameInfoSetter,
-}) {
+function QuickLogToQueue({ navigate, login, authHelper, userInfo, gameInfoSetter }) {
   const GRANT_CREDENTIALS = {
     username: "grant",
     password: "123123",
@@ -34,10 +28,7 @@ function QuickLogToQueue({
         height: "100%",
       }}
     >
-      <div
-        style={{ display: "flex", flex: 1, flexDirection: "column" }}
-        className=" bottomBorder"
-      >
+      <div style={{ display: "flex", flex: 1, flexDirection: "column" }} className=" bottomBorder">
         <QuickLogButton
           navigate={navigate}
           login={login}
@@ -55,10 +46,7 @@ function QuickLogToQueue({
           credential={RHETT_CREDENTIALS}
         />
       </div>
-      <div
-        style={{ display: "flex", flex: 1, flexDirection: "column" }}
-        className=" bottomBorder leftBorder"
-      >
+      <div style={{ display: "flex", flex: 1, flexDirection: "column" }} className=" bottomBorder leftBorder">
         <QuickLogButton
           navigate={navigate}
           login={login}

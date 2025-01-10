@@ -1,21 +1,10 @@
 import API_ROUTES from "../enums/apiRoutes";
 import PAGES from "../enums/pages";
-import {
-  MATCHMAKING_TYPES,
-  GAMEMODES,
-  GAMEMODE_TYPES,
-} from "../shared/enums/gameEnums"; //This file name is set in docker compose
+import { MATCHMAKING_TYPES, GAMEMODES, GAMEMODE_TYPES } from "../shared/enums/gameEnums"; //This file name is set in docker compose
 
 import { useState, useEffect } from "react";
 
-function QuickLogButton({
-  navigate,
-  login,
-  authHelper,
-  userInfo,
-  gameInfoSetter,
-  credential,
-}) {
+function QuickLogButton({ navigate, login, authHelper, userInfo, gameInfoSetter, credential }) {
   const [pageFlavor, setPageFlavor] = useState("");
 
   useEffect(() => {
@@ -69,15 +58,9 @@ function QuickLogButton({
           })
           .then((data) => {
             gameInfoSetter(data);
-            if (
-              gameType == GAMEMODE_TYPES.QUICKPLAY &&
-              gameMode == GAMEMODES.QUICKDRAW
-            )
+            if (gameType == GAMEMODE_TYPES.QUICKPLAY && gameMode == GAMEMODES.QUICKDRAW)
               navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
-            else if (
-              gameType == GAMEMODE_TYPES.QUICKPLAY &&
-              gameMode == GAMEMODES.TDM
-            )
+            else if (gameType == GAMEMODE_TYPES.QUICKPLAY && gameMode == GAMEMODES.TDM)
               navigate(`/${PAGES.ONLINE.TDM_ARENA}`);
           });
       });
@@ -107,10 +90,7 @@ function QuickLogButton({
       return (
         <button
           style={{ flex: 1 }}
-          className={getLoginButtonColor(
-            userInfo.username,
-            credential.username
-          )}
+          className={getLoginButtonColor(userInfo.username, credential.username)}
           onClick={() => {
             autoLogin(credential);
             setPageFlavor("Selected");
@@ -124,10 +104,7 @@ function QuickLogButton({
         <>
           <button
             style={{ flex: 1 }}
-            className={getQueueButtonColor(
-              userInfo.username,
-              credential.username
-            )}
+            className={getQueueButtonColor(userInfo.username, credential.username)}
             onClick={() => {
               matchmaker(GAMEMODE_TYPES.QUICKPLAY, GAMEMODES.QUICKDRAW);
             }}
@@ -136,10 +113,7 @@ function QuickLogButton({
           </button>
           <button
             style={{ flex: 1 }}
-            className={getQueueButtonColor(
-              userInfo.username,
-              credential.username
-            )}
+            className={getQueueButtonColor(userInfo.username, credential.username)}
             onClick={() => {
               matchmaker(GAMEMODE_TYPES.QUICKPLAY, GAMEMODES.TDM);
             }}
@@ -148,10 +122,7 @@ function QuickLogButton({
           </button>
           <button
             style={{ flex: 1 }}
-            className={getQueueButtonColor(
-              userInfo.username,
-              credential.username
-            )}
+            className={getQueueButtonColor(userInfo.username, credential.username)}
             onClick={() => {
               matchmaker(GAMEMODE_TYPES.QUICKPLAY, GAMEMODES.SEARCH);
             }}

@@ -69,8 +69,7 @@ function App() {
   const authorizeThenCallHttp = useCallback(
     async (url, requestType, body) => {
       try {
-        if (accessToken == "")
-          throw new Error("No AccessToken to authorize against");
+        if (accessToken == "") throw new Error("No AccessToken to authorize against");
 
         let res = await fetch(url, {
           headers: {
@@ -127,14 +126,8 @@ function App() {
           />
         }
       />
-      <Route
-        path={`/${PAGES.LOGIN}`}
-        element={<Login navigate={navigate} login={loginHelper} />}
-      />
-      <Route
-        path={`/${PAGES.CREATE_ACCOUNT}`}
-        element={<CreateAccount navigate={navigate} login={loginHelper} />}
-      />
+      <Route path={`/${PAGES.LOGIN}`} element={<Login navigate={navigate} login={loginHelper} />} />
+      <Route path={`/${PAGES.CREATE_ACCOUNT}`} element={<CreateAccount navigate={navigate} login={loginHelper} />} />
       <Route
         path={`/${PAGES.MAIN_MENU}`}
         element={
@@ -153,21 +146,10 @@ function App() {
           />
         }
       />
-      <Route
-        path={`/${PAGES.ACCOUNT}`}
-        element={
-          <Account navigate={navigate} authHelper={authorizeThenCallHttp} />
-        }
-      />
+      <Route path={`/${PAGES.ACCOUNT}`} element={<Account navigate={navigate} authHelper={authorizeThenCallHttp} />} />
       <Route
         path={`/${PAGES.ONLINE.INITIAL}`}
-        element={
-          <Online
-            navigate={navigate}
-            authHelper={authorizeThenCallHttp}
-            gameInfoSetter={setCurrentGameInfo}
-          />
-        }
+        element={<Online navigate={navigate} authHelper={authorizeThenCallHttp} gameInfoSetter={setCurrentGameInfo} />}
       />
       <Route
         path={`/${PAGES.ONLINE.QUICKDRAW_ARENA}`}

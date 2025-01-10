@@ -131,14 +131,8 @@ export function QuickdrawArena({
     const cards = Array(gameState.numRoundsToWin)
       .fill(1)
       .map((el, i) => {
-        const scoreColor =
-          i < playerScore ? "submittable" : "notInteractableColor";
-        return (
-          <div
-            key={i}
-            className={"scoreCards " + border + " " + scoreColor}
-          ></div>
-        );
+        const scoreColor = i < playerScore ? "submittable" : "notInteractableColor";
+        return <div key={i} className={"scoreCards " + border + " " + scoreColor}></div>;
       });
     return isLeft ? cards : cards.reverse();
   };
@@ -189,16 +183,11 @@ export function QuickdrawArena({
             }}
             className="notInteractableColor bottomBorder topRow"
           >
-            <button
-              style={{ marginLeft: "20px", marginTop: "-20px" }}
-              className="notInteractableColor"
-            >
+            <button style={{ marginLeft: "20px", marginTop: "-20px" }} className="notInteractableColor">
               {gameInfo.player1.username}
             </button>
 
-            <div
-              style={{ display: "flex", width: "60%", justifyContent: "end" }}
-            >
+            <div style={{ display: "flex", width: "60%", justifyContent: "end" }}>
               {getScoreCards(gameState.player1_score, true)}
             </div>
           </div>
@@ -210,14 +199,9 @@ export function QuickdrawArena({
             }}
             className="notInteractableColor bottomBorder leftBorder topRow"
           >
-            <div style={{ display: "flex", width: "60%" }}>
-              {getScoreCards(gameState.player2_score, false)}
-            </div>
+            <div style={{ display: "flex", width: "60%" }}>{getScoreCards(gameState.player2_score, false)}</div>
 
-            <button
-              style={{ marginRight: "20px", marginTop: "-20px" }}
-              className="notInteractableColor"
-            >
+            <button style={{ marginRight: "20px", marginTop: "-20px" }} className="notInteractableColor">
               {gameInfo.player2.username}
             </button>
           </div>
@@ -238,9 +222,7 @@ export function QuickdrawArena({
           >
             <div style={{ position: "absolute" }}>
               {/* <StatsButton /> */}
-              <span style={{ marginLeft: "15px" }}>
-                {getCBM(gameState.player1_CBM)}
-              </span>
+              <span style={{ marginLeft: "15px" }}>{getCBM(gameState.player1_CBM)}</span>
             </div>
             <div
               style={{
@@ -262,9 +244,7 @@ export function QuickdrawArena({
             className="notInteractableColor bottomBorder leftBorder"
           >
             <div style={{ position: "absolute", right: "0" }}>
-              <span style={{ marginRight: "5px" }}>
-                {getCBM(gameState.player2_CBM)}
-              </span>
+              <span style={{ marginRight: "5px" }}>{getCBM(gameState.player2_CBM)}</span>
               {/* <StatsButton /> */}
             </div>
             <div
@@ -288,10 +268,7 @@ export function QuickdrawArena({
           }}
         >
           <div style={{ flex: 1 }}>
-            <button
-              style={{ width: "100%", height: "100%" }}
-              className="notInteractableColor"
-            >
+            <button style={{ width: "100%", height: "100%" }} className="notInteractableColor">
               What will you do?
             </button>
           </div>
@@ -304,10 +281,7 @@ export function QuickdrawArena({
                 Paper
               </button>
             </div>
-            <div
-              style={{ flex: 1, display: "flex", flexDirection: "column" }}
-              className="leftBorder"
-            >
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }} className="leftBorder">
               <button style={{ flex: 1 }} className="defaultColor bottomBorder">
                 Scissors
               </button>

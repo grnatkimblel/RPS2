@@ -12,10 +12,8 @@ import { useState } from "react";
 
 function CreateAccount({ navigate, login }) {
   const [createAccountUsername, setCreateAccountUsername] = useState("");
-  const [createAccountInitialPassword, setCreateAccountInitialPassword] =
-    useState("");
-  const [createAccountConfirmPassword, setCreateAccountConfirmPassword] =
-    useState("");
+  const [createAccountInitialPassword, setCreateAccountInitialPassword] = useState("");
+  const [createAccountConfirmPassword, setCreateAccountConfirmPassword] = useState("");
 
   const userCredentials = {
     username: createAccountUsername,
@@ -55,8 +53,7 @@ function CreateAccount({ navigate, login }) {
             let minLengthSatisfied = dependencies.every((x) => {
               return x.value.length >= x.minLength;
             });
-            let passwordsMatch =
-              dependencies[1].value === dependencies[2].value;
+            let passwordsMatch = dependencies[1].value === dependencies[2].value;
             return minLengthSatisfied && passwordsMatch;
           }}
           OnClick={async () => {

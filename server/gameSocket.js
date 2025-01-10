@@ -23,21 +23,17 @@ export default (server) => {
     logger.info("");
     logger.info("Socket Middleware running");
     if (socket.handshake.auth.token) {
-      jwt.verify(
-        socket.handshake.auth.token,
-        process.env.ACCESS_TOKEN_SECRET,
-        (err, user) => {
-          if (err) next(new Error("Unauthorized"));
-          logger.info("Socket Authentication Successful");
-          logger.info("socket auth user");
-          logger.info(user);
-          logger.info("End of Middleware");
-          logger.info("");
-          socket.client_id = user.id; //this is an arbitrarily added field to attach client details to the socket instance
-          socket.authUser = user;
-          next();
-        }
-      );
+      jwt.verify(socket.handshake.auth.token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) next(new Error("Unauthorized"));
+        logger.info("Socket Authentication Successful");
+        logger.info("socket auth user");
+        logger.info(user);
+        logger.info("End of Middleware");
+        logger.info("");
+        socket.client_id = user.id; //this is an arbitrarily added field to attach client details to the socket instance
+        socket.authUser = user;
+        next();
+      });
     } else {
       next(new Error("no auth token"));
     }

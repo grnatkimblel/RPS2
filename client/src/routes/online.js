@@ -5,11 +5,7 @@ import "../styles/elementSpecific.css";
 import GameModeSelector from "../components/GameModeSelector";
 import PAGES from "../enums/pages";
 import API_ROUTES from "../enums/apiRoutes";
-import {
-  GAMEMODES,
-  GAMEMODE_TYPES,
-  MATCHMAKING_TYPES,
-} from "../shared/enums/gameEnums"; //This file name is set in docker compose
+import { GAMEMODES, GAMEMODE_TYPES, MATCHMAKING_TYPES } from "../shared/enums/gameEnums"; //This file name is set in docker compose
 import { useState, useEffect, useRef } from "react";
 
 import OpponentSearchButton from "../components/OpponentSearchButton";
@@ -44,10 +40,7 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
     return (
       <>
         <div className="gamemode-smalltext">{currentGameMode.gameType}</div>
-        <button
-          style={{ flex: 1 }}
-          className="notInteractableColor bottomBorder"
-        >
+        <button style={{ flex: 1 }} className="notInteractableColor bottomBorder">
           {currentGameMode.gameMode}
         </button>
         <button
@@ -120,16 +113,10 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
     return (
       <>
         <div className="gamemode-smalltext">{currentGameMode.gameType}</div>
-        <button
-          style={{ flex: 1 }}
-          className="notInteractableColor bottomBorder"
-        >
+        <button style={{ flex: 1 }} className="notInteractableColor bottomBorder">
           {currentGameMode.gameMode}
         </button>
-        <button
-          style={{ flex: 3 }}
-          className="notInteractableColor bottomBorder"
-        >
+        <button style={{ flex: 3 }} className="notInteractableColor bottomBorder">
           Searching...
         </button>
         <button
@@ -155,16 +142,10 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
     return (
       <>
         <div className="gamemode-smalltext">{currentGameMode.gameType}</div>
-        <button
-          style={{ flex: 3 }}
-          className="notInteractableColor bottomBorder"
-        >
+        <button style={{ flex: 3 }} className="notInteractableColor bottomBorder">
           {currentGameMode.gameMode}
         </button>
-        <button
-          style={{ flex: 2 }}
-          className="secondary notInteractableColor bottomBorder"
-        >
+        <button style={{ flex: 2 }} className="secondary notInteractableColor bottomBorder">
           Search Opponent
         </button>
         <OpponentSearchButton
@@ -176,11 +157,7 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
     );
   };
 
-  const getPage = (
-    previousPage,
-    currentPage,
-    isBackButtonInteractable = true
-  ) => {
+  const getPage = (previousPage, currentPage, isBackButtonInteractable = true) => {
     return (
       <div
         style={{
@@ -190,9 +167,7 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
       >
         <button
           style={{ flex: 1 }}
-          className={
-            isBackButtonInteractable ? "defaultColor" : "notInteractableColor"
-          }
+          className={isBackButtonInteractable ? "defaultColor" : "notInteractableColor"}
           onClick={() => {
             if (previousPage === PAGES.MAIN_MENU) navigate(`/${previousPage}`);
             else setCurrentPage(previousPage);
@@ -201,10 +176,7 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
           Back
         </button>
         {/* LeftSide */}
-        <div
-          style={{ display: "flex", flex: 1, flexDirection: "column" }}
-          className="leftBorder"
-        >
+        <div style={{ display: "flex", flex: 1, flexDirection: "column" }} className="leftBorder">
           {currentPage()}
         </div>
       </div>

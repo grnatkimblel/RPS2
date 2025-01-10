@@ -35,38 +35,22 @@ button {
   color: white;
   --stroke-color: red;
   --stroke-width: 5px;
-  text-shadow: calc(var(--stroke-width) * 1) calc(var(--stroke-width) * 0) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * 0.3827) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * 0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * 0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * 1) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * 0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * 0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * 0.3827) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -1) calc(var(--stroke-width) * 0) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * -0.3827) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * -0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * -0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * -1) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * -0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * -0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * -0.3827) 0
-      var(--stroke-color);
+  text-shadow: calc(var(--stroke-width) * 1) calc(var(--stroke-width) * 0) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * 0.3827) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * 0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * 0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * 1) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * 0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * 0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * 0.3827) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -1) calc(var(--stroke-width) * 0) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * -0.3827) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * -0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * -0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * -1) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * -0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * -0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * -0.3827) 0 var(--stroke-color);
 }
 
 /* this isnt supported on firefox
@@ -83,38 +67,22 @@ https://stackoverflow.com/questions/6679283/css-hover-only-affect-top-div-of-nes
   pointer-events: none;
   --stroke-color: black;
   --stroke-width: 5px;
-  text-shadow: calc(var(--stroke-width) * 1) calc(var(--stroke-width) * 0) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * 0.3827) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * 0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * 0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * 1) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * 0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * 0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * 0.3827) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -1) calc(var(--stroke-width) * 0) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * -0.3827) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * -0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * -0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * -1) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * -0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * -0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * -0.3827) 0
-      var(--stroke-color);
+  text-shadow: calc(var(--stroke-width) * 1) calc(var(--stroke-width) * 0) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * 0.3827) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * 0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * 0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * 1) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * 0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * 0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * 0.3827) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -1) calc(var(--stroke-width) * 0) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * -0.3827) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * -0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * -0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * -1) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * -0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * -0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * -0.3827) 0 var(--stroke-color);
 }
 
 .submittable {
@@ -122,38 +90,22 @@ https://stackoverflow.com/questions/6679283/css-hover-only-affect-top-div-of-nes
   color: white;
   --stroke-color: #008000;
   --stroke-width: 5px;
-  text-shadow: calc(var(--stroke-width) * 1) calc(var(--stroke-width) * 0) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * 0.3827) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * 0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * 0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * 1) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * 0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * 0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * 0.3827) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -1) calc(var(--stroke-width) * 0) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * -0.3827) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * -0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * -0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * -1) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * -0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * -0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * -0.3827) 0
-      var(--stroke-color);
+  text-shadow: calc(var(--stroke-width) * 1) calc(var(--stroke-width) * 0) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * 0.3827) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * 0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * 0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * 1) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * 0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * 0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * 0.3827) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -1) calc(var(--stroke-width) * 0) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * -0.3827) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * -0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * -0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * -1) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * -0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * -0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * -0.3827) 0 var(--stroke-color);
 }
 
 .submittable:hover {
@@ -169,38 +121,22 @@ https://stackoverflow.com/questions/6679283/css-hover-only-affect-top-div-of-nes
   border: solid #000000;
   --stroke-color: #000000;
   --stroke-width: 5px;
-  text-shadow: calc(var(--stroke-width) * 1) calc(var(--stroke-width) * 0) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * 0.3827) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * 0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * 0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * 1) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * 0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * 0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * 0.3827) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -1) calc(var(--stroke-width) * 0) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * -0.3827) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * -0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * -0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * -1) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * -0.9239) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * -0.7071) 0
-      var(--stroke-color),
-    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * -0.3827) 0
-      var(--stroke-color);
+  text-shadow: calc(var(--stroke-width) * 1) calc(var(--stroke-width) * 0) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * 0.3827) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * 0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * 0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * 1) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * 0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * 0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * 0.3827) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -1) calc(var(--stroke-width) * 0) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.9239) calc(var(--stroke-width) * -0.3827) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.7071) calc(var(--stroke-width) * -0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * -0.3827) calc(var(--stroke-width) * -0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0) calc(var(--stroke-width) * -1) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.3827) calc(var(--stroke-width) * -0.9239) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.7071) calc(var(--stroke-width) * -0.7071) 0 var(--stroke-color),
+    calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * -0.3827) 0 var(--stroke-color);
 }
 
 .stats:hover {
