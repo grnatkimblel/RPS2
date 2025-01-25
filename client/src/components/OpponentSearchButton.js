@@ -26,7 +26,7 @@ function OpponentSearchButton({ authHelper, gameInfoSetter, currentGameMode }) {
 
   const updateIsJoinableStatus = useCallback(
     async (opponentsList) => {
-      if (opponentsList.length == 0) return opponentsList;
+      if (opponentsList.length === 0) return opponentsList;
 
       return await Promise.all(
         opponentsList.map(async (opponent) => {
@@ -58,7 +58,7 @@ function OpponentSearchButton({ authHelper, gameInfoSetter, currentGameMode }) {
       searchText: searchText,
       listOfPlayers: dummyListOfRecentPlayers,
     }).then((res) => {
-      if (res == undefined) return;
+      if (res === undefined) return;
       res.json().then(async (body) => {
         if (!ignore) {
           console.log("getUsers Response ", body);
@@ -172,7 +172,7 @@ function OpponentSearchButton({ authHelper, gameInfoSetter, currentGameMode }) {
           //console.log("opponentDisplay entry ", opponent);
           if (listStartIndex <= index && index <= listEndIndex) {
             let classes = "";
-            if (index == listStartIndex) classes = "secondary bottomBorder topBorder leftBorder rightBorder";
+            if (index === listStartIndex) classes = "secondary bottomBorder topBorder leftBorder rightBorder";
             else classes = "secondary bottomBorder leftBorder rightBorder";
             return (
               <OpponentSelectButton

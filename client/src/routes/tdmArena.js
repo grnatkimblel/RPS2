@@ -83,11 +83,11 @@ function TDMArena({
 
     function areInputsSame(Input1, Input2) {
       // console.log(Object.keys(Input1))
-      // console.log(Object.keys(Input1).every((key) => Input1[key] == Input2[key]))
-      return Object.keys(Input1).every((key) => Input1[key] == Input2[key]);
+      // console.log(Object.keys(Input1).every((key) => Input1[key] === Input2[key]))
+      return Object.keys(Input1).every((key) => Input1[key] === Input2[key]);
 
       // for (const key in Input1) {
-      //   if (Input1[key] != Input2[key]) {
+      //   if (Input1[key] !== Input2[key]) {
       //     return false;
       //   }
       // }
@@ -98,7 +98,7 @@ function TDMArena({
     function isGamestatesEqual(currentGamestate, targetGamestate) {
       let currentPlayerPosition = currentGamestate.players[userInfo.userId].position;
       let targetPlayerPosition = targetGamestate.players[userInfo.userId].position;
-      if (currentPlayerPosition.x == targetPlayerPosition.x && currentPlayerPosition.y == targetPlayerPosition.y) {
+      if (currentPlayerPosition.x === targetPlayerPosition.x && currentPlayerPosition.y === targetPlayerPosition.y) {
         return true;
       }
       return false;
@@ -115,7 +115,7 @@ function TDMArena({
       // console.log(areInputsSame(currentInput, emptyInput));
       // console.log(isInputThisPacket);
 
-      if (tickCount % TICKRATE_DIVISOR == 0) {
+      if (tickCount % TICKRATE_DIVISOR === 0) {
         //if its time to send the queue
         if (isInputThisPacket) {
           //check that there is anything to send
@@ -161,7 +161,7 @@ function TDMArena({
       // console.log("unAcknowledgedGamestates");
       // console.log(unAcknowledgedGamestates);
 
-      if (unAcknowledgedGamestates.length == 0) {
+      if (unAcknowledgedGamestates.length === 0) {
         //no input from user but still has received input
         gameState.current = authoritativeGamestate;
       } else {
@@ -225,17 +225,17 @@ function TDMArena({
         let currentPlayerState = gameState.current.players[player];
         let position = currentPlayerState.position;
         let playerHandEmoji =
-          currentPlayerState.hand == "rock"
+          currentPlayerState.hand === "rock"
             ? "🗿"
-            : currentPlayerState.hand == "paper"
+            : currentPlayerState.hand === "paper"
             ? "📄"
-            : currentPlayerState.hand == "scissors"
+            : currentPlayerState.hand === "scissors"
             ? "✂️"
             : "☣️";
         // console.log(position);
         if (currentPlayerState.isAlive) {
-          if (currentPlayerState.team == 0) p.fill("red");
-          if (currentPlayerState.team == 1) p.fill("blue");
+          if (currentPlayerState.team === 0) p.fill("red");
+          if (currentPlayerState.team === 1) p.fill("blue");
 
           p.circle(position.x, position.y, PLAYER_HITBOX_SIZE);
           p.textSize(PLAYER_EMOJI_SIZE);
@@ -304,7 +304,7 @@ function TDMArena({
     return () => {
       console.log("UseEffect Cleanup");
       // setIsConnected(false);
-      if (unsubscribeSocket != null) unsubscribeSocket();
+      if (unsubscribeSocket !== null) unsubscribeSocket();
     };
   }, [socket, socket?.connected]);
 

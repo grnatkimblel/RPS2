@@ -72,7 +72,7 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
                 }
               })
               .then((roster) => {
-                if (roster == null) return;
+                if (roster === null) return;
                 console.log("roster to be sent to pregame ", roster);
                 const apiRoute =
                   currentGameMode.gameMode === GAMEMODES.QUICKDRAW
@@ -91,13 +91,13 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
               .then((data) => {
                 gameInfoSetter(data);
                 if (
-                  currentGameMode.gameType == GAMEMODE_TYPES.QUICKPLAY &&
-                  currentGameMode.gameMode == GAMEMODES.QUICKDRAW
+                  currentGameMode.gameType === GAMEMODE_TYPES.QUICKPLAY &&
+                  currentGameMode.gameMode === GAMEMODES.QUICKDRAW
                 )
                   navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
                 else if (
-                  currentGameMode.gameType == GAMEMODE_TYPES.QUICKPLAY &&
-                  currentGameMode.gameMode == GAMEMODES.TDM
+                  currentGameMode.gameType === GAMEMODE_TYPES.QUICKPLAY &&
+                  currentGameMode.gameMode === GAMEMODES.TDM
                 )
                   navigate(`/${PAGES.ONLINE.TDM_ARENA}`);
               });

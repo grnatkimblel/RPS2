@@ -5,7 +5,8 @@ ENV REACT_APP_HOST_URL=$REACT_APP_HOST_URL
 
 WORKDIR /usr/src/app
 
-COPY . .
+COPY ./client .
+COPY ./sharedCode/ ./shared
 
 RUN npm install
 

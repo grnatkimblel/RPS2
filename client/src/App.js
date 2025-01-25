@@ -47,7 +47,7 @@ function App() {
       method: "POST",
       body: JSON.stringify(credentials),
     });
-    if (res.status == 200) {
+    if (res.status === 200) {
       let body = await res.json();
       //console.log(body);
       // return body;
@@ -69,7 +69,7 @@ function App() {
   const authorizeThenCallHttp = useCallback(
     async (url, requestType, body) => {
       try {
-        if (accessToken == "") throw new Error("No AccessToken to authorize against");
+        if (accessToken === "") throw new Error("No AccessToken to authorize against");
 
         let res = await fetch(url, {
           headers: {
@@ -80,7 +80,7 @@ function App() {
           body: JSON.stringify(body),
         });
 
-        if (res.status == 403) {
+        if (res.status === 403) {
           //refresh Token
           const newAccessToken = await getNewAccessToken(refreshToken);
           setAccessToken(newAccessToken);
@@ -94,11 +94,11 @@ function App() {
             body: JSON.stringify(body),
           });
 
-          if (res.status == 403) {
+          if (res.status === 403) {
             throw new Error("Refresh Token invalid");
           }
         }
-        if (res.status == 200) return res;
+        if (res.status === 200) return res;
       } catch (error) {
         console.error("Error authorizing call to:" + url);
         console.error(error);
@@ -110,11 +110,8 @@ function App() {
 
   return (
     <Routes>
+      <Route path={`/${PAGES.INITIAL}`} element={<Root navigate={navigate} />} />
       {/* <Route
-        path={`/${PAGES.INITIAL}`}
-        element={<Root navigate={navigate} />}
-      /> */}
-      <Route
         path={`/${PAGES.INITIAL}`}
         element={
           <QuicklogToQueue
@@ -125,7 +122,7 @@ function App() {
             gameInfoSetter={setCurrentGameInfo}
           />
         }
-      />
+      /> */}
       <Route path={`/${PAGES.LOGIN}`} element={<Login navigate={navigate} login={loginHelper} />} />
       <Route path={`/${PAGES.CREATE_ACCOUNT}`} element={<CreateAccount navigate={navigate} login={loginHelper} />} />
       <Route

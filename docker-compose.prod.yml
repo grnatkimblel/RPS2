@@ -1,0 +1,60 @@
+version: "3.8"
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: ./nginx/prod.Dockerfile
+      args:
+        - REACT_APP_HOST_URL=http://localhost:8080/
+    container_name: prod-nginx
+    environment:
+      - WDS_SOCKET_PORT=0
+    ports:
+      - "8080:80"
+    networks:
+      - public
+    depends_on:
+      - server
+
+  server:
+    build:
+      context: .
+      dockerfile: ./server/prod.Dockerfile
+      args:
+        NODE_ENV: production
+    container_name: prod-server
+    environment:
+      - ACCESS_TOKEN_SECRET
+      - REFRESH_TOKEN_SECRET
+    networks:
+      - public
+    restart: always
+    depends_on:
+      db-prod:
+        condition: service_healthy
+
+  db-prod:
+    image: mysql:8.0
+    container_name: mysql-prod
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: database_production
+      MYSQL_USER: produser
+      MYSQL_PASSWORD: prodpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_prod_data:/var/lib/mysql
+    networks:
+      - public
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql_prod_data:
+
+networks:
+  public:

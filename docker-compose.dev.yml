@@ -1,8 +1,8 @@
 services:
   client:
     build:
-      context: "./client"
-      dockerfile: dev.Dockerfile
+      context: .
+      dockerfile: ./client/dev.Dockerfile
       args:
         - REACT_APP_HOST_URL=http://localhost:8080/
     volumes:
@@ -23,7 +23,7 @@ services:
     image: nginx:1.20.1
     container_name: nginx
     volumes:
-      - ./nginx/default.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/default.dev.conf:/etc/nginx/nginx.conf:ro
     ports:
       - "8080:80"
     networks:
@@ -34,10 +34,10 @@ services:
 
   server:
     build:
+      context: .
+      dockerfile: ./server/dev.Dockerfile
       args:
         - NODE_ENV=development
-      context: ./server
-      dockerfile: dev.Dockerfile
     container_name: server
     networks:
       - public

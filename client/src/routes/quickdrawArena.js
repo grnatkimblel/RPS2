@@ -81,10 +81,10 @@ function QuickdrawArena({
     titleText: Math.ceil((gameInfo.roundStartTime - Date.now()) / 1000),
     gamePhase: GAME_PHASES.PRE_GAME,
     numRoundsToWin: 3,
-    player1_hand: gameInfo.player1.emoji != "" ? gameInfo.player1.emoji : EMOJI_THINKING,
+    player1_hand: gameInfo.player1.emoji !== "" ? gameInfo.player1.emoji : EMOJI_THINKING,
     player1_score: 0,
     player1_CBM: 0,
-    player2_hand: gameInfo.player2.emoji != "" ? gameInfo.player2.emoji : EMOJI_THINKING,
+    player2_hand: gameInfo.player2.emoji !== "" ? gameInfo.player2.emoji : EMOJI_THINKING,
     player2_score: 0,
     player2_CBM: 0,
   };
@@ -116,8 +116,8 @@ function QuickdrawArena({
         gamePhase: GAME_PHASES.READY,
         titleText: EMOJI_READY_PHASE,
         //reset the player hands
-        player1_hand: gameInfo.player1.emoji != "" ? gameInfo.player1.emoji : EMOJI_THINKING,
-        player2_hand: gameInfo.player2.emoji != "" ? gameInfo.player2.emoji : EMOJI_THINKING,
+        player1_hand: gameInfo.player1.emoji !== "" ? gameInfo.player1.emoji : EMOJI_THINKING,
+        player2_hand: gameInfo.player2.emoji !== "" ? gameInfo.player2.emoji : EMOJI_THINKING,
       }));
       playGoodBadUglyAudio();
       setIsAcceptingHandsInput(true);
@@ -170,11 +170,11 @@ function QuickdrawArena({
         player2_CBM: payload.header.player_2_CBM,
         //dont reset yet, let the players see the outcome of the last round before for a second
         // player1_hand:
-        //   gameInfo.player1.emoji != ""
+        //   gameInfo.player1.emoji !== ""
         //     ? gameInfo.player1.emoji
         //     : EMOJI_THINKING,
         // player2_hand:
-        //   gameInfo.player2.emoji != ""
+        //   gameInfo.player2.emoji !== ""
         //     ? gameInfo.player2.emoji
         //     : EMOJI_THINKING,
       }));
@@ -184,13 +184,13 @@ function QuickdrawArena({
       // console.log("displayState before receiving hand");
       // console.log(gameDisplayState);
       let emojiFromHand =
-        hand == "rock"
+        hand === "rock"
           ? EMOJI_ROCK
-          : hand == "paper"
+          : hand === "paper"
           ? EMOJI_PAPER
-          : hand == "scissors"
+          : hand === "scissors"
           ? EMOJI_SCISSORS
-          : hand == "tooEarly"
+          : hand === "tooEarly"
           ? EMOJI_TOO_EARLY
           : EMOJI_ERROR;
 
@@ -300,22 +300,22 @@ function QuickdrawArena({
       );
 
       //set display client side, other clients will experience a delay before this is reflected
-      if (gameDisplayState.gamePhase == GAME_PHASES.DRAW) {
+      if (gameDisplayState.gamePhase === GAME_PHASES.DRAW) {
         setGameDisplayState((prev) => {
-          return gameInfo.player1.userId == userInfo.userId
+          return gameInfo.player1.userId === userInfo.userId
             ? {
                 ...prev,
-                player1_hand: hand == "rock" ? EMOJI_ROCK : hand == "paper" ? EMOJI_PAPER : EMOJI_SCISSORS,
+                player1_hand: hand === "rock" ? EMOJI_ROCK : hand === "paper" ? EMOJI_PAPER : EMOJI_SCISSORS,
               }
             : {
                 ...prev,
-                player2_hand: hand == "rock" ? EMOJI_ROCK : hand == "paper" ? EMOJI_PAPER : EMOJI_SCISSORS,
+                player2_hand: hand === "rock" ? EMOJI_ROCK : hand === "paper" ? EMOJI_PAPER : EMOJI_SCISSORS,
               };
         });
       } else {
         //this is client side, we know that the hand is invalid, we can hard set it to be wrong
         setGameDisplayState((prev) => {
-          return gameInfo.player1.userId == userInfo.userId
+          return gameInfo.player1.userId === userInfo.userId
             ? {
                 ...prev,
                 player1_hand: EMOJI_TOO_EARLY,

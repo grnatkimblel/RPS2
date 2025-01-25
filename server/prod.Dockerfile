@@ -24,4 +24,4 @@ COPY ./sharedCode ./shared
 
 
 # Run the application.
-CMD "npm run dev"
+CMD ["npm", "run", "prod"]

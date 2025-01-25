@@ -41,7 +41,7 @@ function QuickLogButton({ navigate, login, authHelper, userInfo, gameInfoSetter,
         return data.roster;
       })
       .then((roster) => {
-        if (roster == null) return;
+        if (roster === null) return;
         console.log("roster to be sent to pregame ", roster);
         const apiRoute =
           gameMode === GAMEMODES.QUICKDRAW
@@ -58,19 +58,19 @@ function QuickLogButton({ navigate, login, authHelper, userInfo, gameInfoSetter,
           })
           .then((data) => {
             gameInfoSetter(data);
-            if (gameType == GAMEMODE_TYPES.QUICKPLAY && gameMode == GAMEMODES.QUICKDRAW)
+            if (gameType === GAMEMODE_TYPES.QUICKPLAY && gameMode === GAMEMODES.QUICKDRAW)
               navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
-            else if (gameType == GAMEMODE_TYPES.QUICKPLAY && gameMode == GAMEMODES.TDM)
+            else if (gameType === GAMEMODE_TYPES.QUICKPLAY && gameMode === GAMEMODES.TDM)
               navigate(`/${PAGES.ONLINE.TDM_ARENA}`);
           });
       });
   };
 
   function getLoginButtonColor(targetUsername, buttonUsername) {
-    if (targetUsername == "") {
+    if (targetUsername === "") {
       return "defaultColor bottomBorder";
     }
-    if (targetUsername == buttonUsername) {
+    if (targetUsername === buttonUsername) {
       return "submittable bottomBorder";
     } else {
       return "notInteractableColor bottomBorder";
@@ -78,7 +78,7 @@ function QuickLogButton({ navigate, login, authHelper, userInfo, gameInfoSetter,
   }
 
   function getQueueButtonColor(username, targetUsername) {
-    if (username != "" && username == targetUsername) {
+    if (username !== "" && username === targetUsername) {
       return "defaultColor bottomBorder";
     } else {
       return "notInteractableColor bottomBorder";
@@ -86,7 +86,7 @@ function QuickLogButton({ navigate, login, authHelper, userInfo, gameInfoSetter,
   }
 
   function getButton(pageFlavor) {
-    if (pageFlavor == "") {
+    if (pageFlavor === "") {
       return (
         <button
           style={{ flex: 1 }}

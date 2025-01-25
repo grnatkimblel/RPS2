@@ -18,7 +18,7 @@ function Account({ navigate, userInfo, authHelper }) {
       listOfPlayers: [userInfo.userId],
     }).then(
       (res) => {
-        if (res == undefined) return;
+        if (res === undefined) return;
         if (!ignore) {
           // console.log(res);
           res.json().then((body) => {

@@ -20,3 +20,7 @@ Include a short timeout after the min number is reached to allow more players fo
 
 Quickdraw is broken, some users inputs are counting for both players, this is happening from
 quicklog so may need to check against the normal flow
+
+prod docker compose works but there are issues
+- css isnt here, theres some stuff on this online
+- server needs its refresh and access token env variables injected somehow
