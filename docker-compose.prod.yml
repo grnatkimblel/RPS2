@@ -5,12 +5,13 @@ services:
       context: .
       dockerfile: ./nginx/prod.Dockerfile
       args:
-        - REACT_APP_HOST_URL=http://localhost:8080/
+        - REACT_APP_HOST_URL=${REACT_APP_HOST_URL}
     container_name: prod-nginx
     environment:
       - WDS_SOCKET_PORT=0
     ports:
-      - "8080:80"
+      - "80:80"
+      - "443:443"
     networks:
       - public
     depends_on:
