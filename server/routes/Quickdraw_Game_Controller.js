@@ -93,7 +93,7 @@ router.post("/quickdraw/startGame", async (req, res) => {
   logger.info("startGame called");
   if (activeRooms.has(session_id)) {
     let game = activeRooms.get(session_id);
-    if (game.players[0] == client_id) {
+    if (game.players.player_1 == client_id) {
       game.checkInStatus.player_1 = true;
     } else {
       game.checkInStatus.player_2 = true;
@@ -109,8 +109,8 @@ router.post("/quickdraw/startGame", async (req, res) => {
         defaults: {
           winner: null,
           loser: null,
-          player_1_id: game.players[0],
-          player_2_id: game.players[1],
+          player_1_id: game.players.player_1,
+          player_2_id: game.players.player_2,
         },
       });
       logger.info("Created GameHeader gameId: " + createdGameHeader.game_id);
@@ -202,9 +202,9 @@ function registerGameControllerHandlers(io, socket) {
     logger.info(client_id + " played a hand");
     // }
     let game = activeRooms.get(sessionId);
-    let isPlayer_1 = game.players[0] == client_id;
+    let isPlayer_1 = game.players.player_1 == client_id;
     // game = activeRooms.get(sessionId);
-    let thisRound = game.rounds[game.rounds.length - 1];
+    let thisRound = thisRound;
     let now = Date.now();
     // logger.info("game");
     // logger.info(game);
@@ -220,22 +220,22 @@ function registerGameControllerHandlers(io, socket) {
     if (now > thisRound.drawTime && now < thisRound.endTime) {
       //this is a valid play
       logger.info("this is a valid play");
-      hands = game.rounds[game.rounds.length - 1].hands;
+      hands = thisRound.hands;
       if (debug) {
         logger.info("before hands");
         logger.info(hands);
       }
-      game.rounds[game.rounds.length - 1].hands = {
-        ...game.rounds[game.rounds.length - 1].hands,
+      thisRound.hands = {
+        ...thisRound.hands,
         player_1: isPlayer_1
           ? {
               client_id: client_id,
               hand: hand,
               time: now,
             }
-          : game.rounds[game.rounds.length - 1].hands.player_1,
+          : thisRound.hands.player_1,
         player_2: isPlayer_1
-          ? game.rounds[game.rounds.length - 1].hands.player_2
+          ? thisRound.hands.player_2
           : {
               client_id: client_id,
               hand: hand,

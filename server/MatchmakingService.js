@@ -46,8 +46,6 @@ const matchmakingQueues = {
   },
 };
 
-let matchMaker = null;
-
 /*
 AddPlayer is responsible for adding a new players to the pool of players waiting to 
 play a game. 
@@ -91,51 +89,6 @@ matchmakingEventEmitter.on("Random-AddPlayer", (client_id, gameType, gameMode) =
       matchmakingEventEmitter.emit(playerEventName, roster);
     }
   }
-  // if (matchMaker == null) {
-  //   matchMaker = setInterval(() => {
-  //     //this will need to change
-  //     logger.info(gameType, gameMode, "matchmaking sweep");
-  //     if (matchmakingQueue.getNumPlayers() > 1) {
-  //       logger.info("create roster");
-  //       matchmakingQueue.getQueue().forEach((player_id) => {
-  //         logger.info(matchmakingQueue);
-  //         if (client_id != player_id) {
-  //           const roster = createTwoPlayerRoster(player_id, client_id);
-  //           logger.info(roster);
-  //           for (let player in roster.players) {
-  //             logger.info("removing ", roster.players[player]);
-  //             matchmakingQueue.removePlayer(roster.players[player]);
-  //             // removePlayerFromList(roster.players[player], matchmakingQueue);
-  //           }
-  //           const clientEventName = getEventStringName(
-  //             client_id,
-  //             gameType,
-  //             gameMode,
-  //             "Random-AddPlayerResponse"
-  //           );
-
-  //           const playerEventName = getEventStringName(
-  //             roster.players["player_1"],
-  //             gameType,
-  //             gameMode,
-  //             "Random-AddPlayerResponse"
-  //           );
-
-  //           logger.info("matchmaker");
-  //           logger.info(clientEventName);
-  //           logger.info(playerEventName);
-  //           matchmakingEventEmitter.emit(clientEventName, roster);
-  //           matchmakingEventEmitter.emit(playerEventName, roster);
-  //         }
-  //       });
-  //     }
-
-  //     if (matchmakingQueue.getNumPlayers() == 0) {
-  //       clearInterval(matchMaker);
-  //       matchMaker = null;
-  //     }
-  //   }, 2000);
-  // }
 });
 
 matchmakingEventEmitter.on("Random-RemovePlayer", (client_id, gameType, gameMode) => {
@@ -143,10 +96,6 @@ matchmakingEventEmitter.on("Random-RemovePlayer", (client_id, gameType, gameMode
   let matchmakingQueue = matchmakingQueues[gameType][gameMode][MATCHMAKING_TYPES.RANDOM];
   matchmakingQueue.removePlayer(client_id);
 
-  // if (matchmakingQueue.getNumPlayers() == 0) {
-  //   clearInterval(matchMaker);
-  //   matchMaker = null;
-  // }
   //respond to the pending queue
   const eventName = getEventStringName(client_id, gameType, gameMode, "Random-AddPlayerResponse");
   matchmakingEventEmitter.emit(eventName, false); //this could be handled on matchmaking side but its more readable this way?
@@ -201,18 +150,6 @@ matchmakingEventEmitter.on("Search-CheckInviteToClient", (client_id, otherPlayer
     matchmakingEventEmitter.emit(clientEventName, false);
   }
 });
-
-// function createTwoPlayerRoster(player1_id, player2_id) {
-//   //figure out sessionID
-//   const rosterId = uuidv4();
-//   return {
-//     rosterId: rosterId,
-//     players: {
-//       player_1: player1_id,
-//       player_2: player2_id,
-//     },
-//   };
-// }
 
 function createRoster(...playerIds) {
   //figure out sessionID

@@ -13,8 +13,9 @@ export default (server) => {
   //io lives here Server side
   const io = new Server(server, {
     cors: {
-      origin: ["http://localhost:3000", "https://admin.socket.io"],
+      origin: ["http://localhost:3000", process.env.REACT_APP_HOST_URL, "https://admin.socket.io"],
       credentials: true,
+      optionsSuccessStatus: 200,
     },
   });
   instrument(io, { auth: false, mode: "development" });
