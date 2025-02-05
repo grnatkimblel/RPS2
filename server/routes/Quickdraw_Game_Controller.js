@@ -204,7 +204,7 @@ function registerGameControllerHandlers(io, socket) {
     let game = activeRooms.get(sessionId);
     let isPlayer_1 = game.players.player_1 == client_id;
     // game = activeRooms.get(sessionId);
-    let thisRound = thisRound;
+    let thisRound = game.rounds[game.rounds.length - 1];
     let now = Date.now();
     // logger.info("game");
     // logger.info(game);
@@ -220,10 +220,9 @@ function registerGameControllerHandlers(io, socket) {
     if (now > thisRound.drawTime && now < thisRound.endTime) {
       //this is a valid play
       logger.info("this is a valid play");
-      hands = thisRound.hands;
       if (debug) {
         logger.info("before hands");
-        logger.info(hands);
+        logger.info(thisRound.hands);
       }
       thisRound.hands = {
         ...thisRound.hands,
@@ -258,22 +257,21 @@ function registerGameControllerHandlers(io, socket) {
       //the player has played their hand to late
       logger.info("the player has played their hand to late");
     }
-    hands = game.rounds[game.rounds.length - 1].hands;
     if (debug) {
       logger.info("before hands");
-      logger.info(hands);
+      logger.info(thisRound.hands);
     }
-    game.rounds[game.rounds.length - 1].hands = {
-      ...game.rounds[game.rounds.length - 1].hands,
+    thisRound.hands = {
+      ...thisRound.hands,
       player_1: isPlayer_1
         ? {
             client_id: client_id,
             hand: null,
             time: null,
           }
-        : game.rounds[game.rounds.length - 1].hands.player_1,
+        : thisRound.hands.player_1,
       player_2: isPlayer_1
-        ? game.rounds[game.rounds.length - 1].hands.player_2
+        ? thisRound.hands.player_2
         : {
             client_id: client_id,
             hand: null,
