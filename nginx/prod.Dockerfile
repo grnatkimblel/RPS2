@@ -33,9 +33,9 @@ COPY ./nginx/default.prod.conf /etc/nginx/nginx.conf
 # Create a directory for the certbot challenge
 RUN mkdir -p /var/www/certbot/.well-known/acme-challenge
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY entrypoint.sh /usr/entrypoint.sh
+RUN chmod +x /usr/entrypoint.sh
 
 EXPOSE 80
 
-ENTRYPOINT ["/entrypoint.sh"] # ENTRYPOINT for the script
+ENTRYPOINT ["/usr/entrypoint.sh"] # ENTRYPOINT for the script
