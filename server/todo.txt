@@ -24,3 +24,5 @@ quicklog so may need to check against the normal flow
 prod docker compose works but there are issues
 - css isnt here, theres some stuff on this online
 - server needs its refresh and access token env variables injected somehow
+
+cannot issue CA to ip addresses. I need a domain.

@@ -30,7 +30,7 @@ COPY --from=artifacts /app /usr/share/nginx/html
 # Optional custom Nginx config
 COPY ./nginx/default.prod.conf /etc/nginx/nginx.conf 
 
-RUN certbot certonly --webroot-path /usr/share/nginx/html
+# RUN certbot certonly --webroot-path /usr/share/nginx/html 
 
 
 EXPOSE 80
