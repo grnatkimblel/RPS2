@@ -30,9 +30,12 @@ COPY --from=artifacts /app /usr/share/nginx/html
 # Optional custom Nginx config
 COPY ./nginx/default.prod.conf /etc/nginx/nginx.conf 
 
-# RUN certbot certonly --webroot-path /usr/share/nginx/html 
+# Create a directory for the certbot challenge
+RUN mkdir -p /var/www/certbot/.well-known/acme-challenge
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/entrypoint.sh"] # ENTRYPOINT for the script

@@ -26,3 +26,5 @@ prod docker compose works but there are issues
 - server needs its refresh and access token env variables injected somehow
 
 cannot issue CA to ip addresses. I need a domain.
+
+certbot certonly --webroot --webroot-path /var/www/certbot --agree-tos -d testrps.xyz -m REDACTED_EMAIL
