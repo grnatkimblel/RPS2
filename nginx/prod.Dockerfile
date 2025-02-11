@@ -20,7 +20,8 @@ FROM scratch AS artifacts
 # Start from scratch to minimize size
 COPY --from=builder /app/build /app
 
-FROM python:3.9-slim
+FROM ubuntu:latest
+
 
 RUN apt-get update -qq && apt-get -y install apache2-utils certbot python3-certbot-nginx
 
@@ -29,13 +30,16 @@ COPY --from=artifacts /app /usr/share/nginx/html
 
 # Optional custom Nginx config
 COPY ./nginx/default.prod.conf /etc/nginx/nginx.conf 
+COPY ./nginx/certbot.prod.conf /etc/nginx/certbot.nginx.conf
 
 # Create a directory for the certbot challenge
 RUN mkdir -p /var/www/certbot/.well-known/acme-challenge
 
-COPY entrypoint.sh /usr/entrypoint.sh
+COPY ./nginx/entrypoint.sh /usr/entrypoint.sh
 RUN chmod +x /usr/entrypoint.sh
 
 EXPOSE 80
 
-ENTRYPOINT ["/usr/entrypoint.sh"] # ENTRYPOINT for the script
+#CMD ["nginx", "-g", "deamon off;"]
+ENTRYPOINT ["/usr/entrypoint.sh"]
+# ENTRYPOINT for the script

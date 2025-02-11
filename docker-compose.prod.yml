@@ -16,7 +16,6 @@ services:
       - public
     depends_on:
       - server
-
   server:
     build:
       context: .
