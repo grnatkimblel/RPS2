@@ -1,18 +1,52 @@
 #!/bin/bash
 
+DOMAIN="testrps.xyz"
+EMAIL="REDACTED_EMAIL"
+WEBROOT_PATH="/var/www/certbot"
+CERT_DIR="/etc/letsencrypt/live/$DOMAIN"
+IS_TESTING=false
+
+get_certs() {
+	echo "No certifications found. Getting new certs..."
+	if $IS_TESTING; then
+		echo "Getting test certs..."
+		certbot certonly --non-interactive --webroot --webroot-path "$WEBROOT_PATH" \
+		--agree-tos -d "$DOMAIN" -m "$EMAIL" --staging --break-my-certs
+	else
+		certbot certonly --non-interactive --webroot --webroot-path "$WEBROOT_PATH" \
+		--agree-tos -d "$DOMAIN" -m "$EMAIL"
+	fi
+}
+
+setup_cron_job() {
+	echo "Setting up cron job for renewal..."
+	echo "0 0, 12 * * * /usr/bin/certbot renew --quiet --post-hook 'nginx -s reload'" \ 
+	> /etc/cron.d/certbot-renew
+	chmod 0644 /etc/cron.d/certbot-renew
+	crontab /etc/cron.d/certbot-renew
+}
+
+#start nginx with dummy config to serve the certbot challenge
 nginx -c /etc/nginx/certbot.nginx.conf &
 
 echo "Waiting for nginx to start..."
 sleep 3
 
-echo "Running Certbot..."
-certbot certonly --non-interactive --webroot --webroot-path /var/www/certbot --agree-tos -d testrps.xyz -m REDACTED_EMAIL
-
+echo "Checking for certs..."
+if [ ! -f "$CERT_DIR/fullchain.pem" ] || [ ! -f "$CERT_DIR/privkey.pem" ]; then
+  get_certs
+fi
 
 if [[ $? -eq 0 ]]; then
-    echo "Certbot Succeeded, reloading Nginx..."
-    nginx -s stop
-    nginx -c /etc/nginx/nginx.conf -g "daemon off;"
+	echo "Begining cronjob"
+	#begin cron job
+	setup_cron_job
+	service cron start
+
+	#restart nginx with actual config
+	#this must run last because it will not exit
+	nginx -s stop
+	nginx -c /etc/nginx/nginx.conf -g "daemon off;"	
 else
     echo "Certbot failed"
     cat var/log/letsencrypt/letsencrypt.log

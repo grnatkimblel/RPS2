@@ -23,7 +23,7 @@ COPY --from=builder /app/build /app
 FROM ubuntu:latest
 
 
-RUN apt-get update -qq && apt-get -y install apache2-utils certbot python3-certbot-nginx
+RUN apt-get update -qq && apt-get -y install apache2-utils certbot python3-certbot-nginx cron
 
 # Copy from the client's build stage
 COPY --from=artifacts /app /usr/share/nginx/html 
@@ -39,6 +39,7 @@ COPY ./nginx/entrypoint.sh /usr/entrypoint.sh
 RUN chmod +x /usr/entrypoint.sh
 
 EXPOSE 80
+EXPOSE 443
 
 #CMD ["nginx", "-g", "deamon off;"]
 ENTRYPOINT ["/usr/entrypoint.sh"]

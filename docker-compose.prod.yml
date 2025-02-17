@@ -12,6 +12,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - certbot:/etc/letsencrypt/live/${REACT_APP_HOST_URL}
     networks:
       - public
     depends_on:
@@ -55,6 +57,7 @@ services:
 
 volumes:
   mysql_prod_data:
+  certbot:
 
 networks:
   public:
