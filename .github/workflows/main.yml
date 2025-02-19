@@ -1,0 +1,40 @@
+name: Automatically deploy on push
+
+on: 
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: Copy the latest commit to the remote machine, then build and deploy to production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the master branch of the repository
+        uses: actions/checkout@v4
+
+      - name: Write the github secrets to the secrets directory
+        uses: appleboy/ssh-action@1.2.0
+        with:
+          host: ${{ vars.DOMAIN_NAME }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: 
+            mkdir secrets
+            echo ${{secrets.JWT_ACCESS_TOKEN_SECRET}} > secrets/jwt_access_token_secret.txt
+            echo ${{secrets.JWT_REFRESH_TOKEN_SECRET}} > secrets/jwt_refresh_token_secret.txt
+            echo ${{secrets.EMAIL}} > secrets/email.txt
+
+      - name: Copy the latest commits to the remote machine
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ vars.DOMAIN_NAME }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          overwrite: true
+          source: .
+          target: /home/${{secrets.SSH_USERNAME}}/Hosting/RPS Webserver/deployment
