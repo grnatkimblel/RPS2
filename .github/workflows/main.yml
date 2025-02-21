@@ -3,7 +3,7 @@ livename: Automatically deploy on push
 on: 
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
