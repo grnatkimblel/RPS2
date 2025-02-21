@@ -1,4 +1,4 @@
-livename: Automatically deploy on push
+name: Automatically deploy on push
 
 on: 
   push:
