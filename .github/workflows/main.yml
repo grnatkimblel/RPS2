@@ -1,4 +1,4 @@
-name: Automatically deploy on push
+livename: Automatically deploy on push
 
 on: 
   push:
@@ -32,6 +32,6 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           overwrite: true
           source: .
-          target: /home/${{secrets.SSH_USERNAME}}/Hosting/RPS Webserver/deployment
+          target: /home/${{secrets.SSH_USERNAME}}/Hosting/RPS Webserver/delivery
 
  
