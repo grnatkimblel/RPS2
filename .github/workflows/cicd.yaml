@@ -29,6 +29,7 @@ jobs:
           docker save -o nginx.tar RPS2/nginx:${{ github.sha }}
           docker save -o server.tar RPS2/server:${{ github.sha }}
           docker save -o mysql.tar mysql:8.0
+          chmod 644 *.tar  # Ensure readability
 
       - name: Write the github secrets to the secrets directory
         run: |
@@ -78,5 +79,5 @@ jobs:
             docker load -i ./nginx.tar
             docker load -i ./server.tar
             docker load -i ./mysql.tar
-            docker compose down
+            docker-compose -f docker-compose.prod.yml down
             TAG=${TAG} REACT_APP_HOST_URL=${DOMAIN_NAME} docker-compose -f docker-compose.prod.yml up -d --remove-orphans
