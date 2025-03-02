@@ -11,13 +11,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set up Docekr Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
       - name: Build and Pull the Docker Compose images
         env:
           TAG: ${{ github.sha }}
-          REACT_APP_HOST_URL: ${{ secrets.DOMAIN_NAME }}
+          REACT_APP_HOST_URL: ${{ vars.DOMAIN_NAME }}
         run: |
           docker-compose -f docker-compose.prod.yml build --pull
           docker pull mysql:8.0
@@ -48,6 +48,8 @@ jobs:
 
       - name: SCP images and files to remote machine
         uses: appleboy/scp-action@v0.1.7
+        env:
+          USERNAME: ${{ secrets.SSH_USERNAME }}
         with:
           host: ${{ vars.DOMAIN_NAME }}
           port: ${{ secrets.SSH_PORT }}
@@ -56,7 +58,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           overwrite: true
           source: ./deployment
-          target: /home/${{secrets.SSH_USERNAME}}/Hosting/RPS Webserver/delivery
+          target: /home/${USERNAME}/Hosting/RPS Webserver/delivery
 
       - name: Deploy on the remote machine
         uses: appleboy/ssh-action@v1.2.1
