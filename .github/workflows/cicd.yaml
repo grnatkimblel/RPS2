@@ -51,8 +51,6 @@ jobs:
 
       - name: SCP images and files to remote machine
         uses: appleboy/scp-action@v0.1.7
-        env:
-          USERNAME: ${{ secrets.SSH_USERNAME }}
         with:
           host: ${{ vars.DOMAIN_NAME }}
           port: ${{ secrets.SSH_PORT }}
@@ -61,7 +59,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           overwrite: true
           source: ./deployment
-          target: /home/${USERNAME}/Hosting/RPS Webserver/delivery
+          target: /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/delivery
 
       - name: Deploy on the remote machine
         uses: appleboy/ssh-action@v1.2.1
