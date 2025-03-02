@@ -59,7 +59,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           overwrite: true
           source: ./deployment
-          target: /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/delivery
+          target: /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/
 
       - name: Deploy on the remote machine
         uses: appleboy/ssh-action@v1.2.1
@@ -73,7 +73,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            cd /home/${{secrets.SSH_USERNAME}}/Hosting/RPS Webserver/delivery/
+            cd /home/${{secrets.SSH_USERNAME}}/Hosting/RPS Webserver/deployment
             docker load -i ./nginx.tar
             docker load -i ./server.tar
             docker load -i ./mysql.tar
