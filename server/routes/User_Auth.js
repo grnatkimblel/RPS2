@@ -1,22 +1,22 @@
-import logger from "../utils/logger.js";
-import dotenv from "dotenv";
-import path from "path";
+// import dotenv from "dotenv";
+// import path from "path";
+// import { fileURLToPath } from "url";
 
+import logger from "../utils/logger.js";
 import express from "express";
 
 import db from "../models/index.js";
 // Get the User model from the db object
 const { User, RefreshToken } = db;
 import { Op } from "sequelize";
-import { fileURLToPath } from "url";
 
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 // Determine the current directory
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.join(__dirname, "../config", ".env") });
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+// dotenv.config({ path: path.join(__dirname, "../config", ".env") });
 const router = express.Router();
 
 //POSTS
@@ -38,7 +38,7 @@ router.post("/login", async (req, res) => {
     //logger.info(userFoundInDb);
     if (await bcrypt.compare(req.body.password, userFoundInDb.hashed_password)) {
       const accessToken = generateAccessToken(userFoundInDb);
-      const refreshToken = jwt.sign(userFoundInDb, process.env.REFRESH_TOKEN_SECRET);
+      const refreshToken = jwt.sign(userFoundInDb, process.env.JWT_REFRESH_TOKEN_SECRET);
       await RefreshToken.create({
         refresh_token: refreshToken,
       });
@@ -74,7 +74,7 @@ router.post("/token", async (req, res) => {
   });
   if (refreshTokenFoundInDb == null) return res.sendStatus(403);
 
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+  jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
     //logger.info("RefreshToken user param");
     //logger.info(user);
@@ -90,7 +90,7 @@ router.post("/token", async (req, res) => {
 });
 
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "10m" });
+  return jwt.sign(user, process.env.JWT_ACCESS_TOKEN_SECRET, { expiresIn: "10m" });
 }
 
 export default router;

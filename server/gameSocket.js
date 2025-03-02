@@ -26,7 +26,7 @@ export default (server) => {
     logger.info("");
     logger.info("Socket Middleware running");
     if (socket.handshake.auth.token) {
-      jwt.verify(socket.handshake.auth.token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+      jwt.verify(socket.handshake.auth.token, process.env.JWT_ACCESS_TOKEN_SECRET, (err, user) => {
         if (err) next(new Error("Unauthorized"));
         logger.info("Socket Authentication Successful");
         logger.info("socket auth user");

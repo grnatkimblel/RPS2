@@ -1,6 +1,7 @@
 version: "3.8"
 services:
   nginx:
+    image: RPS2/nginx:${TAG:-latest}
     build:
       context: .
       dockerfile: ./nginx/prod.Dockerfile
@@ -9,16 +10,20 @@ services:
     container_name: prod-nginx
     environment:
       - WDS_SOCKET_PORT=0
+      - EMAIL_ADDRESS=/run/secrets/email_address
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - certbot:/etc/letsencrypt/live/${REACT_APP_HOST_URL}
+    secrets:
+      - email_address
     networks:
       - public
     depends_on:
       - server
   server:
+    image: RPS2/server:${TAG:-latest}
     build:
       context: .
       dockerfile: ./server/prod.Dockerfile
@@ -26,8 +31,12 @@ services:
         NODE_ENV: production
     container_name: prod-server
     environment:
-      - ACCESS_TOKEN_SECRET
-      - REFRESH_TOKEN_SECRET
+      - REACT_APP_HOST_URL=${REACT_APP_HOST_URL}
+      - JWT_ACCESS_TOKEN_SECRET=/run/secrets/jwt_access_token_secret
+      - JWT_REFRESH_TOKEN_SECRET=/run/secrets/jwt_refresh_token_secret
+    secrets:
+      - jwt_access_token_secret
+      - jwt_refresh_token_secret
     networks:
       - public
     restart: always
@@ -39,16 +48,19 @@ services:
     image: mysql:8.0
     container_name: mysql-prod
     environment:
-      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
       MYSQL_DATABASE: database_production
       MYSQL_USER: produser
-      MYSQL_PASSWORD: prodpassword
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password
     ports:
       - "3306:3306"
     volumes:
       - mysql_prod_data:/var/lib/mysql
     networks:
       - public
+    secrets:
+      - db_root_password
+      - db_password
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -58,6 +70,18 @@ services:
 volumes:
   mysql_prod_data:
   certbot:
+
+secrets:
+  jwt_access_token_secret:
+    file: ./secrets/jwt_access_token_secret.txt
+  jwt_refresh_token_secret:
+    file: ./secrets/jwt_refresh_token_secret.txt
+  email_address:
+    file: ./secrets/email.txt
+  db_root_password:
+    file: ./secrets/db_root_password.txt
+  db_password:
+    file: ./secrets/db_password.txt
 
 networks:
   public:
