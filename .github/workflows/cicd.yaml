@@ -63,9 +63,6 @@ jobs:
 
       - name: Deploy on the remote machine
         uses: appleboy/ssh-action@v1.2.1
-        env:
-          TAG: ${{ github.sha }}
-          DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
         with:
           host: ${{ vars.DOMAIN_NAME }}
           port: ${{ secrets.SSH_PORT }}
@@ -73,9 +70,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            cd /home/${{secrets.SSH_USERNAME}}/Hosting/RPS Webserver/deployment
+            cd /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/deployment
+            pwd
             docker load -i ./nginx.tar
             docker load -i ./server.tar
             docker load -i ./mysql.tar
             docker-compose -f docker-compose.prod.yml down
-            TAG=${TAG} REACT_APP_HOST_URL=${DOMAIN_NAME} docker-compose -f docker-compose.prod.yml up -d --remove-orphans
+            TAG=${{ github.sha }} REACT_APP_HOST_URL=${{ vars.DOMAIN_NAME }} docker-compose -f docker-compose.prod.yml up -d --remove-orphans
