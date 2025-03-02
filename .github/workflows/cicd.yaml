@@ -70,7 +70,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            cd /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/deployment
+            cd "/home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/deployment"
             pwd
             docker load -i ./nginx.tar
             docker load -i ./server.tar
