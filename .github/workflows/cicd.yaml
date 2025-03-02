@@ -26,8 +26,8 @@ jobs:
 
       - name: Save Docker images to tar files
         run: |
-          docker save -o nginx.tar RPS/nginx:${{ github.sha }}
-          docker save -o server.tar RPS/server:${{ github.sha }}
+          docker save -o nginx.tar RPS2/nginx:${{ github.sha }}
+          docker save -o server.tar RPS2/server:${{ github.sha }}
           docker save -o mysql.tar mysql:8.0
 
       - name: Write the github secrets to the secrets directory
