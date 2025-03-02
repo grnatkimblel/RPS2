@@ -1,12 +1,12 @@
 name: Build and Deploy
-on: 
+on:
   push:
     branches:
       - Dockerize
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu:latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -15,7 +15,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build and Pull the Docker Compose images
-        env: 
+        env:
           TAG: ${{ github.sha }}
           REACT_APP_HOST_URL: ${{ secrets.DOMAIN_NAME }}
         run: |
@@ -57,7 +57,7 @@ jobs:
           overwrite: true
           source: ./deployment
           target: /home/${{secrets.SSH_USERNAME}}/Hosting/RPS Webserver/delivery
-  
+
       - name: Deploy on the remote machine
         uses: appleboy/ssh-action@v1.2.1
         env:
@@ -68,7 +68,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase:  ${{ secrets.SSH_PASSPHRASE }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd /home/${{secrets.SSH_USERNAME}}/Hosting/RPS Webserver/delivery/
             docker load -i ./nginx.tar
@@ -76,7 +76,3 @@ jobs:
             docker load -i ./mysql.tar
             docker compose down
             TAG=${TAG} REACT_APP_HOST_URL=${DOMAIN_NAME} docker-compose -f docker-compose.prod.yml up -d --remove-orphans
-
-
-
-            
