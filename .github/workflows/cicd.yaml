@@ -14,7 +14,7 @@ jobs:
       - name: Install Docker Compose
         run: |
           sudo apt update
-          sudo apt install -y docker-compose
+          sudo apt install -y docker-compose-plugin
 
       - name: Build and Pull the Docker Compose images
         env:
@@ -75,5 +75,5 @@ jobs:
             docker load -i ./nginx.tar
             docker load -i ./server.tar
             docker load -i ./mysql.tar
-            docker-compose -f docker-compose.prod.yml down
-            TAG=${{ github.sha }} REACT_APP_HOST_URL=${{ vars.DOMAIN_NAME }} docker-compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker compose -f docker-compose.prod.yml down
+            TAG=${{ github.sha }} REACT_APP_HOST_URL=${{ vars.DOMAIN_NAME }} docker compose -f docker-compose.prod.yml up -d --remove-orphans
