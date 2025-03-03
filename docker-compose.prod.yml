@@ -9,8 +9,8 @@ services:
         - REACT_APP_HOST_URL=${REACT_APP_HOST_URL}
     container_name: prod-nginx
     environment:
-      - WDS_SOCKET_PORT=0
-      - EMAIL_ADDRESS=/run/secrets/email_address
+      WDS_SOCKET_PORT: 0
+      EMAIL_ADDRESS: /run/secrets/email_address
     ports:
       - "80:80"
       - "443:443"
