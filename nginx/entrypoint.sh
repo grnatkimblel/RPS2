@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DOMAIN="testrps.xyz"
-EMAIL="REDACTED_EMAIL"
+EMAIL="${EMAIL_ADDRESS}"
 WEBROOT_PATH="/var/www/certbot"
 CERT_DIR="/etc/letsencrypt/live/$DOMAIN"
 IS_TESTING=false
@@ -33,8 +33,12 @@ echo "Waiting for nginx to start..."
 sleep 3
 
 echo "Checking for certs..."
+echo "CERT_DIR contents:"
+ls -la "$CERT_DIR" || echo "CERT_DIR does not exist or is inaccessible"
+echo "Checking fullchain.pem: $(test -f "$CERT_DIR/fullchain.pem" && echo 'exists' || echo 'missing')"
+echo "Checking privkey.pem: $(test -f "$CERT_DIR/privkey.pem" && echo 'exists' || echo 'missing')"
 if [ ! -f "$CERT_DIR/fullchain.pem" ] || [ ! -f "$CERT_DIR/privkey.pem" ]; then
-  get_certs
+    get_certs
 fi
 
 if [[ $? -eq 0 ]]; then

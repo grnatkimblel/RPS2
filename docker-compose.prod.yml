@@ -32,10 +32,10 @@ services:
         NODE_ENV: production
     container_name: prod-server
     environment:
-      - REACT_APP_HOST_URL=${REACT_APP_HOST_URL}
-      - JWT_ACCESS_TOKEN_SECRET=/run/secrets/jwt_access_token_secret
-      - JWT_REFRESH_TOKEN_SECRET=/run/secrets/jwt_refresh_token_secret
-      - MYSQL_PASSWORD_FILE=/run/secrets/db_password
+      REACT_APP_HOST_URL: ${REACT_APP_HOST_URL}
+      JWT_ACCESS_TOKEN_SECRET: /run/secrets/jwt_access_token_secret
+      JWT_REFRESH_TOKEN_SECRET: /run/secrets/jwt_refresh_token_secret
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password
     secrets:
       - jwt_access_token_secret
       - jwt_refresh_token_secret
