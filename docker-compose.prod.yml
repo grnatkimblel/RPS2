@@ -22,6 +22,7 @@ services:
       - public
     depends_on:
       - server
+
   server:
     image: RPS2/server:${TAG:-latest}
     build:

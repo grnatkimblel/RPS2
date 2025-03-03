@@ -12,12 +12,5 @@
     "database": "database_test",
     "host": "db-test",
     "dialect": "mysql"
-  },
-  "production": {
-    "username": "root",
-    "password": "pass",
-    "database": "database_production",
-    "host": "db-prod",
-    "dialect": "mysql"
   }
 }
