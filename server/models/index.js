@@ -3,6 +3,7 @@ import path from "path";
 import Sequelize from "sequelize";
 import process from "process";
 import { fileURLToPath } from "url";
+import logger from "../utils/logger.js";
 
 // Determine the current directory
 const __filename = fileURLToPath(import.meta.url);
@@ -27,6 +28,8 @@ let sequelize;
 // } else {
 //   sequelize = new Sequelize(config.database, config.username, config.password, config);
 // }
+logger.info("Initializing Sequelize with env:", process.env.NODE_ENV);
+logger.info("Initializing Sequelize with env:", process.env.MYSQL_PASSWORD_FILE);
 
 if (env === "production") {
   sequelize = new Sequelize({
