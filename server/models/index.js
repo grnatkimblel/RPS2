@@ -33,7 +33,7 @@ if (env === "production") {
     username: "produser",
     password: process.env.MYSQL_PASSWORD_FILE,
     database: "database_production",
-    host: db - prod,
+    host: "db-prod",
     dialect: "mysql",
   });
 } else {
