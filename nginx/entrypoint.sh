@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DOMAIN="testrps.xyz"
-EMAIL=${cat "$EMAIL_ADDRESS"}
+EMAIL=$(cat "$EMAIL_ADDRESS")
 WEBROOT_PATH="/var/www/certbot"
 CERT_DIR="/etc/letsencrypt/live/$DOMAIN"
 IS_TESTING=false

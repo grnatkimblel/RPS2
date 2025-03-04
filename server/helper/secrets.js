@@ -1,9 +1,10 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+// import path from "path"
 
 // Load .env in development only
 if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
+  const dotenv = await import("dotenv");
+  dotenv.config();
 }
 
 function getEnvVar(name) {
