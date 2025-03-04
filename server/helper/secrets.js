@@ -26,7 +26,7 @@ function getEnvVar(name) {
 }
 
 // Export your environment variables
-module.exports = {
+export default {
   jwtAccessTokenSecret: getEnvVar("JWT_ACCESS_TOKEN_SECRET"),
   jwtRefreshTokenSecret: getEnvVar("JWT_REFRESH_TOKEN_SECRET"),
   mysqlPassword: getEnvVar("MYSQL_PASSWORD_FILE"),
