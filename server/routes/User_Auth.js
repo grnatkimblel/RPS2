@@ -4,6 +4,7 @@
 
 import logger from "../utils/logger.js";
 import express from "express";
+import secrets from "../helper/secrets.js";
 
 import db from "../models/index.js";
 // Get the User model from the db object
@@ -38,7 +39,7 @@ router.post("/login", async (req, res) => {
     //logger.info(userFoundInDb);
     if (await bcrypt.compare(req.body.password, userFoundInDb.hashed_password)) {
       const accessToken = generateAccessToken(userFoundInDb);
-      const refreshToken = jwt.sign(userFoundInDb, process.env.JWT_REFRESH_TOKEN_SECRET);
+      const refreshToken = jwt.sign(userFoundInDb, secrets.JWT_REFRESH_TOKEN_SECRET);
       await RefreshToken.create({
         refresh_token: refreshToken,
       });
@@ -74,7 +75,7 @@ router.post("/token", async (req, res) => {
   });
   if (refreshTokenFoundInDb == null) return res.sendStatus(403);
 
-  jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN_SECRET, (err, user) => {
+  jwt.verify(refreshToken, secrets.JWT_REFRESH_TOKEN_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
     //logger.info("RefreshToken user param");
     //logger.info(user);
@@ -90,7 +91,7 @@ router.post("/token", async (req, res) => {
 });
 
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.JWT_ACCESS_TOKEN_SECRET, { expiresIn: "10m" });
+  return jwt.sign(user, secrets.JWT_ACCESS_TOKEN_SECRET, { expiresIn: "10m" });
 }
 
 export default router;

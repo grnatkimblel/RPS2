@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import path from "path";
 import jwt from "jsonwebtoken";
 import { fileURLToPath } from "url";
+import secrets from "./secrets";
 
 // Determine the current directory
 const __filename = fileURLToPath(import.meta.url);
@@ -18,7 +19,7 @@ function authenticateToken(req, res, next) {
   const token = authHeader && authHeader.split(" ")[1];
   if (token == null) return res.status(401).json({ error: "Unauthorized" });
 
-  jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET, (err, user) => {
+  jwt.verify(token, secrets.JWT_ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) return res.status(403).json({ error: "Forbidden" });
     req.authUser = user; //to set req for future functions
     //console.log("calling next function");

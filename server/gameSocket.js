@@ -3,6 +3,8 @@ import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 // import authenticateToken from "./helper/authenticateToken.js";
 import logger from "./utils/logger.js";
+import secrets from "./helper/secrets.js";
+
 //Socket.io Handlers
 import { registerGameControllerHandlers as QuickdrawGameControllerHandlers } from "./routes/Quickdraw_Game_Controller.js";
 import { registerGameControllerHandlers as TDMGameControllerHandlers } from "./routes/TDM_Game_Controller.js";
@@ -26,7 +28,7 @@ export default (server) => {
     logger.info("");
     logger.info("Socket Middleware running");
     if (socket.handshake.auth.token) {
-      jwt.verify(socket.handshake.auth.token, process.env.JWT_ACCESS_TOKEN_SECRET, (err, user) => {
+      jwt.verify(socket.handshake.auth.token, secrets.JWT_ACCESS_TOKEN_SECRET, (err, user) => {
         if (err) next(new Error("Unauthorized"));
         logger.info("Socket Authentication Successful");
         logger.info("socket auth user");

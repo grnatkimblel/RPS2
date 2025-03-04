@@ -4,42 +4,42 @@ import Sequelize from "sequelize";
 import process from "process";
 import { fileURLToPath } from "url";
 import logger from "../utils/logger.js";
+import secrets from "../helper/secrets.js";
 
 // Determine the current directory
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const basename = path.basename(__filename);
+
 const env = process.env.NODE_ENV || "development";
-
-// Load config
-const config = (
-  await import(path.join(__dirname, "../config/config.json"), {
-    assert: { type: "json" },
-  })
-).default[env];
-
 const db = {};
 
 //Initalize Sequelize
 let sequelize;
+
 // if (config.use_env_variable) {
 //   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 // } else {
 //   sequelize = new Sequelize(config.database, config.username, config.password, config);
 // }
 logger.info("Initializing Sequelize with env:", process.env.NODE_ENV);
-logger.info("Initializing Sequelize with env:", process.env.MYSQL_PASSWORD_FILE);
+logger.info("Initializing Sequelize with db password:", secrets.mysqlPassword);
 
 if (env === "production") {
   sequelize = new Sequelize({
     username: "produser",
-    password: process.env.MYSQL_PASSWORD_FILE,
+    password: secrets.mysqlPassword,
     database: "database_production",
     host: "db-prod",
     dialect: "mysql",
   });
 } else {
+  // Load config
+  const config = (
+    await import(path.join(__dirname, "../config/config.json"), {
+      assert: { type: "json" },
+    })
+  ).default[env];
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 

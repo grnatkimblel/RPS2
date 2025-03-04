@@ -15,7 +15,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - certbot:/etc/letsencrypt/live/${REACT_APP_HOST_URL}
+      - certbot:/etc/letsencrypt
     secrets:
       - email_address
     networks:
