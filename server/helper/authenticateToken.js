@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import path from "path";
 import jwt from "jsonwebtoken";
 import { fileURLToPath } from "url";
-import secrets from "./secrets";
+import secrets from "./secrets.js";
 
 // Determine the current directory
 const __filename = fileURLToPath(import.meta.url);

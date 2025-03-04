@@ -1,10 +1,12 @@
 #!/bin/bash
 
 DOMAIN="testrps.xyz"
-EMAIL="${EMAIL_ADDRESS}"
+EMAIL="${cat EMAIL_ADDRESS}"
 WEBROOT_PATH="/var/www/certbot"
 CERT_DIR="/etc/letsencrypt/live/$DOMAIN"
 IS_TESTING=false
+
+echo "Email is read as $EMAIL"
 
 get_certs() {
 	echo "No certifications found. Getting new certs..."
