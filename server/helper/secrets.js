@@ -10,7 +10,7 @@ if (process.env.NODE_ENV !== "production") {
 function getEnvVar(name) {
   const value = process.env[name];
   if (!value) {
-    throw new Error(`Environment variable ${name} is not set`);
+    return false;
   }
 
   // Check if the value looks like a file path (starts with '/' and exists as a file)
@@ -30,7 +30,7 @@ function getEnvVar(name) {
 export default {
   jwtAccessTokenSecret: getEnvVar("JWT_ACCESS_TOKEN_SECRET"),
   jwtRefreshTokenSecret: getEnvVar("JWT_REFRESH_TOKEN_SECRET"),
-  mysqlPassword: getEnvVar("MYSQL_PASSWORD_FILE"),
+  mysqlPassword: await getEnvVar("MYSQL_PASSWORD_FILE"),
 
   // Add other variables as needed
 };

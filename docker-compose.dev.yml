@@ -8,6 +8,7 @@ services:
     volumes:
       - ./client:/usr/src/app
       - ./sharedCode:/usr/src/app/src/shared
+      - /usr/src/app/node_modules # Preserve built node_modules gen during image build time so it isnt overwritten when local ./client is mounted
     container_name: client
     environment:
       - WATCHPACK_POLLING=true

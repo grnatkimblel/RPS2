@@ -40,7 +40,7 @@ if (env === "production") {
       assert: { type: "json" },
     })
   ).default[env];
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+  sequelize = new Sequelize({ ...config });
 }
 
 // Read all files in the current directory and import models dynamically
