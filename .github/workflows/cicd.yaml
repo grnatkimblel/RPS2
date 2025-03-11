@@ -90,5 +90,5 @@ jobs:
             docker load -i ./server.tar
             docker load -i ./mysql.tar
             docker compose -f docker-compose.prod.yml down
-            TAG=${{ github.sha }} REACT_APP_HOST_URL="https://${{ vars.DOMAIN_NAME }}/"" docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            TAG=${{ github.sha }} REACT_APP_HOST_URL="https://${{ vars.DOMAIN_NAME }}/" docker compose -f docker-compose.prod.yml up -d --remove-orphans
             rm -rf ./secrets
