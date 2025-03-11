@@ -4,7 +4,7 @@ DOMAIN="testrps.xyz"
 EMAIL=$(cat "$EMAIL_ADDRESS")
 WEBROOT_PATH="/var/www/certbot"
 CERT_DIR="/etc/letsencrypt/live/$DOMAIN"
-IS_TESTING=true
+IS_TESTING=false
 
 get_certs() {
 	echo "No certifications found. Getting new certs..."
