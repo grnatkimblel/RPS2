@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: ./nginx/prod.Dockerfile
       args:
-        - REACT_APP_HOST_URL=${REACT_APP_HOST_URL}
+        REACT_APP_HOST_URL: ${REACT_APP_HOST_URL}
     container_name: prod-nginx
     environment:
       WDS_SOCKET_PORT: 0

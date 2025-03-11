@@ -34,7 +34,7 @@ jobs:
       - name: Build and Pull the Docker Compose images
         env:
           TAG: ${{ github.sha }}
-          REACT_APP_HOST_URL: ${{ vars.DOMAIN_NAME }}
+          REACT_APP_HOST_URL: "https://${{ vars.DOMAIN_NAME }}/"
         run: |
           docker compose -f docker-compose.prod.yml build --pull
           docker pull mysql:8.0
