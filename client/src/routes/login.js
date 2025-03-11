@@ -50,6 +50,7 @@ function Login({ navigate, login }) {
           OnClick={async () => {
             await login(userCredentials, PAGES.MAIN_MENU);
           }}
+          errorText={"Please check that all fields are long enough"}
         />
       </div>
       <div

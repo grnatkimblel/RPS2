@@ -17,14 +17,6 @@ const db = {};
 //Initalize Sequelize
 let sequelize;
 
-// if (config.use_env_variable) {
-//   sequelize = new Sequelize(process.env[config.use_env_variable], config);
-// } else {
-//   sequelize = new Sequelize(config.database, config.username, config.password, config);
-// }
-logger.info("Initializing Sequelize with env:", process.env.NODE_ENV);
-logger.info("Initializing Sequelize with db password:", secrets.mysqlPassword);
-
 if (env === "production") {
   sequelize = new Sequelize({
     username: "produser",

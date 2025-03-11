@@ -62,7 +62,7 @@ ReWrite
 */
 
 matchmakingEventEmitter.on("Random-AddPlayer", (client_id, gameType, gameMode) => {
-  // logger.info("MatchMakingService    AddPlayer called");
+  logger.info("MatchMakingService    AddPlayer called");
 
   // logger.info("MatchMakingService    ", client_id, gameType, gameMode);
   // logger.info("");
@@ -117,10 +117,11 @@ matchmakingEventEmitter.on("Search-AddPlayer", (client_id, chosenOne_id, gameTyp
       matchmakingEventEmitter.emit(clientEventName, roster);
       matchmakingEventEmitter.emit(chosenOneEventName, roster);
     }
+  } else {
+    //if the other player doesnt have pending invites to the client, the client needs
+    //to create an invite in the list
+    matchmakingQueue.addPlayer(client_id, chosenOne_id);
   }
-  //if the other player doesnt have pending invites to the client, the client needs
-  //to create an invite in the list
-  matchmakingQueue.addPlayer(client_id, chosenOne_id);
   // logger.info("Invite from ", client_id, "to", chosenOne_id);
 });
 
@@ -138,11 +139,6 @@ matchmakingEventEmitter.on("Search-CheckInviteToClient", (client_id, otherPlayer
   let matchmakingQueue = matchmakingQueues[gameType][gameMode][MATCHMAKING_TYPES.SEARCH];
   logger.info(matchmakingQueue);
   const clientEventName = getEventStringName(client_id, gameType, gameMode, "Search-CheckInviteResponse");
-  if (client_id === otherPlayer_id) matchmakingEventEmitter.emit(clientEventName, false);
-
-  // logger.info("Invite checked from ", client_id, "to", otherPlayer_id);
-  // logger.info("matchmakingQueues ", matchmakingQueues.matchmakingQueue);
-  //check if other player is inviting client
 
   if (matchmakingQueue.checkInviteToClient(client_id, otherPlayer_id)) {
     matchmakingEventEmitter.emit(clientEventName, true);

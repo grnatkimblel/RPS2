@@ -12,24 +12,26 @@ const router = express.Router();
 
 //POSTS
 router.post("/createUser", async (req, res) => {
-  // logger.info("sanity");
-  // logger.info(req.body);
-
+  const hashedPassword = await bcrypt.hash(req.body.password, 10);
+  const entryEmoji = req.body.player_emoji ?? "";
+  const user = {
+    username: req.body.username,
+    hashed_password: hashedPassword,
+    player_emoji: entryEmoji,
+  };
+  //logger.info("user to be created");
+  //logger.info(user);
   try {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const entryEmoji = req.body.player_emoji ?? "";
-    const user = {
-      username: req.body.username,
-      hashed_password: hashedPassword,
-      player_emoji: entryEmoji,
-    };
-    //logger.info("user to be created");
-    //logger.info(user);
     const createdUser = await User.create(user);
     res.status(201).json(createdUser.toJSON());
     logger.info("Created user: " + createdUser.username);
-  } catch {
-    res.status(500).send();
+  } catch (error) {
+    if (error.original.code === "ER_DUP_ENTRY") {
+      res.status(409).send("User " + user.username + " already exists");
+    } else {
+      logger.info("Uncovered error during /createUser", error);
+      res.status(500).send(error);
+    }
   }
 });
 

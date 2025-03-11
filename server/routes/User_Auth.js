@@ -1,23 +1,15 @@
-// import dotenv from "dotenv";
-// import path from "path";
-// import { fileURLToPath } from "url";
-
-import logger from "../utils/logger.js";
 import express from "express";
-import secrets from "../helper/secrets.js";
-
-import db from "../models/index.js";
-// Get the User model from the db object
-const { User, RefreshToken } = db;
 import { Op } from "sequelize";
 
+import logger from "../utils/logger.js";
+import secrets from "../helper/secrets.js";
+import db from "../models/index.js";
+
+// Get the User model from the db object
+const { User, RefreshToken } = db;
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-// Determine the current directory
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-// dotenv.config({ path: path.join(__dirname, "../config", ".env") });
 const router = express.Router();
 
 //POSTS
@@ -39,7 +31,7 @@ router.post("/login", async (req, res) => {
     //logger.info(userFoundInDb);
     if (await bcrypt.compare(req.body.password, userFoundInDb.hashed_password)) {
       const accessToken = generateAccessToken(userFoundInDb);
-      const refreshToken = jwt.sign(userFoundInDb, secrets.JWT_REFRESH_TOKEN_SECRET);
+      const refreshToken = jwt.sign(userFoundInDb, secrets.jwtRefreshTokenSecret);
       await RefreshToken.create({
         refresh_token: refreshToken,
       });
@@ -75,7 +67,7 @@ router.post("/token", async (req, res) => {
   });
   if (refreshTokenFoundInDb == null) return res.sendStatus(403);
 
-  jwt.verify(refreshToken, secrets.JWT_REFRESH_TOKEN_SECRET, (err, user) => {
+  jwt.verify(refreshToken, secrets.jwtRefreshTokenSecret, (err, user) => {
     if (err) return res.sendStatus(403);
     //logger.info("RefreshToken user param");
     //logger.info(user);
@@ -91,7 +83,7 @@ router.post("/token", async (req, res) => {
 });
 
 function generateAccessToken(user) {
-  return jwt.sign(user, secrets.JWT_ACCESS_TOKEN_SECRET, { expiresIn: "10m" });
+  return jwt.sign(user, secrets.jwtAccessTokenSecret, { expiresIn: "10m" });
 }
 
 export default router;

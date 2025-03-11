@@ -4,7 +4,7 @@ import { useRef } from "react";
 
 function LoginInputButton({ fieldName, fieldType, tabIndex, stateVar, hook }) {
   const inputFieldRef = useRef(null);
-  const inputHint = fieldType === "text" ? "Must be at least 3 characters" : "Must be at least 6 characters";
+  const inputHint = fieldType === "text" ? "3 or more characters" : "6 or more characters";
 
   const borders = tabIndex === 1 ? "" : "leftBorder";
   return (
@@ -30,6 +30,7 @@ function LoginInputButton({ fieldName, fieldType, tabIndex, stateVar, hook }) {
         minLength={fieldType === "text" ? "3" : "6"}
         inputRef={inputFieldRef}
         tabIndex={tabIndex}
+        placeholder={inputHint}
       />
     </div>
   );

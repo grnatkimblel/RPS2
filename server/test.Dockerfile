@@ -2,7 +2,9 @@
 FROM node:20.5.1
 
 # Use production node environment by default.
-ENV NODE_ENV development
+ENV NODE_ENV=test
+ENV JWT_ACCESS_TOKEN_SECRET=1234
+ENV JWT_REFRESH_TOKEN_SECRET=5678
 
 WORKDIR /app
 
@@ -24,4 +26,4 @@ COPY ./sharedCode ./shared
 
 
 # Run the application.
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "test"]

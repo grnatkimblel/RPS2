@@ -79,7 +79,7 @@ class MatchmakingQueue {
       logger.info(this.playerQueue);
     } else if (this.matchmakingType == MATCHMAKING_TYPES.SEARCH) {
       this.playerQueue.delete(client_id);
-      logger.info(this.gameType, this.gameMode, "Random Queue after removal");
+      logger.info(this.gameType, this.gameMode, "Search Queue after removal");
       logger.info(this.playerQueue);
     }
   }

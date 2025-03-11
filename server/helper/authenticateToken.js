@@ -1,14 +1,14 @@
-import dotenv from "dotenv";
-import path from "path";
+// import dotenv from "dotenv";
+// import path from "path";
 import jwt from "jsonwebtoken";
-import { fileURLToPath } from "url";
+// import { fileURLToPath } from "url";
 import secrets from "./secrets.js";
 
 // Determine the current directory
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.join(__dirname, "../config", ".env") });
+// dotenv.config({ path: path.join(__dirname, "../config", ".env") });
 
 //MIDDLEWARE
 function authenticateToken(req, res, next) {
@@ -19,7 +19,7 @@ function authenticateToken(req, res, next) {
   const token = authHeader && authHeader.split(" ")[1];
   if (token == null) return res.status(401).json({ error: "Unauthorized" });
 
-  jwt.verify(token, secrets.JWT_ACCESS_TOKEN_SECRET, (err, user) => {
+  jwt.verify(token, secrets.jwtAccessTokenSecret, (err, user) => {
     if (err) return res.status(403).json({ error: "Forbidden" });
     req.authUser = user; //to set req for future functions
     //console.log("calling next function");

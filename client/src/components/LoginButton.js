@@ -1,14 +1,16 @@
-function LoginButton({ styles, validationFormula, OnClick }) {
+function LoginButton({ styles, validationFormula, OnClick, errorText }) {
   let isSubmittable = validationFormula();
 
   return (
     <button
       style={styles}
-      className={"bottomBorder leftBorder transition" + (isSubmittable ? " submittable" : " notInteractableColor")}
+      className={"bottomBorder leftBorder transition" + (isSubmittable ? " submittable" : " defaultColor")}
       onClick={() => {
-        //change button to be not interactable
-        OnClick();
-        //change button back
+        if (isSubmittable) {
+          OnClick();
+        } else {
+          alert(errorText);
+        }
       }}
     >
       Login

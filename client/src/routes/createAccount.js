@@ -65,18 +65,17 @@ function CreateAccount({ navigate, login }) {
                 method: "POST",
                 body: JSON.stringify(userCredentials),
               });
-
-              //console.log("Status:" + res.status);
-
+              console.log(userCredentials);
               if (res.status === 201) {
                 await login(userCredentials, PAGES.MAIN_MENU);
-              } else {
-                console.error("Registration failed");
+              } else if (res.status === 409) {
+                alert("Username already taken.\nTry another username.");
               }
             } catch (error) {
               console.error("An error occurred:", error);
             }
           }}
+          errorText={"Please check that: \n - all fields are long enough  \n - passwords match"}
         />
       </div>
 

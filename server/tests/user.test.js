@@ -4,7 +4,7 @@ import supertest from "supertest";
 
 import { Op } from "sequelize";
 import db from "../models/index.js";
-import { User, RefreshToken, GameHeader } from "../models/index.js";
+const { User, RefreshToken } = db;
 
 import authApp from "../servers/authServer.js";
 import userApp from "../servers/menuServer.js";
@@ -32,6 +32,15 @@ describe("Create an account and login", () => {
     password: "123123",
   };
 
+  const userBadCredentials = {
+    username: "grant",
+    password: "1231234",
+  };
+
+  it("should get an error when trying to login to the account before it exists", async () => {
+    await userApi.post("/api/auth/login").send(user).expect(404);
+  });
+
   it("should create an account", async () => {
     await userApi.post("/api/menu/user/createUser").send(user).expect(201);
   });
@@ -47,8 +56,17 @@ describe("Create an account and login", () => {
     });
     assert.equal(dbUser.username, "grant");
   });
-  it("should login to the same account", async () => {
+
+  it("should get an error when incorrect account credentials are provided to login", async () => {
+    await authApi.post("/api/auth/login").send(userBadCredentials).expect(401);
+  });
+
+  it("should login when correct account credentials are provided", async () => {
     await authApi.post("/api/auth/login").send(user).expect(200);
+  });
+
+  it("should get an error when trying to create an account with a username that already exists", async () => {
+    await userApi.post("/api/menu/user/createUser").send(user).expect(409);
   });
 
   after(async () => {

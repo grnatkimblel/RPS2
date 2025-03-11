@@ -1,4 +1,4 @@
-function InputField({ classes, value, hook, title, type, minLength, tabIndex, inputRef }) {
+function InputField({ classes, value, hook, title, type, minLength, tabIndex, inputRef, placeholder }) {
   // im not sure if form is needed
   return (
     <input
@@ -15,6 +15,7 @@ function InputField({ classes, value, hook, title, type, minLength, tabIndex, in
       maxLength="20"
       tabIndex={tabIndex}
       ref={inputRef}
+      placeholder={placeholder}
     ></input>
   );
 }
