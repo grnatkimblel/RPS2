@@ -1,7 +1,7 @@
 import authenticateToken from "../helper/authenticateToken.js";
 
 import db from "../models/index.js";
-const { User } = db;
+const { User } = db.models;
 import { Op } from "sequelize";
 
 async function getUsersByName(searchText) {

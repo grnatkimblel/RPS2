@@ -1,8 +1,17 @@
 import { useState } from "react";
 import API_ROUTES from "../enums/apiRoutes";
+import PAGES from "../enums/pages";
 import { MATCHMAKING_TYPES } from "../shared/enums/gameEnums";
 
-function OpponentSelectButton({ opponentInfo, styles, classes, authHelper, currentGameMode, gameInfoSetter }) {
+function OpponentSelectButton({
+  navigate,
+  opponentInfo,
+  styles,
+  classes,
+  authHelper,
+  currentGameMode,
+  gameInfoSetter,
+}) {
   const [isGreen, setIsGreen] = useState(opponentInfo.isJoinable);
   const [isButtonPressed, setIsButtonPressed] = useState(false);
   const [invitationSent, setInvitationSent] = useState(false);
@@ -21,7 +30,7 @@ function OpponentSelectButton({ opponentInfo, styles, classes, authHelper, curre
       console.log("OpponentSelectButton received response from Search:NewInvite Endpoint");
       console.log(data);
       gameInfoSetter(data);
-      // navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
+      navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
     });
     setInvitationSent(true);
   };

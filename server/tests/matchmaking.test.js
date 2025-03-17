@@ -1,19 +1,8 @@
 import { test, before, after, describe, it } from "node:test";
 import assert from "node:assert/strict";
-import supertest from "supertest";
 
-import { Op } from "sequelize";
-import db from "../models/index.js";
-const { User, RefreshToken, GameHeader } = db;
 import { matchmakingEventEmitter, matchmakingQueues } from "../MatchmakingService.js";
 import { GAMEMODES, GAMEMODE_TYPES, MATCHMAKING_TYPES } from "../shared/enums/gameEnums.js"; //This file name is set in docker compose;
-
-import authApp from "../servers/authServer.js";
-import userApp from "../servers/menuServer.js";
-import gameApp from "../servers/gameControllerServer.js";
-const authApi = supertest(authApp);
-const userApi = supertest(userApp);
-const gameApi = supertest(gameApp);
 
 /* Tests to write:
  * Quickdraw

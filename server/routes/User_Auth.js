@@ -6,7 +6,7 @@ import secrets from "../helper/secrets.js";
 import db from "../models/index.js";
 
 // Get the User model from the db object
-const { User, RefreshToken } = db;
+const { User, RefreshToken } = db.models;
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 

@@ -89,6 +89,13 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
                 return res.json();
               })
               .then((data) => {
+                /*
+                data :
+                  sessionId: roster.rosterId,
+                  roundStartTime: activeRooms.get(roster.rosterId).roundStartTime,
+                  player1: player_1_info, from db
+                  player2: player_2_info, from db
+                */
                 gameInfoSetter(data);
                 if (
                   currentGameMode.gameType === GAMEMODE_TYPES.QUICKPLAY &&
@@ -149,6 +156,7 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
           Search Opponent
         </button>
         <OpponentSearchButton
+          navigate={navigate}
           authHelper={authHelper}
           gameInfoSetter={gameInfoSetter}
           currentGameMode={currentGameMode}

@@ -20,13 +20,6 @@ Include a short timeout after the min number is reached to allow more players fo
 
 Quickdraw is broken, some users inputs are counting for both players, this is happening from
 quicklog so may need to check against the normal flow
-
-prod docker compose works but there are issues
-- css isnt here, theres some stuff on this online
-- server needs its refresh and access token env variables injected somehow
-
-cannot issue CA to ip addresses. I need a domain.
-
-certbot certonly --webroot --webroot-path /var/www/certbot --agree-tos -d testrps.xyz -m REDACTED_EMAIL
+cbm is being scored to the player who plays last, like the exact opposite of what i want lol
 
 create a docker compose for testing since tests cannot complete without db participation.

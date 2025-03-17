@@ -4,7 +4,7 @@ import { useInterval } from "../useInterval";
 import OpponentSelectButton from "../components/OpponentSelectButton";
 import API_ROUTES from "../enums/apiRoutes";
 
-function OpponentSearchButton({ authHelper, gameInfoSetter, currentGameMode }) {
+function OpponentSearchButton({ navigate, authHelper, gameInfoSetter, currentGameMode }) {
   const inputFieldRef = useRef(null);
   const [opponentsDisplay, setOpponentsDisplay] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -176,6 +176,7 @@ function OpponentSearchButton({ authHelper, gameInfoSetter, currentGameMode }) {
             else classes = "secondary bottomBorder leftBorder rightBorder";
             return (
               <OpponentSelectButton
+                navigate={navigate}
                 styles={{ pointerEvents: "auto" }}
                 key={opponent.id}
                 opponentInfo={opponent}

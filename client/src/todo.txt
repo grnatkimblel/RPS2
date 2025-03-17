@@ -8,3 +8,4 @@ Prevent duplicate refresh token creation, a player can only log in once.
 Add the gamemode as a request parameter to the matchmaking service so the same component can service all gamemodes.
 Update checkInvites to only show invites in the same gamemode.
 
+update matchmaking service to sign rosters with a jwt that is validated by the pregames to prevent users from creating invalid sessions.

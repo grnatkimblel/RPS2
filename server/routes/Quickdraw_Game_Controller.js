@@ -6,7 +6,7 @@ import express from "express";
 import { getUsersByList } from "../helper/getUsers.js";
 import db from "../models/index.js";
 // Get the User model from the db object
-const { GameHeader } = db;
+const { QuickdrawGameHeader } = db.models;
 
 const router = express.Router();
 router.use(authenticateToken);
@@ -25,7 +25,7 @@ game = {
     },
 }
 
-gameHeader : {
+QuickdrawGameHeader : {
   game_id: 
   winner: 
   loser:
@@ -37,6 +37,8 @@ gameHeader : {
 
 let activeRooms = new Map();
 
+//there needs to be some validation to ensure that the client is not sending a roster that hasnt been matchmade by the matchmaking service
+//Maybe sign rosters with a jwt and validate here. The roster can be in the body of the jwt.
 router.post("/quickdraw/pregame", async (req, res) => {
   logger.info(" /quickdraw/pregame called successfully");
   const roster = req.body.roster;
@@ -100,9 +102,9 @@ router.post("/quickdraw/startGame", async (req, res) => {
     }
     logger.info("checkInStatus");
     logger.info(game.checkInStatus);
-    //If both players have checked in, create the GameHeader entry
+    //If both players have checked in, create the QuickdrawGameHeader entry
     if (game.checkInStatus.player_1 && game.checkInStatus.player_2) {
-      const createdGameHeader = await GameHeader.findOrCreate({
+      const createdQuickdrawGameHeader = await QuickdrawGameHeader.findOrCreate({
         where: {
           game_id: session_id,
         },
@@ -113,8 +115,8 @@ router.post("/quickdraw/startGame", async (req, res) => {
           player_2_id: game.players.player_2,
         },
       });
-      logger.info("Created GameHeader gameId: " + createdGameHeader.game_id);
-      // logger.info(createdGameHeader);
+      logger.info("Created QuickdrawGameHeader gameId: " + createdQuickdrawGameHeader.game_id);
+      // logger.info(createdQuickdrawGameHeader);
     }
 
     //If both players haven't checked in, just let the socket handle it
@@ -131,7 +133,7 @@ router.post("/quickdraw/startGame", async (req, res) => {
 });
 
 const GAME_PHASES = {
-  READY: "Ready",
+  START: "Start",
   DRAW: "Draw",
   OVER: "Over",
 };
@@ -153,7 +155,7 @@ value: {
     player_2_CBM:
   }
   rounds: [{
-    readyTime,
+    startTime,
     drawTime,
     endTime,
     hands:
@@ -195,7 +197,7 @@ function registerGameControllerHandlers(io, socket) {
   };
 
   const playHand = (sessionId, hand) => {
-    const debug = false;
+    const debug = true;
     let hands;
     let client_id = socket.client_id;
     // if (debug) {
@@ -209,10 +211,10 @@ function registerGameControllerHandlers(io, socket) {
     // logger.info("game");
     // logger.info(game);
 
-    if (now < thisRound.readyTime) {
-      logger.info("hand played before ready time, this should be impossible");
+    if (now < thisRound.startTime) {
+      logger.info("hand played before start time, this should be impossible");
     }
-    if (now > thisRound.readyTime && now < thisRound.drawTime) {
+    if (now > thisRound.startTime && now < thisRound.drawTime) {
       //the player has played their hand to early
       logger.info("the player has played their hand to early");
       io.to(sessionId).emit("ReceiveHand", isPlayer_1, "tooEarly");
@@ -311,17 +313,17 @@ async function doRound(io, gameInfo) {
     const session_id = gameInfo.sessionId;
     let drawTime = Math.random() * 8 + 3;
     let endTime = Math.random() * 3 + 3 + drawTime;
-    // logger.info("readyDelaySeconds: " + readyDelaySeconds);
+    // logger.info("startDelaySeconds: " + startDelaySeconds);
     // logger.info("drawDelaySeconds: " + drawDelaySeconds);
-    logger.info("emitting BeginReadyPhase");
-    io.to(session_id).emit("BeginReadyPhase", drawTime);
+    logger.info("emitting BeginStartPhase");
+    io.to(session_id).emit("BeginStartPhase", drawTime);
     let now = Date.now();
 
     //##TODO create a more complete object to store in active Rooms. may need player 1 and player two, gotta get them somehow
     let game = activeRooms.get(session_id);
     game.rounds.push({
       roundNumber: game.rounds.length + 1,
-      readyTime: now,
+      startTime: now,
       drawTime: now + drawTime * 1000,
       endTime: now + endTime * 1000,
       hands: {
@@ -462,7 +464,7 @@ function createPotentialGame(roster, roundStartTime) {
     },
     rounds: [
       //   {
-      //   readyTime,
+      //   startTime,
       //   drawTime,
       //   endTime,
       //   hands: {

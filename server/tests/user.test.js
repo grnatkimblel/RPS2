@@ -4,7 +4,7 @@ import supertest from "supertest";
 
 import { Op } from "sequelize";
 import db from "../models/index.js";
-const { User, RefreshToken } = db;
+const { User, RefreshToken } = db.models;
 
 import authApp from "../servers/authServer.js";
 import userApp from "../servers/menuServer.js";
@@ -24,7 +24,8 @@ const gameApi = supertest(gameApp);
 
 describe("Create an account and login", () => {
   before(async () => {
-    await db.sequelize.sync({ force: true });
+    console.log("before db sync in test");
+    await db.sync();
   });
 
   const user = {

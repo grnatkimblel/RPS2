@@ -1,6 +1,6 @@
 import db from "../models/index.js";
 // Get the User model from the db object
-const { User, RefreshToken } = db;
+const { User, RefreshToken } = db.models;
 import { getUsersByList, getUsersByName } from "../helper/getUsers.js";
 import logger from "../utils/logger.js";
 import authenticateToken from "../helper/authenticateToken.js";
@@ -26,6 +26,7 @@ router.post("/createUser", async (req, res) => {
     res.status(201).json(createdUser.toJSON());
     logger.info("Created user: " + createdUser.username);
   } catch (error) {
+    // console.log(error);
     if (error.original.code === "ER_DUP_ENTRY") {
       res.status(409).send("User " + user.username + " already exists");
     } else {
