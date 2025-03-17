@@ -15,6 +15,12 @@ let doLogging = true;
   The client will call this API to add themselves to a matchmaking queue. Any gamemode/gametype is supported.
   The response will be a list of player ids that have been included in the players roster once the player is matchmade.
   This list of players will be used to create a game session via the pregame API.
+
+  Response:
+  {
+    wasCancelled: boolean    #indicating if the player was removed from the queue before being matchmade
+    roster: [player_id]
+  }
 */
 router.post("/addPlayer", async (req, res) => {
   const gameType = req.body.gameType;
@@ -53,7 +59,7 @@ router.post("/addPlayer", async (req, res) => {
     if (roster == false) {
       res.json({
         wasCancelled: true,
-        roster: roster,
+        roster: false,
       });
     } else {
       res.json({

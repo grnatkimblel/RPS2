@@ -25,13 +25,40 @@ function OpponentSelectButton({
       matchmakingType: MATCHMAKING_TYPES.SEARCH,
 
       chosenOne_id: opponentInfo.id,
-    }).then(async (res) => {
-      const data = await res.json();
-      console.log("OpponentSelectButton received response from Search:NewInvite Endpoint");
-      console.log(data);
-      gameInfoSetter(data);
-      navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
-    });
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        console.log(data);
+        if (data.wasCancelled) {
+          return null;
+        } else {
+          return data.roster;
+        }
+      })
+      .then((roster) => {
+        if (roster === null) return;
+        console.log("roster to be sent to pregame ", roster);
+        //call the right pregame based on the gamemode
+        return authHelper(API_ROUTES.GAME.QUICKDRAW.PREGAME, "POST", {
+          roster,
+        });
+      })
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        /*
+      data :
+        sessionId: roster.rosterId,
+        roundStartTime: activeRooms.get(roster.rosterId).roundStartTime,
+        player1: player_1_info, from db
+        player2: player_2_info, from db
+      */
+        gameInfoSetter(data);
+        navigate(`/${PAGES.ONLINE.QUICKDRAW_ARENA}`);
+      });
     setInvitationSent(true);
   };
 
