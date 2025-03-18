@@ -91,6 +91,7 @@ matchmakingEventEmitter.on("Random-AddPlayer", (client_id, gameType, gameMode) =
   }
 });
 
+// Responds to the corresponding pending AddPlayer request with the roster set to false in order to cancel the request.
 matchmakingEventEmitter.on("Random-RemovePlayer", (client_id, gameType, gameMode) => {
   logger.info(gameType, gameMode, "Remove Player");
   let matchmakingQueue = matchmakingQueues[gameType][gameMode][MATCHMAKING_TYPES.RANDOM];

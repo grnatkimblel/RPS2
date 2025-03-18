@@ -85,6 +85,8 @@ router.post("/addPlayer", async (req, res) => {
 });
 
 // This API will be called by the client to remove themselves from a matchmaking queue.
+// It will respond to the current request immediately with a 200 status code.
+// It will emit an event to the matchmaking service to respond to the pending AddPlayer request with roster = false.
 router.post("/removePlayer", async (req, res) => {
   const gameType = req.body.gameType;
   const gameMode = req.body.gameMode;

@@ -32,7 +32,10 @@ describe("Quickplay:Quickdraw:Random Matchmaking Tests", () => {
     assert.equal(queue.getNumPlayers(), 1);
   });
 
-  it("should remove the client from the Q:Q:R matchmaking queue)", () => {
+  it("should remove the client from the Q:Q:R matchmaking queue and respond 'false' to the pending AddPlayer request", () => {
+    matchmakingEventEmitter.once(test_client1_id + ">Quickplay:Quickdraw:Random-AddPlayerResponse", (roster) => {
+      assert.equal(roster, false);
+    });
     matchmakingEventEmitter.emit(
       `${MATCHMAKING_TYPES.RANDOM}-RemovePlayer`,
       test_client1_id,
@@ -86,7 +89,10 @@ describe("Quickplay:Quickdraw:Search Matchmaking Tests", () => {
     assert.equal(queue.getNumPlayers(), 1);
   });
 
-  it("should remove the invite from the matchmaking queue)", () => {
+  it("should remove the invite from the Q:Q:S matchmaking queue and respond 'false' to the pending AddPlayer request", () => {
+    matchmakingEventEmitter.once(test_client1_id + ">Quickplay:Quickdraw:Search-AddPlayerResponse", (roster) => {
+      assert.equal(roster, false);
+    });
     matchmakingEventEmitter.emit(
       `${MATCHMAKING_TYPES.SEARCH}-RemovePlayer`,
       test_client1_id,

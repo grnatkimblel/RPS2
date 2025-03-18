@@ -26,28 +26,21 @@ function OpponentSelectButton({
 
       chosenOne_id: opponentInfo.id,
     })
-      .then((res) => {
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => {
-        console.log(data);
-        if (data.wasCancelled) {
-          return null;
-        } else {
-          return data.roster;
-        }
+        // console.log(data);
+        //skip the rest of the then chain if the response indicates that the player has been removed from matchmaking
+        if (data.wasCancelled) return Promise.reject("wasCancelled");
+        return data.roster;
       })
       .then((roster) => {
-        if (roster === null) return;
-        console.log("roster to be sent to pregame ", roster);
+        // console.log("roster to be sent to pregame ", roster);
         //call the right pregame based on the gamemode
         return authHelper(API_ROUTES.GAME.QUICKDRAW.PREGAME, "POST", {
           roster,
         });
       })
-      .then((res) => {
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => {
         /*
       data :

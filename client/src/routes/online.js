@@ -60,20 +60,15 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
               gameMode: currentGameMode.gameMode,
               matchmakingType: MATCHMAKING_TYPES.RANDOM,
             })
-              .then((res) => {
-                return res.json();
-              })
+              .then((res) => res.json())
               .then((data) => {
-                console.log(data);
-                if (data.wasCancelled) {
-                  return null;
-                } else {
-                  return data.roster;
-                }
+                // console.log(data);
+                //skip the rest of the then chain if the response indicates that the player has been removed from matchmaking
+                if (data.wasCancelled) return Promise.reject("wasCancelled");
+                return data.roster;
               })
               .then((roster) => {
-                if (roster === null) return;
-                console.log("roster to be sent to pregame ", roster);
+                // console.log("roster to be sent to pregame ", roster);
                 const apiRoute =
                   currentGameMode.gameMode === GAMEMODES.QUICKDRAW
                     ? API_ROUTES.GAME.QUICKDRAW.PREGAME
@@ -85,9 +80,7 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
                   roster,
                 });
               })
-              .then((res) => {
-                return res.json();
-              })
+              .then((res) => res.json())
               .then((data) => {
                 /*
                 data :
@@ -107,7 +100,8 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
                   currentGameMode.gameMode === GAMEMODES.TDM
                 )
                   navigate(`/${PAGES.ONLINE.TDM_ARENA}`);
-              });
+              })
+              .catch((err) => console.log(err));
           }}
         >
           Random Opponent
