@@ -29,3 +29,5 @@ connect on the socket, would make this go away.
 prevent players from being able to match make with themselves
 
 need to change now() usage since computer timers can be off by minutes, like what happened to ashley
+
+create flow for guest accounts and integrate into the Quicklog for testing. Make sure than game details are not logged if a guest user is present.

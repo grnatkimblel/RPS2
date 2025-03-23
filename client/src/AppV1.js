@@ -5,23 +5,23 @@ import "./styles/buttonStyles.css";
 import "./styles/texts.css";
 import "./styles/elementSpecific.css";
 
-import PAGES from "./enums/pages";
-import API_ROUTES from "./enums/apiRoutes";
-import { getNewAccessToken } from "./helper";
+import PAGES from "./enums/pages.js";
+import API_ROUTES from "./enums/apiRoutes.js";
+import { getNewAccessToken } from "./helper.js";
 
 import Root from "./routes/root.js";
-import Login from "./routes/login";
-import CreateAccount from "./routes/createAccount";
+import Login from "./routes/login.js";
+import CreateAccount from "./routes/createAccount.js";
 
 import MainMenu from "./routes/mainMenu.js";
-import Online from "./routes/online";
-import Account from "./routes/account";
-import QuickdrawArena from "./routes/quickdrawArena";
-import TDMArena from "./routes/tdmArena";
+import Online from "./routes/online.js";
+import Account from "./routes/account.js";
+import QuickdrawArena from "./routes/quickdrawArena.js";
+import TDMArena from "./routes/tdmArena.js";
 import QuicklogToQueue from "./testPages/quicklogToQueue.js";
 import useSocket from "./hooks/useSocket.js";
 
-function App() {
+function AppV1() {
   const navigate = useNavigate();
 
   const [accessToken, setAccessToken] = useState("");
@@ -114,8 +114,8 @@ function App() {
 
   return (
     <Routes>
-      {/* <Route path={`/${PAGES.INITIAL}`} element={<Root navigate={navigate} />} /> */}
-      <Route
+      <Route path={`/${PAGES.INITIAL}`} element={<Root navigate={navigate} />} />
+      {/* <Route
         path={`/${PAGES.INITIAL}`}
         element={
           <QuicklogToQueue
@@ -126,7 +126,7 @@ function App() {
             gameInfoSetter={setCurrentGameInfo}
           />
         }
-      />
+      /> */}
       <Route path={`/${PAGES.LOGIN}`} element={<Login navigate={navigate} login={loginHelper} />} />
       <Route path={`/${PAGES.CREATE_ACCOUNT}`} element={<CreateAccount navigate={navigate} login={loginHelper} />} />
       <Route
@@ -185,4 +185,4 @@ function App() {
   );
 }
 
-export default App;
+export default AppV1;

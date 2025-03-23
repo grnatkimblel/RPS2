@@ -11,29 +11,29 @@ button {
 }
 
 .leftBorder {
-  border-left: 3px solid #ff0000;
+  border-left: 3px solid #121314;
   /*TODO : MAKE BETTER, maybe use p5*/
 }
 
 .rightBorder {
-  border-right: 3px solid #ff0000;
+  border-right: 3px solid #121314;
   /*TODO : MAKE BETTER, maybe use p5*/
 }
 
 .topBorder {
-  border-top: 3px solid #ff0000;
+  border-top: 3px solid #121314;
   /*TODO : MAKE BETTER, maybe use p5*/
 }
 
 .bottomBorder {
-  border-bottom: 3px solid #ff0000;
+  border-bottom: 3px solid #121314;
   /*TODO : MAKE BETTER, maybe use p5*/
 }
 
 .defaultColor {
-  background-color: #ef3629;
+  background-color: #1d1e20;
   color: white;
-  --stroke-color: red;
+  --stroke-color: #121314;
   --stroke-width: 5px;
   text-shadow: calc(var(--stroke-width) * 1) calc(var(--stroke-width) * 0) 0 var(--stroke-color),
     calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * 0.3827) 0 var(--stroke-color),
@@ -57,15 +57,15 @@ button {
 https://stackoverflow.com/questions/6679283/css-hover-only-affect-top-div-of-nest
  */
 .defaultColor:not(:has(div:hover)):hover {
-  background-color: #d14d44;
+  background-color: #36383a;
   color: white;
 }
 
 .notInteractableColor {
-  background-color: #0a022a;
+  background-color: rgb(211, 211, 211);
   color: white;
   pointer-events: none;
-  --stroke-color: black;
+  --stroke-color: #121314;
   --stroke-width: 5px;
   text-shadow: calc(var(--stroke-width) * 1) calc(var(--stroke-width) * 0) 0 var(--stroke-color),
     calc(var(--stroke-width) * 0.9239) calc(var(--stroke-width) * 0.3827) 0 var(--stroke-color),

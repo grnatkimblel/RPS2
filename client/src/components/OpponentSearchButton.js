@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useInterval } from "../hooks/useInterval";
 
-import OpponentSelectButton from "../components/OpponentSelectButton";
+import OpponentSelectButton from "./OpponentSelectButton";
 import API_ROUTES from "../enums/apiRoutes";
 
 function OpponentSearchButton({ navigate, authHelper, gameInfoSetter, currentGameMode }) {

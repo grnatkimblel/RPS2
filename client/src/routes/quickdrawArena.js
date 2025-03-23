@@ -272,6 +272,30 @@ function QuickdrawArena({
     [userInfo, gameSocket, gameDisplayState]
   );
 
+  //attach Keyboard event listeners
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (isAcceptingHandsInput) {
+        switch (event.key) {
+          case "q":
+            playHand("rock");
+            break;
+          case "w":
+            playHand("paper");
+            break;
+          case "e":
+            playHand("scissors");
+            break;
+        }
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isAcceptingHandsInput, playHand]);
+
   //STARTS COUNTDOWN uses useCountdown
   useEffect(() => {
     if (timeLeft == 0) return;

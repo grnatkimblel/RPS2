@@ -2,14 +2,14 @@ import "../styles/buttonStyles.css";
 import "../styles/texts.css";
 import "../styles/elementSpecific.css";
 
-import PAGES from "../enums/pages";
-import API_ROUTES from "../enums/apiRoutes";
+import PAGES from "../enums/pages.js";
+import API_ROUTES from "../enums/apiRoutes.js";
 import updateGameState from "../shared/updateGameState.js";
 
 import { v4 as uuidv4 } from "uuid";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import p5 from "p5";
-import useGameConnection from "../hooks/useGameConnection";
+import useGameConnection from "../hooks/useGameConnection.js";
 
 /*
 gameInfo:
