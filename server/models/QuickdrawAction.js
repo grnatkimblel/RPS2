@@ -28,7 +28,7 @@ export default (sequelize, DataTypes) => {
       },
       allowNull: false,
     },
-    player: {
+    player_id: {
       type: DataTypes.UUID,
       references: {
         model: "Users",

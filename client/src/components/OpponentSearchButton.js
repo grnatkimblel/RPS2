@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useInterval } from "../useInterval";
+import { useInterval } from "../hooks/useInterval";
 
 import OpponentSelectButton from "../components/OpponentSelectButton";
 import API_ROUTES from "../enums/apiRoutes";

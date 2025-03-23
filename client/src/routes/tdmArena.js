@@ -9,12 +9,12 @@ import updateGameState from "../shared/updateGameState.js";
 import { v4 as uuidv4 } from "uuid";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import p5 from "p5";
-import useSocket from "../hooks/useSocket";
+import useGameConnection from "../hooks/useGameConnection";
 
 /*
 gameInfo:
     sessionId: roster.rosterId,
-    roundStartTime: roundStartTime,
+    gameStartTime: gameStartTime,
     player1: {
       username: '',
       userId: '',
@@ -31,17 +31,17 @@ const [userInfo, setUserInfo] = useState({
   username: "",
   userId: "",
   emoji: "",
-});
-
-gameHeader : {
-  game_id: 
-  winner: 
-  loser:
-  player_1_id
-  player_2
-}
-
-*/
+  });
+  
+  gameHeader : {
+    game_id: 
+    winner: 
+    loser:
+    player_1_id
+    player_2
+    }
+    
+    */
 
 function TDMArena({
   authHelper,
@@ -49,12 +49,17 @@ function TDMArena({
   userInfo, //client information
   gameInfo, //game connection info, received from matchmaking service
   gameInfoSetter, //needed to reset when user runs or game ends
-  refreshToken,
+  socket,
+  setIsConnected,
 }) {
   const p5Ref = useRef();
   const gameState = useRef();
   const clientSideReconciliationRef = useRef(null);
-  const socket = useSocket(refreshToken, true);
+  let subscriptionDetails = {
+    eventName: "tdm_register",
+    subscribeSocketFunction: subscribeSocket,
+  };
+  const gameSocket = useGameConnection(socket, subscriptionDetails, gameInfo);
   const [isInitialGamestateReceived, setIsInitialGamestateReceived] = useState(false);
   const TICKRATE_DIVISOR = 6;
   const CLIENT_FRAMERATE = 60;
@@ -290,25 +295,11 @@ function TDMArena({
     };
   };
 
-  //registration when socket connects
   useEffect(() => {
-    let unsubscribeSocket;
-    console.log("tdmArena UseEffect. socket.connected:", socket && socket.connected);
+    setIsConnected(true);
+  }, []);
 
-    if (socket && socket.connected) {
-      console.log("subscribing");
-      //subscribe to all events
-      unsubscribeSocket = subscribeSocket(socket);
-      socket.emit("tdm_register", gameInfo);
-    }
-    return () => {
-      console.log("UseEffect Cleanup");
-      // setIsConnected(false);
-      if (unsubscribeSocket !== null) unsubscribeSocket();
-    };
-  }, [socket, socket?.connected]);
-
-  //draw p5 skecth on receiving gamestate
+  //draw p5 sketch on receiving gamestate
   useEffect(() => {
     let myP5;
     if (isInitialGamestateReceived) {
@@ -338,8 +329,10 @@ function TDMArena({
       clientSideReconciliationRef.current(serverGameState, acknowledgedPackets);
     });
     return () => {
-      socket.off("startGame");
-      socket.off("receiveGameState");
+      // When the socket disconnects, the event listeners will remain. But once the isConnected is set to true, a new socket instance is created which will
+      // // cause the old socket to get garbage collected. So we dont need to worry about cleaning up the event listeners.
+      // socket.off("startGame");
+      // socket.off("receiveGameState");
     };
   }
 

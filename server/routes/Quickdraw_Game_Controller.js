@@ -42,7 +42,10 @@ let activeRooms = new Map();
 router.post("/quickdraw/pregame", async (req, res) => {
   logger.info(" /quickdraw/pregame called successfully");
   const roster = req.body.roster;
+  const game_type = req.body.game_type;
+  logger.info(activeRooms);
   logger.info(roster);
+  logger.info(game_type);
   const players = roster.players;
   const fullPlayerInfo = await getUsersByList(players);
   // logger.info(fullPlayerInfo);
@@ -59,43 +62,47 @@ router.post("/quickdraw/pregame", async (req, res) => {
 
   if (!activeRooms.has(roster.rosterId)) {
     //countdown time is created when the room is added, all other players will get the exact same time
-    const roundStartTime = Date.now() + COUNTDOWN_TIME;
-    activeRooms.set(roster.rosterId, createPotentialGame(roster, roundStartTime));
+    const gameStartTime = Date.now() + COUNTDOWN_TIME;
+    activeRooms.set(roster.rosterId, createPotentialGame(roster, gameStartTime));
   }
 
   res.json({
     sessionId: roster.rosterId,
-    roundStartTime: activeRooms.get(roster.rosterId).roundStartTime,
+    gameStartTime: activeRooms.get(roster.rosterId).gameStartTime,
+    gameType: game_type,
     player1: player_1_info,
     player2: player_2_info,
   });
 });
 
-router.post("/quickdraw/run", async (req, res) => {
-  const client_id = req.authUser.id;
-  const session_id = req.body.session_id;
+// router.post("/quickdraw/run", async (req, res) => {
+//   const client_id = req.authUser.id;
+//   const session_id = req.body.session_id;
 
-  // if (activeRooms.has(session_id)) {
-  //   activeRooms.delete(session_id);
+//   // if (activeRooms.has(session_id)) {
+//   //   activeRooms.delete(session_id);
 
-  //   logger.info("game removed");
-  //   logger.info("activeRooms after removal:");
-  //   logger.info(activeRooms);
-  // } else {
-  //   //game doesn't exist or other player already ran
-  //   //do nothing
-  // }
-  res.sendStatus(200);
-});
+//   //   logger.info("game removed");
+//   //   logger.info("activeRooms after removal:");
+//   //   logger.info(activeRooms);
+//   // } else {
+//   //   //game doesn't exist or other player already ran
+//   //   //do nothing
+//   // }
+//   res.sendStatus(200);
+// });
 
 router.post("/quickdraw/startGame", async (req, res) => {
   //Both clients must call this api before any actions are taken
   const session_id = req.body.session_id;
+  const game_type = req.body.game_type;
   const client_id = req.authUser.id;
   logger.info("startGame called");
+  logger.info("Gametype", game_type);
+
   if (activeRooms.has(session_id)) {
     let game = activeRooms.get(session_id);
-    if (game.players.player_1 == client_id) {
+    if (game.gameState.players.player_1 == client_id) {
       game.checkInStatus.player_1 = true;
     } else {
       game.checkInStatus.player_2 = true;
@@ -109,10 +116,11 @@ router.post("/quickdraw/startGame", async (req, res) => {
           game_id: session_id,
         },
         defaults: {
+          game_type: game_type,
           winner: null,
           loser: null,
-          player_1_id: game.players.player_1,
-          player_2_id: game.players.player_2,
+          player_1_id: game.gameState.players.player_1,
+          player_2_id: game.gameState.players.player_2,
         },
       });
       logger.info("Created QuickdrawGameHeader gameId: " + createdQuickdrawGameHeader.game_id);
@@ -202,11 +210,12 @@ function registerGameControllerHandlers(io, socket) {
     let client_id = socket.client_id;
     // if (debug) {
     logger.info(client_id + " played a hand");
+    logger.info("sessionId", sessionId);
     // }
     let game = activeRooms.get(sessionId);
-    let isPlayer_1 = game.players.player_1 == client_id;
+    let isPlayer_1 = game.gameState.players.player_1 == client_id;
     // game = activeRooms.get(sessionId);
-    let thisRound = game.rounds[game.rounds.length - 1];
+    let thisRound = game.gameState.rounds[game.gameState.rounds.length - 1];
     let now = Date.now();
     // logger.info("game");
     // logger.info(game);
@@ -248,10 +257,10 @@ function registerGameControllerHandlers(io, socket) {
       let temp = activeRooms.get(sessionId);
       if (debug) {
         logger.info("after hands");
-        logger.info(temp.rounds[temp.rounds.length - 1].hands);
+        logger.info(temp.gameState.rounds[temp.gameState.rounds.length - 1].hands);
 
         logger.info("after room");
-        logger.info(temp);
+        logger.info(temp.gameState);
       }
       return;
     }
@@ -282,12 +291,11 @@ function registerGameControllerHandlers(io, socket) {
     };
 
     if (debug) {
-      room = activeRooms.get(sessionId);
       logger.info("after hands");
-      logger.info(room.hands);
+      logger.info(thisRound.hands);
 
       logger.info("after room");
-      logger.info(room);
+      logger.info(thisRound);
     }
   };
 
@@ -303,6 +311,7 @@ function registerGameControllerHandlers(io, socket) {
 
 async function doGame(io, gameInfo) {
   while (!activeRooms.get(gameInfo.sessionId).isFinished) {
+    //if a player leaves the game before it ends, isFinished is set to true. Need to remove it from active rooms in this case
     logger.info("doRound Called");
     await doRound(io, gameInfo);
   }
@@ -321,8 +330,8 @@ async function doRound(io, gameInfo) {
 
     //##TODO create a more complete object to store in active Rooms. may need player 1 and player two, gotta get them somehow
     let game = activeRooms.get(session_id);
-    game.rounds.push({
-      roundNumber: game.rounds.length + 1,
+    game.gameState.rounds.push({
+      roundNumber: game.gameState.rounds.length + 1,
       startTime: now,
       drawTime: now + drawTime * 1000,
       endTime: now + endTime * 1000,
@@ -345,7 +354,7 @@ async function doRound(io, gameInfo) {
     }, drawTime * 1000);
     setTimeout(() => {
       io.to(session_id).emit("BeginEndPhase");
-      if (!game.isFinished) updateGameStateAfterRound(io, gameInfo);
+      if (!game.gameState.isFinished) updateGameStateAfterRound(io, gameInfo);
       io.to(session_id).emit("ReceiveNewGameState", activeRooms.get(session_id));
     }, endTime * 1000);
     setTimeout(() => {
@@ -364,10 +373,10 @@ function updateGameStateAfterRound(io, gameInfo) {
   let p2CBM = 0;
   // get current score
   logger.info(" ");
-  logger.info("gamr");
+  logger.info("game");
   logger.info(game);
   logger.info("RoundScoring");
-  game.rounds.forEach((round) => {
+  game.gameState.rounds.forEach((round) => {
     let hands = round.hands;
     logger.info("round");
     logger.info(round);
@@ -393,8 +402,8 @@ function updateGameStateAfterRound(io, gameInfo) {
     }
   });
   //update score
-  game.header = {
-    ...game.header,
+  game.gameState.header = {
+    ...game.gameState.header,
     player_1_score: p1Score,
     player_2_score: p2Score,
     player_1_CBM: p1CBM,
@@ -402,10 +411,10 @@ function updateGameStateAfterRound(io, gameInfo) {
   };
   //check if game is over
   if (
-    game.header.player_1_score == game.header.numRoundsToWin ||
-    game.header.player_2_score == game.header.numRoundsToWin
+    game.gameState.header.player_1_score == game.gameState.header.numRoundsToWin ||
+    game.gameState.header.player_2_score == game.gameState.header.numRoundsToWin
   )
-    game.isFinished = true;
+    game.gameState.isFinished = true;
 }
 
 function didScoring(hands) {
@@ -447,43 +456,55 @@ function didPlayer1GetCBM(p1HandTime, p2HandTime) {
   return p2HandTime == null ? true : false;
 }
 
-function createPotentialGame(roster, roundStartTime) {
+function createPotentialGame(roster, gameStartTime) {
   let potentialGame = {
-    roundStartTime: roundStartTime,
-    isFinished: false,
-    players: {
-      player_1: roster.players[0],
-      player_2: roster.players[1],
-    },
-    header: {
-      numRoundsToWin: 3,
-      player_1_score: 0,
-      player_2_score: 0,
-      player_1_CBM: 0,
-      player_2_CBM: 0,
-    },
-    rounds: [
-      //   {
-      //   startTime,
-      //   drawTime,
-      //   endTime,
-      //   hands: {
-      //    player_1: {
-      //      client_id:,
-      //       hand:,
-      //       time:,
-      //    }
-      //    player_2: {
-      //      client_id:,
-      //       hand:,
-      //       time:,
-      //    }
-      //   }
-      // }
-    ],
     checkInStatus: {
       player_1: false,
       player_2: false,
+    },
+    actions: [
+      // {
+      //   game_id: ,
+      //   round_id: ,
+      //   player_id: ,
+      //   action_type: ,
+      //   action_value: ,
+      //   timestamp: ,
+      // },
+    ],
+    gameStartTime: gameStartTime,
+    gameState: {
+      isFinished: false,
+      players: {
+        player_1: roster.players[0],
+        player_2: roster.players[1],
+      },
+      header: {
+        numRoundsToWin: 3,
+        player_1_score: 0,
+        player_2_score: 0,
+        player_1_CBM: 0,
+        player_2_CBM: 0,
+      },
+      rounds: [
+        //   {
+        //   startTime,
+        //   drawTime,
+        //   endTime,
+        //   hands: {
+        //    player_1: {
+        //      client_id:,
+        //       hand:,
+        //       time:,
+        //    }
+        //    player_2: {
+        //      client_id:,
+        //       hand:,
+        //       time:,
+        //    }
+        //   }
+        // }
+      ],
     },
   };
 

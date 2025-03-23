@@ -16,7 +16,7 @@ export default function useSocket(refreshToken, isConnected) {
       const initializeSocket = async () => {
         try {
           const newAccessToken = await getNewAccessToken(refreshToken);
-          console.log("newAccessToken: ", newAccessToken);
+          console.log("useSocket newAccessToken: ", newAccessToken);
 
           //get new socket instance with fresh access
           const newSocket = await io(SOCKET_SERVER_URL, {
@@ -56,11 +56,15 @@ export default function useSocket(refreshToken, isConnected) {
       };
       initializeSocket();
     } else {
+      console.log("Socket Exists?", socket);
+      console.log("Socket Connected?", socket?.connected);
       if (socket?.connected) {
         socket.off("connect");
         socket.off("disconnect");
         socket.disconnect();
+        console.log("Socket Disconnect");
         setSocket(null);
+        setIsSocketConnected(false);
       }
     }
     return () => {
@@ -70,11 +74,12 @@ export default function useSocket(refreshToken, isConnected) {
         console.log("SocketCleanup actually");
         socket.off("connect");
         socket.off("disconnect");
+        console.log("Socket Disconnect");
         socket.disconnect();
         setIsSocketConnected(false);
       }
     };
-  }, [refreshToken, isConnected]);
+  }, [refreshToken, isConnected]); //I dont expect refreshToken to change, but just in case
 
   return isSocketConnected ? socket : null;
 }

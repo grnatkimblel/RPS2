@@ -22,4 +22,4 @@ Quickdraw is broken, some users inputs are counting for both players, this is ha
 quicklog so may need to check against the normal flow
 cbm is being scored to the player who plays last, like the exact opposite of what i want lol
 
-create a docker compose for testing since tests cannot complete without db participation.
+the player who leaves a quickdraw arena never disconnects from their socket. There may need to be some delay or callback/api for this.

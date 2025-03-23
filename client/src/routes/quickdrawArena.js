@@ -6,18 +6,14 @@ import GunshotURL from "../audio/Gunshot.ogg";
 import DrumrollURL from "../audio/Drumroll.ogg";
 import useSound from "use-sound";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import useSocket from "../hooks/useSocket";
 import QuickdrawArenaDisplay from "../components/QuickdrawArenaDisplay";
-//import { Socket } from "socket.io-client";
-
-// require("react-dom");
-// window.React2 = require("react");
-// console.log(window.React1 === window.React2);
+import useCountdownMs from "../hooks/useCountdown";
+import useGameConnection from "../hooks/useGameConnection";
 
 /*
 gameInfo:
 sessionId: roster.rosterId,
-    roundStartTime: roundStartTime,
+    gameStartTime: gameStartTime,
     player1: {
       username: '',
       userId: '',
@@ -52,7 +48,9 @@ function QuickdrawArena({
   userInfo, //client information
   gameInfo, //game connection info, received from matchmaking service
   gameInfoSetter, //needed to reset when user runs or game ends
-  refreshToken,
+  socket,
+  setIsConnected,
+  isConnected,
 }) {
   const PREGAME_PHASE_TEXT = "OR-RPS";
   const GAME_OVER_TEXT = "GAME OVER";
@@ -75,7 +73,7 @@ function QuickdrawArena({
   };
 
   const initialGameDisplayState = {
-    titleText: Math.ceil((gameInfo.roundStartTime - Date.now()) / 1000),
+    titleText: Math.ceil((gameInfo.gameStartTime - Date.now()) / 1000),
     gamePhase: GAME_PHASES.PRE_GAME,
     numRoundsToWin: 3,
     player1_hand: gameInfo.player1.emoji !== "" ? gameInfo.player1.emoji : EMOJI_THINKING,
@@ -91,20 +89,21 @@ function QuickdrawArena({
   });
   const [playGunshot, gunshotAudio] = useSound(GunshotURL, { volume: 0.1 });
   const [playDrumroll, drumrollAudio] = useSound(DrumrollURL, { volume: 0.1 });
+  const timeLeft = useCountdownMs(gameInfo.gameStartTime - Date.now());
 
   const [gameDisplayState, setGameDisplayState] = useState(initialGameDisplayState);
   const [isRunning, setIsRunning] = useState(false);
+  const [ignoreStartGame, setIgnoreStartGame] = useState(false); //if the player runs before the countdown is over, ignore the start game request
+  //I dont think this ever has an effect, if the player runs this component is unmounted and so startgame wont call
   const [isAcceptingHandsInput, setIsAcceptingHandsInput] = useState(false);
   const [isAcceptingRunningInput, setIsAcceptingRunningInput] = useState(true);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isRegistered, setIsRegistered] = useState(false);
-  const socket = useSocket(refreshToken, isConnected);
-  const [isSocketSetup, setIsSocketSetup] = useState(false);
+  let subscriptionDetails = {
+    eventName: "quickdraw_register",
+    subscribeSocketFunction: subscribeSocket,
+  };
+  const gameSocket = useGameConnection(socket, subscriptionDetails, gameInfo);
 
   function subscribeSocket(socket) {
-    // console.log("socket instanceof Socket");
-    // console.log(socket instanceof Socket);
-
     //Begin Phase Events
     socket.on("BeginStartPhase", (payload) => {
       console.log(`StartPhase Begun, ${payload} seconds till Draw`);
@@ -160,11 +159,11 @@ function QuickdrawArena({
       console.log(payload);
       setGameDisplayState((prev) => ({
         ...prev,
-        numRoundsToWin: payload.header.numRoundsToWin,
-        player1_score: payload.header.player_1_score,
-        player2_score: payload.header.player_2_score,
-        player1_CBM: payload.header.player_1_CBM,
-        player2_CBM: payload.header.player_2_CBM,
+        numRoundsToWin: payload.gameState.header.numRoundsToWin,
+        player1_score: payload.gameState.header.player_1_score,
+        player2_score: payload.gameState.header.player_2_score,
+        player1_CBM: payload.gameState.header.player_1_CBM,
+        player2_CBM: payload.gameState.header.player_2_CBM,
         //dont reset yet, let the players see the outcome of the last round before for a second
         // player1_hand:
         //   gameInfo.player1.emoji !== ""
@@ -205,6 +204,7 @@ function QuickdrawArena({
     });
     socket.on("PlayerRan", () => {
       console.log("other player Left");
+      setIsAcceptingHandsInput(false);
       setGameDisplayState((prev) => ({
         ...prev,
         titleText: "Other Player Left",
@@ -212,85 +212,27 @@ function QuickdrawArena({
       setIsConnected(false);
     });
 
-    // if (!isSocketSetup) setIsSocketSetup(true);
-
     return () => {
-      // console.log("socket cleanup");
-      setIsSocketSetup(false);
-      socket.off("BeginStartPhase");
-      socket.off("BeginDrawPhase");
-      socket.off("BeginEndPhase");
-      socket.off("EndEndPhase");
-      socket.off("ReceiveHand");
-      socket.off("ReceiveNewGameState");
-      socket.off("PlayerRan");
+      // When the socket disconnects, the event listeners will remain. But once the isConnected is set to true, a new socket instance is created which will
+      // cause the old socket to get garbage collected. So we dont need to worry about cleaning up the event listeners.
+      // socket.off("BeginStartPhase");
+      // socket.off("BeginDrawPhase");
+      // socket.off("BeginEndPhase");
+      // socket.off("EndEndPhase");
+      // socket.off("ReceiveHand");
+      // socket.off("ReceiveNewGameState");
+      // socket.off("PlayerRan");
       goodBadUglyAudio.stop();
       drumrollAudio.stop();
     };
   }
-
-  //onGetSocket, subscribe to all events needed to play the game
-  useEffect(() => {
-    // isSocketSetup
-    //   ? console.log("socket isSocketSetup")
-    //   : console.log("socket not isSocketSetup");
-    // console.log("socket handler UseEffect Running");
-
-    if (socket && socket.connected) {
-      // console.log("subscribeSocket");
-      let unsubscribeSocket = subscribeSocket(socket);
-      setIsSocketSetup(true);
-
-      return unsubscribeSocket;
-    } else {
-      // console.log("Socket UseEffect: Socket unable to be setup");
-    }
-  }, [socket, socket?.connected]);
-
-  useEffect(() => {
-    // isRegistered
-    //   ? console.log("socket isRegistered")
-    //   : console.log("socket not isRegistered");
-    if (isSocketSetup && !isRegistered) {
-      if (socket?.connected) {
-        console.log("socket registered");
-        registerSocket(socket, gameInfo);
-        setIsRegistered(true);
-      }
-    }
-  }, [socket, isRegistered, isSocketSetup]);
-
-  function registerSocket(socket, gameInfo) {
-    console.log(gameInfo);
-    socket.emit("quickdraw_register", gameInfo);
-  }
-
-  //for debugging
-  // useEffect(() => {
-  //   console.log("socket changed");
-  //   console.log(socket);
-  //   if (socket instanceof Socket) {
-  //     console.log("socket.connected");
-  //     console.log(socket.connected);
-  //   }
-
-  //   console.log(" ");
-  // }, [socket]);
-  // useEffect(() => {
-  //   console.log("isConnected changed");
-  //   console.log(isConnected);
-  // }, [isConnected]);
-  // useEffect(() => {
-  //   console.log("displayState changed");
-  //   console.log(gameDisplayState);
-  // }, [gameDisplayState]);
 
   const playHand = useCallback(
     (hand) => {
       console.log("playing hand: " + hand);
       console.log("gameDisplayState.gamePhase: " + gameDisplayState.gamePhase);
 
-      socket.emit(
+      gameSocket.emit(
         "quickdraw_playHand",
         //userInfo.userId, //the socket knows the client when its authorized
         gameInfo.sessionId,
@@ -326,26 +268,16 @@ function QuickdrawArena({
         setIsAcceptingHandsInput(false);
       }
     },
-    [userInfo, socket, gameDisplayState]
+    [userInfo, gameSocket, gameDisplayState]
   );
 
-  //STARTS COUNTDOWN
+  //STARTS COUNTDOWN uses useCountdown
   useEffect(() => {
-    //1st the countdown
-    let countdown;
-
-    if (gameInfo.roundStartTime - Date.now() > 1000) {
-      countdown = setTimeout(() => {
-        setGameDisplayState((prev) => {
-          return { ...prev, titleText: prev.titleText - 1 };
-        });
-      }, 1000);
-    }
-
-    return () => {
-      clearInterval(countdown);
-    };
-  }, [gameDisplayState.titleText]); //on arena mount, this function will trigger and then retrigger itself until the roundStartTime is in the past.
+    if (timeLeft == 0) return;
+    setGameDisplayState((prev) => {
+      return { ...prev, titleText: Math.ceil(timeLeft / 1000) };
+    });
+  }, [timeLeft]);
 
   //STARTGAME, SET ISCONNECTED TO TRUE OF FALSE
   useEffect(() => {
@@ -358,6 +290,7 @@ function QuickdrawArena({
       //request on api that starts the game.
       await authHelper(API_ROUTES.GAME.QUICKDRAW.START_GAME, "POST", {
         session_id: gameInfo.sessionId,
+        game_type: gameInfo.gameType,
       })
         .then((res) => {
           return res.json();
@@ -373,28 +306,32 @@ function QuickdrawArena({
         });
     };
 
-    // let ignore = false;
     const timer = setTimeout(() => {
-      // if (!ignore) {
-      console.log("starting Game");
-      startGame(); //this should only run once
-      //}
-    }, gameInfo.roundStartTime - Date.now());
+      if (!ignoreStartGame) {
+        console.log("starting Game");
+        startGame(); //this should only run once
+      }
+    }, gameInfo.gameStartTime - Date.now());
     return () => {
       //ignore = true;
       clearTimeout(timer);
     };
-  }, [gameInfo, authHelper]);
+  }, [gameInfo, authHelper, ignoreStartGame]);
 
   const run = useCallback(async () => {
-    socket.emit("quickdraw_run", gameInfo.sessionId);
-    setIsConnected(false);
+    console.log("isConnected: ", isConnected);
+    if (isConnected) {
+      gameSocket.emit("quickdraw_run", gameInfo.sessionId);
+      setIsConnected(false);
+    }
     // await authHelper(API_ROUTES.GAME.QUICKDRAW.RUN, "POST", {
     //   session_id: gameInfo.sessionId,
     // });
     // gameInfoSetter({});
+    //GROSS STOP INTERMINGLING HTTP AND WEBSOCKET SHIT JUST HAVE THE PLAYERS CONNECT TO THE WEBSOCKET IMMEDIATELY AND HANDLE IT FROM THERE IT WILL BE EASIER TO REASON ABOUT
+    //
     navigate(PAGES.MAIN_MENU);
-  }, [socket, authHelper]);
+  }, [gameSocket, authHelper, isConnected]);
 
   return (
     <QuickdrawArenaDisplay

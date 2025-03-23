@@ -52,6 +52,7 @@ function QuickLogButton({ navigate, login, authHelper, userInfo, gameInfoSetter,
         //call the right pregame based on the gamemode
         return authHelper(apiRoute, "POST", {
           roster,
+          game_type: gameType,
         })
           .then((res) => {
             return res.json();

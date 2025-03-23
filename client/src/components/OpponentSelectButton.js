@@ -45,7 +45,7 @@ function OpponentSelectButton({
         /*
       data :
         sessionId: roster.rosterId,
-        roundStartTime: activeRooms.get(roster.rosterId).roundStartTime,
+        gameStartTime: activeRooms.get(roster.rosterId).gameStartTime,
         player1: player_1_info, from db
         player2: player_2_info, from db
       */

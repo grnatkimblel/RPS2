@@ -77,15 +77,17 @@ function Online({ navigate, authHelper, gameInfoSetter }) {
                     : null;
                 //call the right pregame based on the gamemode
                 return authHelper(apiRoute, "POST", {
+                  game_type: currentGameMode.gameType,
                   roster,
                 });
               })
               .then((res) => res.json())
               .then((data) => {
+                console.log(data);
                 /*
                 data :
                   sessionId: roster.rosterId,
-                  roundStartTime: activeRooms.get(roster.rosterId).roundStartTime,
+                  gameStartTime: activeRooms.get(roster.rosterId).gameStartTime,
                   player1: player_1_info, from db
                   player2: player_2_info, from db
                 */

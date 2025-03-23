@@ -9,3 +9,17 @@ Add the gamemode as a request parameter to the matchmaking service so the same c
 Update checkInvites to only show invites in the same gamemode.
 
 update matchmaking service to sign rosters with a jwt that is validated by the pregames to prevent users from creating invalid sessions.
+
+populate the actions array when playhand is called
+create gameheader round and action records
+ensure both players disconnect every time/figure out wher useSocket needs to go
+
+write a custom hook that uses useSocket to make the arenas more ergonomic. Also base the hook at the app level
+idk the interface yet. But there should be an object/array containing methods that can be subsrcibe to. This will
+be passed tp tje spclet tp subscribe to once it is connected. this will reduec the4 redundant code in both arenas. Will also need
+a async way to disconeect the socekts, This will prevent the aboce error. determine the interface and implement!s
+
+Theres no need to remove event listeners from the socket. Since when isConnected changes, the socket is either freshly instanced or disconnected, and fresh instances wont retain the event listeners
+then there is no need to remove the event listeners. The old socket will be garbage collected and its resources freed.
+
+need to remove games from active rooms

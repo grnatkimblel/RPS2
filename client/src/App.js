@@ -19,6 +19,7 @@ import Account from "./routes/account";
 import QuickdrawArena from "./routes/quickdrawArena";
 import TDMArena from "./routes/tdmArena";
 import QuicklogToQueue from "./testPages/quicklogToQueue.js";
+import useSocket from "./hooks/useSocket.js";
 
 function App() {
   const navigate = useNavigate();
@@ -33,6 +34,8 @@ function App() {
   });
 
   const [currentGameInfo, setCurrentGameInfo] = useState("");
+  const [isConnected, setIsConnected] = useState(false);
+  const socket = useSocket(refreshToken, isConnected);
 
   //all http calls prior to quickdraw arena are made in response to events, so changing these to be useEffects is not gonna work i dont think.
   //changing to allow refreshTokens to only exist in the cookie means CORS bs, not impossible just not what im tryna fuck with rn.
@@ -111,8 +114,8 @@ function App() {
 
   return (
     <Routes>
-      <Route path={`/${PAGES.INITIAL}`} element={<Root navigate={navigate} />} />
-      {/* <Route
+      {/* <Route path={`/${PAGES.INITIAL}`} element={<Root navigate={navigate} />} /> */}
+      <Route
         path={`/${PAGES.INITIAL}`}
         element={
           <QuicklogToQueue
@@ -123,7 +126,7 @@ function App() {
             gameInfoSetter={setCurrentGameInfo}
           />
         }
-      /> */}
+      />
       <Route path={`/${PAGES.LOGIN}`} element={<Login navigate={navigate} login={loginHelper} />} />
       <Route path={`/${PAGES.CREATE_ACCOUNT}`} element={<CreateAccount navigate={navigate} login={loginHelper} />} />
       <Route
@@ -158,7 +161,9 @@ function App() {
             userInfo={userInfo}
             gameInfo={currentGameInfo}
             gameInfoSetter={setCurrentGameInfo}
-            refreshToken={refreshToken}
+            socket={socket}
+            setIsConnected={setIsConnected}
+            isConnected={isConnected}
           />
         }
       />
@@ -171,7 +176,8 @@ function App() {
             userInfo={userInfo}
             gameInfo={currentGameInfo}
             gameInfoSetter={setCurrentGameInfo}
-            refreshToken={refreshToken}
+            socket={socket}
+            setIsConnected={setIsConnected}
           />
         }
       />

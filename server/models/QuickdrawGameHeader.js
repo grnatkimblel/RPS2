@@ -1,7 +1,7 @@
 /*
 QuickdrawGameHeader : {
   game_id: 
-  game_type: "QUICKPLAY" or "RANKED"
+  game_type: "Quickplay" or "Ranked"
   winner: 
   loser:
   player_1_id
@@ -17,7 +17,7 @@ export default (sequelize, DataTypes) => {
       defaultValue: DataTypes.UUIDV4,
     },
     game_type: {
-      type: DataTypes.ENUM("QUICKPLAY", "RANKED"),
+      type: DataTypes.ENUM("Quickplay", "Ranked"),
       allowNull: false,
     },
     winner: DataTypes.UUID,
