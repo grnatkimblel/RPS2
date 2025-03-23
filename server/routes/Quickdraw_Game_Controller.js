@@ -5,8 +5,8 @@ import express from "express";
 
 import { getUsersByList } from "../helper/getUsers.js";
 import db from "../models/index.js";
-// Get the User model from the db object
-const { QuickdrawGameHeader } = db.models;
+
+const { QuickdrawGameHeader, QuickdrawRound, QuickdrawAction } = db.models;
 
 const router = express.Router();
 router.use(authenticateToken);
@@ -63,7 +63,7 @@ router.post("/quickdraw/pregame", async (req, res) => {
   if (!activeRooms.has(roster.rosterId)) {
     //countdown time is created when the room is added, all other players will get the exact same time
     const gameStartTime = Date.now() + COUNTDOWN_TIME;
-    activeRooms.set(roster.rosterId, createPotentialGame(roster, gameStartTime));
+    activeRooms.set(roster.rosterId, createPotentialGame(roster, gameStartTime, game_type));
   }
 
   res.json({
@@ -94,50 +94,13 @@ router.post("/quickdraw/pregame", async (req, res) => {
 
 router.post("/quickdraw/startGame", async (req, res) => {
   //Both clients must call this api before any actions are taken
+  //If a player has run before the countdown ends, the game wont be found in active Rooms
+  //the rarest of edge cases may exist. The player 2 could run in between player 1 sending and receiving their request. These calls are supposed to be sent in sync. While the client side timing bug is present this is still an issue.
   const session_id = req.body.session_id;
-  const game_type = req.body.game_type;
-  const client_id = req.authUser.id;
   logger.info("startGame called");
-  logger.info("Gametype", game_type);
-
-  if (activeRooms.has(session_id)) {
-    let game = activeRooms.get(session_id);
-    if (game.gameState.players.player_1 == client_id) {
-      game.checkInStatus.player_1 = true;
-    } else {
-      game.checkInStatus.player_2 = true;
-    }
-    logger.info("checkInStatus");
-    logger.info(game.checkInStatus);
-    //If both players have checked in, create the QuickdrawGameHeader entry
-    if (game.checkInStatus.player_1 && game.checkInStatus.player_2) {
-      const createdQuickdrawGameHeader = await QuickdrawGameHeader.findOrCreate({
-        where: {
-          game_id: session_id,
-        },
-        defaults: {
-          game_type: game_type,
-          winner: null,
-          loser: null,
-          player_1_id: game.gameState.players.player_1,
-          player_2_id: game.gameState.players.player_2,
-        },
-      });
-      logger.info("Created QuickdrawGameHeader gameId: " + createdQuickdrawGameHeader.game_id);
-      // logger.info(createdQuickdrawGameHeader);
-    }
-
-    //If both players haven't checked in, just let the socket handle it
-    res.json({
-      gameFound: true,
-    });
-  } else {
-    // logger.info("no game found with player ", client_id);
-    //other player could have ran, response needs to communicate this
-    res.json({
-      gameFound: false,
-    });
-  }
+  res.json({
+    gameFound: activeRooms.has(session_id),
+  });
 });
 
 const GAME_PHASES = {
@@ -219,6 +182,7 @@ function registerGameControllerHandlers(io, socket) {
     let now = Date.now();
     // logger.info("game");
     // logger.info(game);
+    addHandToActions(client_id, game.actions, hand, thisRound.roundNumber, now);
 
     if (now < thisRound.startTime) {
       logger.info("hand played before start time, this should be impossible");
@@ -300,7 +264,8 @@ function registerGameControllerHandlers(io, socket) {
   };
 
   const run = (session_id) => {
-    activeRooms.get(session_id).isFinished = true;
+    //this is also called when the players leave the game after it ends. So there is only a need to set isFinished to true if someone left before the game ended. The gameEnd logic will delete the session if so
+    if (activeRooms.has(session_id)) activeRooms.get(session_id).gameState.isFinished = true;
     io.to(session_id).emit("PlayerRan");
   };
 
@@ -310,10 +275,16 @@ function registerGameControllerHandlers(io, socket) {
 }
 
 async function doGame(io, gameInfo) {
-  while (!activeRooms.get(gameInfo.sessionId).isFinished) {
-    //if a player leaves the game before it ends, isFinished is set to true. Need to remove it from active rooms in this case
+  let game = activeRooms.get(gameInfo.sessionId);
+  while (!game.gameState.isFinished) {
     logger.info("doRound Called");
     await doRound(io, gameInfo);
+  }
+  if (isGameFinished(game)) {
+    await writeGameToDB(game, gameInfo);
+  }
+  if (!activeRooms.delete(gameInfo.sessionId)) {
+    throw Error("At time of gameEnd, Cannot remove room:", gameInfo.sessionId);
   }
 }
 
@@ -322,8 +293,7 @@ async function doRound(io, gameInfo) {
     const session_id = gameInfo.sessionId;
     let drawTime = Math.random() * 8 + 3;
     let endTime = Math.random() * 3 + 3 + drawTime;
-    // logger.info("startDelaySeconds: " + startDelaySeconds);
-    // logger.info("drawDelaySeconds: " + drawDelaySeconds);
+
     logger.info("emitting BeginStartPhase");
     io.to(session_id).emit("BeginStartPhase", drawTime);
     let now = Date.now();
@@ -348,6 +318,7 @@ async function doRound(io, gameInfo) {
         },
       },
     });
+    logger.info(game);
 
     setTimeout(() => {
       io.to(session_id).emit("BeginDrawPhase");
@@ -358,7 +329,7 @@ async function doRound(io, gameInfo) {
       io.to(session_id).emit("ReceiveNewGameState", activeRooms.get(session_id));
     }, endTime * 1000);
     setTimeout(() => {
-      if (activeRooms.get(session_id).isFinished) io.to(session_id).emit("EndGame");
+      if (game.gameState.isFinished) io.to(session_id).emit("EndGame");
       resolve();
     }, (endTime + 3) * 1000);
   });
@@ -371,36 +342,22 @@ function updateGameStateAfterRound(io, gameInfo) {
   let p2Score = 0;
   let p1CBM = 0;
   let p2CBM = 0;
+
   // get current score
-  logger.info(" ");
-  logger.info("game");
-  logger.info(game);
-  logger.info("RoundScoring");
   game.gameState.rounds.forEach((round) => {
     let hands = round.hands;
-    logger.info("round");
-    logger.info(round);
-    logger.info("hands");
-    logger.info(hands);
-    logger.info("didScoring(hands)");
-    logger.info(didScoring(hands));
-    if (didScoring(hands)) {
-      logger.info("didPlayer1Win(hands.player_1.hand, hands.player_2.hand)");
-      logger.info(didPlayer1Win(hands.player_1.hand, hands.player_2.hand));
-    }
-    if (didHands(hands)) {
-      didPlayer1GetCBM(hands.player_1.time, hands.player_2.time)
-        ? p1CBM < 3
-          ? (p1CBM += 1)
-          : void 0
-        : p2CBM < 3
-        ? (p2CBM += 1)
-        : void 0;
-      if (didScoring(hands)) {
-        didPlayer1Win(hands.player_1.hand, hands.player_2.hand) ? (p1Score += 1) : (p2Score += 1);
+    let p1Hand = hands.player_1.hand;
+    let p2Hand = hands.player_2.hand;
+    if (didSomeonePlayAHand(p1Hand, p2Hand)) {
+      if (didPlayer1GetCBM((hands.player_1.time, hands.player_2.time))) {
+        //need to add new CBM logic
+      }
+      if (isNotATie(p1Hand, p2Hand)) {
+        didPlayer1WinRound(p1Hand, p2Hand) ? (p1Score += 1) : (p2Score += 1);
       }
     }
   });
+
   //update score
   game.gameState.header = {
     ...game.gameState.header,
@@ -409,29 +366,31 @@ function updateGameStateAfterRound(io, gameInfo) {
     player_1_CBM: p1CBM,
     player_2_CBM: p2CBM,
   };
+
   //check if game is over
-  if (
-    game.gameState.header.player_1_score == game.gameState.header.numRoundsToWin ||
-    game.gameState.header.player_2_score == game.gameState.header.numRoundsToWin
-  )
-    game.gameState.isFinished = true;
+  if (isGameFinished(game)) game.gameState.isFinished = true;
 }
 
-function didScoring(hands) {
-  //was it not a tie
-  let p1Hand = hands.player_1.hand;
-  let p2Hand = hands.player_2.hand;
+function isGameFinished(game) {
+  return (
+    game.gameState.header.player_1_score == game.gameState.header.numRoundsToWin ||
+    game.gameState.header.player_2_score == game.gameState.header.numRoundsToWin
+  );
+}
+
+function didPlayer1WinGame(game) {
+  return game.gameState.header.player_1_score == game.gameState.header.numRoundsToWin;
+}
+
+function isNotATie(p1Hand, p2Hand) {
   return p1Hand != p2Hand;
 }
 
-function didHands(hands) {
-  //did anyone actually play
-  let p1Hand = hands.player_1.hand;
-  let p2Hand = hands.player_2.hand;
+function didSomeonePlayAHand(p1Hand, p2Hand) {
   return p1Hand != null || p2Hand != null;
 }
 
-function didPlayer1Win(p1Hand, p2Hand) {
+function didPlayer1WinRound(p1Hand, p2Hand) {
   if (p1Hand == null) {
     return false;
   }
@@ -456,7 +415,7 @@ function didPlayer1GetCBM(p1HandTime, p2HandTime) {
   return p2HandTime == null ? true : false;
 }
 
-function createPotentialGame(roster, gameStartTime) {
+function createPotentialGame(roster, gameStartTime, gameType) {
   let potentialGame = {
     checkInStatus: {
       player_1: false,
@@ -480,6 +439,7 @@ function createPotentialGame(roster, gameStartTime) {
         player_2: roster.players[1],
       },
       header: {
+        gameType: gameType,
         numRoundsToWin: 3,
         player_1_score: 0,
         player_2_score: 0,
@@ -488,6 +448,7 @@ function createPotentialGame(roster, gameStartTime) {
       },
       rounds: [
         //   {
+        //   roundNumber
         //   startTime,
         //   drawTime,
         //   endTime,
@@ -510,6 +471,63 @@ function createPotentialGame(roster, gameStartTime) {
 
   //logger.info(shellObject);
   return potentialGame;
+}
+
+function addHandToActions(player_id, actionsArray, hand, roundNumber, now) {
+  actionsArray.push({
+    // game_id: ,
+    round_id: roundNumber,
+    player_id: player_id,
+    action_type: "Play Hand", //this will need to be updated
+    action_value: hand,
+    timestamp: now,
+  });
+}
+
+async function writeGameToDB(game, gameInfo) {
+  let quickdrawRoundPromises = [];
+  let quickdrawActionPromises = [];
+
+  await QuickdrawGameHeader.create({
+    game_id: gameInfo.sessionId,
+    game_type: game.gameState.header.gameType,
+    winner: didPlayer1WinGame(game) ? game.gameState.players.player_1 : game.gameState.players.player_2,
+    loser: didPlayer1WinGame(game) ? game.gameState.players.player_2 : game.gameState.players.player_1,
+    player_1_id: game.gameState.players.player_1,
+    player_2_id: game.gameState.players.player_2,
+  });
+
+  game.gameState.rounds.forEach((round, index) => {
+    quickdrawRoundPromises.push(
+      QuickdrawRound.create({
+        game_id: gameInfo.sessionId,
+        round_id: round.roundNumber,
+        winner: didPlayer1WinRound(round.hands.player_1.hand, round.hands.player_2.hand)
+          ? game.gameState.players.player_1
+          : game.gameState.players.player_2,
+        player_1_final_hand: round.hands.player_1.hand,
+        player_2_final_hand: round.hands.player_2.hand,
+        round_start_time: round.startTime,
+        round_draw_time: round.drawTime,
+        round_end_time: round.endTime,
+      })
+    );
+  });
+  await Promise.all(quickdrawRoundPromises);
+
+  game.actions.forEach((action) => {
+    quickdrawActionPromises.push(
+      QuickdrawAction.create({
+        game_id: gameInfo.sessionId,
+        round_id: action.round_id,
+        player_id: action.player_id,
+        action_type: "Play Hand",
+        action_value: action.action_value,
+        timestamp: action.timestamp,
+      })
+    );
+  });
+  await Promise.all(quickdrawActionPromises);
 }
 
 export { router, registerGameControllerHandlers };

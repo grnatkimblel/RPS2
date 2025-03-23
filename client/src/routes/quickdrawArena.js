@@ -12,18 +12,19 @@ import useGameConnection from "../hooks/useGameConnection";
 
 /*
 gameInfo:
-sessionId: roster.rosterId,
-    gameStartTime: gameStartTime,
-    player1: {
-      username: '',
-      userId: '',
-      emoji: ''
-    },
-    player2: {
-      username: '',
-      userId: '',
-      emoji: ''
-    }
+  sessionId: roster.rosterId,
+  gameStartTime: gameStartTime,
+  gameType: gameType
+  player1: {
+    username: '',
+    userId: '',
+    emoji: ''
+  },
+  player2: {
+    username: '',
+    userId: '',
+    emoji: ''
+  }
 
 userInfo:
 const [userInfo, setUserInfo] = useState({
@@ -290,7 +291,6 @@ function QuickdrawArena({
       //request on api that starts the game.
       await authHelper(API_ROUTES.GAME.QUICKDRAW.START_GAME, "POST", {
         session_id: gameInfo.sessionId,
-        game_type: gameInfo.gameType,
       })
         .then((res) => {
           return res.json();

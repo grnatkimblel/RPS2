@@ -34,9 +34,17 @@ export default (sequelize, DataTypes) => {
           key: "id",
         },
       },
-      round_start_time: DataTypes.INTEGER,
-      round_draw_time: DataTypes.INTEGER,
-      round_end_time: DataTypes.INTEGER,
+      player_1_final_hand: {
+        type: DataTypes.ENUM("Rock", "Paper", "Scissors"),
+        allowNull: true,
+      },
+      player_2_final_hand: {
+        type: DataTypes.ENUM("Rock", "Paper", "Scissors"),
+        allowNull: true,
+      },
+      round_start_time: DataTypes.BIGINT,
+      round_draw_time: DataTypes.BIGINT,
+      round_end_time: DataTypes.BIGINT,
     },
     {
       indexes: [

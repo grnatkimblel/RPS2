@@ -23,3 +23,9 @@ Theres no need to remove event listeners from the socket. Since when isConnected
 then there is no need to remove the event listeners. The old socket will be garbage collected and its resources freed.
 
 need to remove games from active rooms
+if a player runs before the countdown ends, the other player will never know if the other player left. Really need to just instantly
+connect on the socket, would make this go away.
+
+prevent players from being able to match make with themselves
+
+need to change now() usage since computer timers can be off by minutes, like what happened to ashley

@@ -45,7 +45,8 @@ export default (sequelize, DataTypes) => {
       allowNull: false,
     },
     timestamp: {
-      type: DataTypes.INTEGER,
+      primaryKey: true,
+      type: DataTypes.BIGINT,
       allowNull: false,
     },
   });
