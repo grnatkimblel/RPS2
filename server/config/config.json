@@ -3,14 +3,14 @@
     "username": "root",
     "password": "pass",
     "database": "database_dev",
-    "host": "db-dev",
+    "host": "db-dev-legacy",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
     "password": "pass",
     "database": "database_test",
-    "host": "db-test",
+    "host": "db-test-legacy",
     "dialect": "mysql"
   }
 }

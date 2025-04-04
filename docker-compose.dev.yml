@@ -1,5 +1,5 @@
 services:
-  client:
+  client-legacy:
     build:
       context: .
       dockerfile: ./client/dev.Dockerfile
@@ -9,7 +9,7 @@ services:
       - ./client:/usr/app
       - ./sharedCode:/usr/app/src/shared
       - /usr/app/node_modules # Preserve built node_modules gen during image build time so it isnt overwritten when local ./client is mounted
-    container_name: client
+    container_name: client-legacy
     environment:
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
@@ -19,11 +19,11 @@ services:
     tty: true
     command: npm run start
     depends_on:
-      - server
+      - server-legacy
 
-  nginx:
+  nginx-legacy:
     image: nginx:1.20.1
-    container_name: nginx
+    container_name: nginx-legacy
     volumes:
       - ./nginx/default.dev.conf:/etc/nginx/nginx.conf:ro
     ports:
@@ -31,16 +31,16 @@ services:
     networks:
       - public
     depends_on:
-      - server
-      - client
+      - server-legacy
+      - client-legacy
 
-  server:
+  server-legacy:
     build:
       context: .
       dockerfile: ./server/dev.Dockerfile
       # args:
       #   - NODE_ENV=development
-    container_name: server
+    container_name: server-legacy
     develop:
       watch:
         - action: sync
@@ -61,14 +61,14 @@ services:
       - /usr/src/app/node_modules # anonymous volume for node_modules only
     command: npm run dev
     depends_on:
-      db-dev:
+      db-dev-legacy:
         condition: service_healthy
-      db-test:
+      db-test-legacy:
         condition: service_healthy
 
-  db-dev:
+  db-dev-legacy:
     image: mysql:8.0
-    container_name: mysql-dev
+    container_name: mysql-dev-legacy
     environment:
       MYSQL_ROOT_PASSWORD: pass
       MYSQL_DATABASE: database_dev
@@ -86,9 +86,9 @@ services:
       timeout: 5s
       retries: 5
 
-  db-test:
+  db-test-legacy:
     image: mysql:8.0
-    container_name: mysql-test
+    container_name: mysql-test-legacy
     environment:
       MYSQL_ROOT_PASSWORD: pass
       MYSQL_DATABASE: database_test

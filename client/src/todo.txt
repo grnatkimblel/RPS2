@@ -31,3 +31,12 @@ prevent players from being able to match make with themselves
 need to change now() usage since computer timers can be off by minutes, like what happened to ashley
 
 create flow for guest accounts and integrate into the Quicklog for testing. Make sure than game details are not logged if a guest user is present.
+
+determine a solution to validation api request objects as valid and return 400 codes in this case.
+
+hs there are alot of libraries for BE API Body sanitization and input validation
+zod (ts first) or Joi (older) can enforce and assert req bodies match a schema
+sanitize-html or DOMPurify can sanitize req bodies for html tags
+express has middleware for rate limiting, limiting the size of payloads, and timing out long runnning requests
+
+logging tools winston or bunyan

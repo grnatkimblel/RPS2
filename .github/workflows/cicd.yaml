@@ -89,6 +89,13 @@ jobs:
             docker load -i ./nginx.tar
             docker load -i ./server.tar
             docker load -i ./mysql.tar
-            docker compose -f docker-compose.prod.yml down
-            TAG=${{ github.sha }} REACT_APP_HOST_URL="https://${{ vars.DOMAIN_NAME }}/" docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+             # Explicitly define the project name (keep this consistent)
+            PROJECT_NAME="rps-prod"
+
+            # Bring down the previous containers, leave the volumes
+            docker compose -p "$PROJECT_NAME" -f docker-compose.prod.yml down --remove-orphans
+
+            # Bring up the new containers
+            TAG=${{ github.sha }} REACT_APP_HOST_URL="https://${{ vars.DOMAIN_NAME }}/" docker compose -p "$PROJECT_NAME" -f docker-compose.prod.yml up -d --remove-orphans
             rm -rf ./secrets
