@@ -114,8 +114,8 @@ function AppV1() {
 
   return (
     <Routes>
-      {/* <Route path={`/${PAGES.INITIAL}`} element={<Root navigate={navigate} />} /> */}
-      <Route
+      <Route path={`/${PAGES.INITIAL}`} element={<Root navigate={navigate} />} />
+      {/* <Route
         path={`/${PAGES.INITIAL}`}
         element={
           <QuicklogToQueue
@@ -126,7 +126,7 @@ function AppV1() {
             gameInfoSetter={setCurrentGameInfo}
           />
         }
-      />
+      /> */}
       <Route path={`/${PAGES.LOGIN}`} element={<Login navigate={navigate} login={loginHelper} />} />
       <Route path={`/${PAGES.CREATE_ACCOUNT}`} element={<CreateAccount navigate={navigate} login={loginHelper} />} />
       <Route
