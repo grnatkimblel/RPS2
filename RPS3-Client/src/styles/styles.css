@@ -1,0 +1,97 @@
+:root {
+  --tileWidth_Slim: 22rem;
+  --tileWidth_Thick: 28rem;
+  --tileHeight: 35rem;
+  --tileBorderWidth: 0.6rem;
+  --tileBorderRadius: 1rem;
+  --tileBorderColor_Default: #b1b1b1;
+  --tileBorderColor_Active: #626262;
+}
+
+.tile {
+  /* default the border details */
+  border-color: var(--tileBorderColor_Default);
+  border-style: solid;
+  border-width: var(--tileBorderWidth);
+  border-radius: var(--tileBorderRadius);
+  background-color: white;
+}
+
+.tile.active {
+  border-color: var(--tileBorderColor_Active);
+  background-color: white;
+}
+
+.tile.thick {
+  /* leave this distinction for size */
+  height: var(--tileHeight);
+  width: var(--tileWidth_Thick);
+}
+
+.tile.slim {
+  /* leave this distinction for size */
+  height: var(--tileHeight);
+  width: var(--tileWidth_Slim);
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+button {
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+  background-color: white;
+  border-style: solid;
+  border-width: var(--tileBorderWidth);
+  border-color: var(--tileBorderColor_Default);
+  border-radius: var(--tileBorderRadius);
+}
+
+button.active {
+  border-color: var(--tileBorderColor_Active);
+}
+
+.green {
+  background-color: #4caf50; /* Green */
+  color: white;
+}
+
+.red {
+  background-color: #f44336; /* Red */
+  color: white;
+}
+
+.blue {
+  background-color: #2196f3; /* Blue */
+  color: white;
+}
+
+.pink {
+  background-color: #e91e63; /* Pink */
+  color: white;
+}
+
+.yellow {
+  background-color: #ffeb3b; /* Yellow */
+  color: black; /* Black text for better contrast on yellow */
+}
+
+.orange {
+  background-color: #ff9800; /* Orange */
+  color: white;
+}
+
+.purple {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #9c27b0; /* Purple */
+  color: white;
+}
+
+.cyan {
+  background-color: #00bcd4; /* Cyan */
+  color: white;
+}

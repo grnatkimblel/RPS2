@@ -1,0 +1,24 @@
+@import url(./fonts.css);
+
+.RPS-Title {
+  font-family: "Almarai";
+  font-weight: bold;
+  font-size: 6rem;
+  color: black;
+}
+
+.defaultText {
+  font-family: "Almarai";
+  font-weight: normal;
+  font-size: 2.2rem;
+  letter-spacing: 0.2rem;
+  color: #494949;
+}
+
+.labelText {
+  font-family: "Almarai";
+  font-weight: normal;
+  font-size: 2.2rem;
+  letter-spacing: 0.2rem;
+  color: #626262;
+}

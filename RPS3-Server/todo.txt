@@ -1,0 +1,27 @@
+Netcode Techniques:
+ - Client Side Interpolation
+    - Client will interpolate between its previous and latest position data when it receives a gamestate
+ - Client Side Reconciliation
+    - Client will allow the user to retain the client players position provided the incoming gamestate is consistent with the clients past. If not, reconciliation, 
+      where the clients inputs are recorded and re-simulated starting from the latest received gamestate, is performed to re-synchronize the client with the server
+ - Client Side Prediction
+    - This replaces client side interpolation.
+    - Client displays other players positions updating without gamestate directive, instead predicting the other clients will continue their previous behavior. 
+      They too will be subject to reconciliation in the case that the latest gamestate is not consistent.
+
+
+also the socketio admin UI is showing that the sockets are transmitting kilobytes of data over a couple seconds of continuous input, need to shrink this acknowledgedPacketIds
+
+Handle player death and respawn
+Handle displaying game time
+Handle game ending conditions
+
+Include a short timeout after the min number is reached to allow more players for a larger roster
+
+Quickdraw is broken, some users inputs are counting for both players, this is happening from
+quicklog so may need to check against the normal flow
+cbm is being scored to the player who plays last, like the exact opposite of what i want lol
+
+the player who leaves a quickdraw arena never disconnects from their socket. There may need to be some delay or callback/api for this.
+
+styling is so asssssss

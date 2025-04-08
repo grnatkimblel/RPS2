@@ -1,0 +1,94 @@
+name: Build and Deploy
+on:
+  push:
+    branches:
+      - Dockerize
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker repository and install Docker Compose v2
+        run: |
+          # Install prerequisites
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl gnupg lsb-release
+
+          # Add Docker’s GPG key
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+          # Add Docker APT repository
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+          # Update package list and install docker-compose-plugin
+          sudo apt-get update
+          sudo apt-get install -y docker-compose-plugin
+
+          # Verify installation
+          docker compose version
+
+      - name: Build and Pull the Docker Compose images
+        env:
+          TAG: ${{ github.sha }}
+          VITE_HOST_URL: "https://${{ vars.DOMAIN_NAME }}/"
+        run: |
+          docker compose -f docker-compose.prod.yml build --pull
+          docker pull mysql:8.0
+
+      - name: Save Docker images to tar files
+        run: |
+          docker save -o nginx.tar RPS2/nginx:${{ github.sha }}
+          docker save -o server.tar RPS2/server:${{ github.sha }}
+          docker save -o mysql.tar mysql:8.0
+          chmod 644 *.tar  # Ensure readability
+
+      - name: Write the github secrets to the secrets directory
+        run: |
+          mkdir secrets
+          printf '%s\n' "${{ secrets.JWT_ACCESS_TOKEN_SECRET }}" > secrets/jwt_access_token_secret.txt
+          printf '%s\n' "${{ secrets.JWT_REFRESH_TOKEN_SECRET }}" > secrets/jwt_refresh_token_secret.txt
+          printf '%s\n' "${{ secrets.EMAIL }}" > secrets/email.txt
+          printf '%s\n' "${{ secrets.DB_ROOT_PASSWORD }}" > secrets/db_root_password.txt
+          printf '%s\n' "${{ secrets.DB_PASSWORD }}" > secrets/db_password.txt
+
+      - name: Create the directory to copy over
+        run: |
+          mkdir deployment
+          mv docker-compose.prod.yml deployment/
+          mv nginx.tar deployment/
+          mv server.tar deployment/
+          mv mysql.tar deployment/
+          mv ./secrets deployment/
+
+      - name: SCP images and files to remote machine
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ vars.DOMAIN_NAME }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          overwrite: true
+          source: ./deployment
+          target: /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/
+
+      - name: Deploy on the remote machine
+        uses: appleboy/ssh-action@v1.2.1
+        with:
+          host: ${{ vars.DOMAIN_NAME }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            cd "/home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/deployment"
+            docker load -i ./nginx.tar
+            docker load -i ./server.tar
+            docker load -i ./mysql.tar
+            docker compose -f docker-compose.prod.yml down
+            TAG=${{ github.sha }} VITE_HOST_URL="https://${{ vars.DOMAIN_NAME }}/" docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            rm -rf ./secrets
