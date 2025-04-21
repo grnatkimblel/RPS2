@@ -34,14 +34,20 @@ function Test2() {
             <button style={{ position: "absolute", marginLeft: "30rem", zIndex: "1" }} onClick={() => setNextDisplayState("Online Gamemodes")}>
               Online1
             </button>
-            <button style={{ position: "absolute", marginLeft: "35rem", zIndex: "1" }} onClick={() => setNextDisplayState("Online Matchmaking")}>
-              Online2
+            <button style={{ position: "absolute", marginLeft: "35rem", zIndex: "1" }} onClick={() => setNextDisplayState("Online Matchmaking:Quickdraw")}>
+              Quickdraw
+            </button>
+            <button style={{ position: "absolute", marginLeft: "40rem", zIndex: "1" }} onClick={() => setNextDisplayState("Online Matchmaking:TDM")}>
+              TDM
+            </button>
+            <button style={{ position: "absolute", marginLeft: "45rem", zIndex: "1" }} onClick={() => setNextDisplayState("Online Matchmaking:Search")}>
+              Search
             </button>
     
-            <button style={{ position: "absolute", marginLeft: "40rem", zIndex: "1" }} onClick={() => setNextDisplayState("Login")}>
+            <button style={{ position: "absolute", marginLeft: "50rem", zIndex: "1" }} onClick={() => setNextDisplayState("Login")}>
               Login
             </button>
-            <button style={{ position: "absolute", marginLeft: "45rem", zIndex: "1" }} onClick={() => setNextDisplayState("CreateAccount")}>
+            <button style={{ position: "absolute", marginLeft: "55rem", zIndex: "1" }} onClick={() => setNextDisplayState("CreateAccount")}>
               CreateAccount
             </button>
             <p style={{position: "absolute", marginLeft: "20rem" ,marginTop: "3rem", zIndex: "1"}}>{"Prev DisplayState: " + previousDisplayState.current}</p>
@@ -50,21 +56,32 @@ function Test2() {
         );
       };
 
-    const ONLINE_MENU_DISPLAY_STATES = ["Local", "Online Gamemodes", "Online Matchmaking"]
+    const ONLINE_MATCHMAKING_DISPLAY_STATES = ["Online Matchmaking:Quickdraw", "Online Matchmaking:TDM", "Online Matchmaking:Search"]
 
     const mainMenuVariants = {
         initial: {y: "1rem", opacity: 0},
         "Home": {x: 0, y: 0, opacity: 1},
         "Online Gamemodes": {x: "-14rem", y: 0, opacity: 1},
         "Online Matchmaking": {x: "-25rem", y: 0, opacity: 1},
+        animate: (displayState) => ({
+            opacity: 1,
+            y:0,
+            x: displayState == "Home"
+            ? 0
+            : displayState == "Online Gamemodes" || displayState == "Local"
+            ? "-14rem"
+            : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(displayState)
+            ? "-25rem"
+            : "100vh"
+        }) 
     }
 
     const localOrOnlineVariant = {
         "localInitial": (custom) => ({
             opacity: 0,
-            x: custom.previousDisplayState == "Online Gamemodes" || custom.previousDisplayState == "Online Matchmaking" 
+            x: custom.previousDisplayState == "Online Gamemodes" || ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.previousDisplayState) 
             ? "14rem" : "30rem",
-            y: custom.previousDisplayState == "Online Gamemodes" || custom.previousDisplayState == "Online Matchmaking" 
+            y: custom.previousDisplayState == "Online Gamemodes" || ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.previousDisplayState)
             ? "-30rem" : 0,
         }),       
         "onlineInitial": (custom) => ({
@@ -74,7 +91,7 @@ function Test2() {
         }),       
         "present": () => ({
             opacity: 1,
-            x: displayState == "Online Matchmaking" ? "3rem" : "14rem", 
+            x: ONLINE_MATCHMAKING_DISPLAY_STATES.includes(displayState) ? "3rem" : "14rem", 
             y:0,
         }),
         "localExit": (custom) => ({
@@ -86,18 +103,84 @@ function Test2() {
             opacity: 0,
             x: custom.nextDisplayState == "Home" 
             ? "30rem" 
-            : custom.displayState == "Online Matchmaking" ? "3rem" : "14rem",
+            : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.displayState) ? "3rem" : "14rem",
             y: custom.nextDisplayState == "Home" ? 0 : "30rem"
         }),
     }
 
     const onlineMatchmakingVariant = {
-        "initial": {y: 0, x: "55rem", opacity: 0},
-        "present": {y: 0, x: "28rem", opacity: 1},
-        "exit": (custom) => ({
+        "quickdrawInitial": (custom) => ({
             opacity: 0,
-            x: custom.nextDisplayState == "Local" ? "28rem" : "55rem" ,
-            y: custom.nextDisplayState == "Local" ? "30rem" :  0,
+            x: custom.previousDisplayState == "Online Gamemodes" 
+            ? "55rem" 
+            : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.previousDisplayState) 
+            ? "28rem"
+            : "100vh",
+            y: custom.previousDisplayState == "Online Gamemodes" 
+            ? 0
+            : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.previousDisplayState) 
+            ? "-30rem"
+            : "100vh",
+        }) ,
+        "tdmInitial": (custom) => ({
+            opacity: 0,
+            x: custom.previousDisplayState == "Online Gamemodes" 
+            ? "55rem" 
+            : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.previousDisplayState) 
+            ? "28rem"
+            : "100vh",
+            y: custom.previousDisplayState == "Online Gamemodes" 
+            ? 0
+            : custom.previousDisplayState == "Online Matchmaking:Quickdraw"
+            ? "30rem"
+            : custom.previousDisplayState == "Online Matchmaking:Search"
+            ? "-30rem"
+            : "100vh",
+        }) ,
+        "searchInitial": (custom) => ({
+            opacity: 0,
+            x: custom.previousDisplayState == "Online Gamemodes" 
+            ? "55rem" 
+            : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.previousDisplayState) 
+            ? "28rem"
+            : "100vh",
+            y: custom.previousDisplayState == "Online Gamemodes" 
+            ? 0
+            : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.previousDisplayState) 
+            ? "30rem"
+            : "100vh",
+        }) ,
+        "present": {y: 0, x: "28rem", opacity: 1},
+        "quickdrawExit": (custom) => ({
+            opacity: 0,
+            x: custom.nextDisplayState == "Local" || ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
+            ? "28rem" 
+            : "55rem" ,
+            y: custom.nextDisplayState == "Local" 
+            ? "30rem" 
+            : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
+            ? "-30rem"
+            : 0,
+        }),
+        "tdmExit": (custom) => ({
+            opacity: 0,
+            x: custom.nextDisplayState == "Local" || ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
+            ? "28rem" 
+            : "55rem" ,
+            y: custom.nextDisplayState == "Local" || custom.nextDisplayState == "Online Matchmaking:Quickdraw" 
+            ? "30rem" 
+            : custom.nextDisplayState == "Online Matchmaking:Search" 
+            ? "-30rem"
+            : 0,
+        }),
+        "searchExit": (custom) => ({
+            opacity: 0,
+            x: custom.nextDisplayState == "Local" || ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
+            ? "28rem" 
+            : "55rem" ,
+            y: custom.nextDisplayState == "Local" || ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
+            ? "30rem" 
+            : 0,
         }),
     }
 
@@ -115,8 +198,9 @@ function Test2() {
                 <motion.div
                 key="MainMenu"
                 initial="initial"
-                animate={displayState == "Local" ? "Online Gamemodes" : displayState}
+                animate="animate"
                 variants={mainMenuVariants}
+                custom={displayState}
                 className={"tile thick green"}  
                 ></motion.div>
                 
@@ -131,7 +215,7 @@ function Test2() {
                 className={"tile slim yellow"}></motion.div>
                 : null} 
 
-                {displayState == "Online Gamemodes" || displayState == "Online Matchmaking"
+                {displayState == "Online Gamemodes" || ONLINE_MATCHMAKING_DISPLAY_STATES.includes(displayState)
                 ? <motion.div  
                 key="Online" 
                 initial="onlineInitial"
@@ -142,18 +226,39 @@ function Test2() {
                 className={"tile slim blue"}></motion.div>
                 : null} 
 
-                {displayState == "Online Matchmaking"
+                {displayState == "Online Matchmaking:Quickdraw"
                 ? <motion.div
-                key="Matchmaking" 
-                initial="initial"
+                key="Matchmaking:Quickdraw" 
+                initial="quickdrawInitial"
                 animate="present"
-                exit="exit"
+                exit="quickdrawExit"
                 variants={onlineMatchmakingVariant}
                 custom={{nextDisplayState: nextDisplayState, displayState: displayState, previousDisplayState: previousDisplayState.current}}
                 className={"tile slim red"}></motion.div> 
                 : null}
+                {displayState == "Online Matchmaking:TDM"
+                ? <motion.div
+                key="Matchmaking:TDM" 
+                initial="tdmInitial"
+                animate="present"
+                exit="tdmExit"
+                variants={onlineMatchmakingVariant}
+                custom={{nextDisplayState: nextDisplayState, displayState: displayState, previousDisplayState: previousDisplayState.current}}
+                className={"tile slim orange"}></motion.div> 
+                : null}
+                {displayState == "Online Matchmaking:Search"
+                ? <motion.div
+                key="Matchmaking:Search" 
+                initial="searchInitial"
+                animate="present"
+                exit="searchExit"
+                variants={onlineMatchmakingVariant}
+                custom={{nextDisplayState: nextDisplayState, displayState: displayState, previousDisplayState: previousDisplayState.current}}
+                className={"tile slim purple"}></motion.div> 
+                : null}
+
+                //add remaining matchmaking tiles
             </AnimatePresence>
-            
         </div>
         </>
     );
