@@ -15,7 +15,7 @@
   border-width: var(--tileBorderWidth);
   border-radius: var(--tileBorderRadius);
   background-color: white;
-  position: absolute
+  position: absolute;
 }
 
 .tile.active {
@@ -52,6 +52,17 @@ button {
 
 button.active {
   border-color: var(--tileBorderColor_Active);
+}
+
+input {
+  width: 100%;
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+  background-color: white;
+  border-style: solid;
+  border-width: var(--tileBorderWidth);
+  border-color: var(--tileBorderColor_Default);
+  border-radius: var(--tileBorderRadius);
 }
 
 .green {

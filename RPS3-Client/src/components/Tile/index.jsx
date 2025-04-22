@@ -22,7 +22,7 @@ export default function Tile({
   };
 
   const tileBorders = {
-    width: "0.7rem",
+    width: "0.6rem",
     radius: "1rem",
     style: "solid",
     color: { default: "#b1b1b1", active: "#626262" },
@@ -67,6 +67,7 @@ export default function Tile({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        // position: "absolute",
       }}
     >
       {children}

@@ -1,29 +1,33 @@
 import { useState } from "react";
 import "../../styles/styles.css";
 
-export default function MatchmakingSelect({}) {
+import Tile from "../Tile";
+import Button from "../Button";
+import CycleButton from "../CycleButton";
+
+export default function MatchmakingSelect({ gamemode, validMatchmakingTypes }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }} className="activeBorder localMenu">
+    <Tile
+      size={"slim"}
+      isActive={true}
+      onClick={() => {
+        setDisplayState("Local");
+      }}
+    >
       <div style={{ width: "80%", marginTop: "3rem", display: "flex", flexDirection: "column", alignItems: "center" }}>
         <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <p className="labelText">QUICKDRAW</p>
-          <button style={{ width: "100%" }} className="defaultBorder defaultText">
-            QUICKPLAY
-          </button>
+          <p className="labelText">{gamemode}</p>
+          <CycleButton options={["QUICKPLAY", "RANKED"]} textStyle={"defaultText"} />
         </div>
         <div
           style={{ width: "100%", marginTop: "2rem", display: "flex", flexDirection: "column", alignItems: "center" }}
         >
           <p className="labelText">OPPONENT</p>
-          <button style={{ width: "100%" }} className="activeBorder defaultText">
-            SEARCH
-          </button>
-          <button style={{ width: "100%", marginTop: "3.5rem" }} className="activeBorder defaultText">
-            RANDOM
-          </button>
+          <Button text={"SEARCH"} textStyle={"defaultText"}></Button>
+          <Button text={"RANDOM"} textStyle={"defaultText"} styles={{ marginTop: "2rem" }}></Button>
         </div>
       </div>
       <div></div>
-    </div>
+    </Tile>
   );
 }
