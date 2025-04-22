@@ -15,19 +15,27 @@ export default function MainMenu({ displayState, setDisplayState }) {
         setDisplayState("Home");
       }}
     >
-      <Button
-        text={"LOGIN"}
-        textStyle={"labelText"}
-        setDisplayState={setDisplayState}
-        destination={"Login"}
-        styles={{
+      <motion.button
+        className={"labelText"}
+        onClick={(event) => {
+          event.stopPropagation();
+          if (displayState !== "Login") {
+            setDisplayState("Login");
+          }
+        }}
+        style={{
           width: "auto",
           alignSelf: "flex-start",
           marginTop: "1rem",
           marginLeft: "1rem",
           padding: "0.1rem 1rem 0.1rem 1rem",
         }}
-      ></Button>
+        whileHover={{
+          scale: 1.05,
+        }}
+      >
+        {displayState !== "Login" ? "LOGIN" : "..."}
+      </motion.button>
       <div
         style={{
           width: "60%",
@@ -43,21 +51,21 @@ export default function MainMenu({ displayState, setDisplayState }) {
           setDisplayState={setDisplayState}
           destination={"Local"}
           styles={{ marginTop: "2.5rem" }}
-        ></Button>
+        />
         <Button
           text={"ONLINE"}
           textStyle={"defaultText"}
           setDisplayState={setDisplayState}
           destination={"Online Gamemodes"}
           styles={{ marginTop: "2.5rem" }}
-        ></Button>
+        />
         <Button
           text={"SETTINGS"}
           textStyle={"defaultText"}
           setDisplayState={setDisplayState}
           destination={"Settings"}
           styles={{ marginTop: "2.5rem" }}
-        ></Button>
+        />
       </div>
     </Tile>
   );

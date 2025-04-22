@@ -1,5 +1,10 @@
 @import url(./fonts.css);
 
+:root {
+  --primary: #494949;
+  --secondary: #626262;
+}
+
 .RPS-Title {
   font-family: "Almarai";
   font-weight: bold;
@@ -12,7 +17,7 @@
   font-weight: normal;
   font-size: 2.2rem;
   letter-spacing: 0.2rem;
-  color: #494949;
+  color: var(--primary);
 }
 
 .labelText {
@@ -20,5 +25,5 @@
   font-weight: normal;
   font-size: 2.2rem;
   letter-spacing: 0.2rem;
-  color: #626262;
+  color: var(--secondary);
 }

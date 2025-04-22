@@ -108,7 +108,7 @@ function App() {
     "Online Matchmaking": { x: "-25rem", y: 0, opacity: 1 },
     animate: (displayState) => ({
       opacity: 1,
-      y: 0,
+      y: displayState == "Search" ? "-44rem" : 0,
       x:
         displayState == "Home"
           ? 0
@@ -118,6 +118,8 @@ function App() {
           ? "-25rem"
           : USER_ACCOUNT_DISPLAY_STATES.includes(displayState)
           ? "15.4rem"
+          : displayState == "Search"
+          ? "-25rem"
           : "100vh",
     }),
     exit: { opacity: 0, x: 0, y: 0 },
@@ -144,8 +146,8 @@ function App() {
     }),
     present: () => ({
       opacity: 1,
-      x: ONLINE_MATCHMAKING_DISPLAY_STATES.includes(displayState) ? "3rem" : "15.5rem",
-      y: 0,
+      x: ONLINE_MATCHMAKING_DISPLAY_STATES.includes(displayState) || displayState == "Search" ? "3rem" : "15.5rem",
+      y: displayState == "Search" ? "-44rem" : 0,
     }),
     localExit: (custom) => ({
       opacity: 0,
@@ -213,7 +215,7 @@ function App() {
           ? "30rem"
           : "100vh",
     }),
-    present: { y: 0, x: "28rem", opacity: 1 },
+    present: { y: displayState == "Search" ? "-44rem" : 0, x: "28rem", opacity: 1 },
     quickdrawExit: (custom) => ({
       opacity: 0,
       x:
@@ -277,6 +279,20 @@ function App() {
     }),
   };
 
+  const searchVariant = {
+    searchInitial: (custom) => ({
+      opacity: 0,
+      x: 0,
+      y: "-20rem",
+    }),
+    present: { opacity: 1, y: 0, x: 0 },
+    searchExit: (custom) => ({
+      opacity: 0,
+      x: 0,
+      y: "-20rem",
+    }),
+  };
+
   const slimUserAccountVariant = {
     loginInitial: (custom) => ({
       opacity: 0,
@@ -304,7 +320,7 @@ function App() {
   return (
     <>
       {/* {testingButtons()} */}
-      <div style={{ position: "absolute", marginLeft: "2rem", zIndex: "1" }} className="RPS-Title">
+      <div style={{ position: "absolute", marginLeft: "2rem", zIndex: "2" }} className="RPS-Title">
         RPS
       </div>
       <div
@@ -384,7 +400,9 @@ function App() {
               <LocalMenu displayState={displayState} setDisplayState={setNextDisplayState} />
             </motion.div>
           ) : null}
-          {displayState == "Online Gamemodes" || ONLINE_MATCHMAKING_DISPLAY_STATES.includes(displayState) ? (
+          {displayState == "Online Gamemodes" ||
+          displayState == "Search" ||
+          ONLINE_MATCHMAKING_DISPLAY_STATES.includes(displayState) ? (
             <motion.div
               key="Online"
               initial="onlineInitial"
@@ -402,7 +420,8 @@ function App() {
               <GamemodeSelect displayState={displayState} setDisplayState={setNextDisplayState} />
             </motion.div>
           ) : null}
-          {displayState == "Online Matchmaking:Quickdraw" ? (
+          {displayState == "Online Matchmaking:Quickdraw" ||
+          (previousDisplayState.current == "Online Matchmaking:Quickdraw" && displayState == "Search") ? (
             <motion.div
               key="Matchmaking:Quickdraw"
               initial="quickdrawInitial"
@@ -418,13 +437,14 @@ function App() {
               style={{ position: "absolute" }}
             >
               <MatchmakingSelect
-                gamemode={"QUICKDRAW"}
+                gamemode={"Quickdraw"}
                 displayState={displayState}
                 setDisplayState={setNextDisplayState}
               />
             </motion.div>
           ) : null}
-          {displayState == "Online Matchmaking:TDM" ? (
+          {displayState == "Online Matchmaking:TDM" ||
+          (previousDisplayState.current == "Online Matchmaking:TDM" && displayState == "Search") ? (
             <motion.div
               key="Matchmaking:TDM"
               initial="tdmInitial"
@@ -442,7 +462,8 @@ function App() {
               <MatchmakingSelect gamemode={"TDM"} displayState={displayState} setDisplayState={setNextDisplayState} />
             </motion.div>
           ) : null}
-          {displayState == "Online Matchmaking:Search" ? (
+          {displayState == "Online Matchmaking:Search" ||
+          (previousDisplayState.current == "Online Matchmaking:Search" && displayState == "Search") ? (
             <motion.div
               key="Matchmaking:Search"
               initial="searchInitial"
@@ -458,10 +479,28 @@ function App() {
               style={{ position: "absolute" }}
             >
               <MatchmakingSelect
-                gamemode={"SEARCH"}
+                gamemode={"Search"}
                 displayState={displayState}
                 setDisplayState={setNextDisplayState}
               />
+            </motion.div>
+          ) : null}
+          {displayState == "Search" ? (
+            <motion.div
+              key="OpponentSearch"
+              initial="searchInitial"
+              animate="present"
+              exit="searchExit"
+              variants={searchVariant}
+              custom={{
+                nextDisplayState: nextDisplayState,
+                displayState: displayState,
+                previousDisplayState: previousDisplayState.current,
+              }}
+              // className={"tile slim purple"}
+              style={{ position: "absolute" }}
+            >
+              <OpponentSearch displayState={displayState} setDisplayState={setNextDisplayState} />
             </motion.div>
           ) : null}
           //add remaining matchmaking tiles

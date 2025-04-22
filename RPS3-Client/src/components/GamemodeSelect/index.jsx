@@ -6,7 +6,13 @@ import Button from "../Button";
 
 export default function GamemodeSelect({ displayState, setDisplayState }) {
   return (
-    <Tile size="slim" isActive={true}>
+    <Tile
+      size="slim"
+      isActive={true}
+      onClick={() => {
+        setDisplayState("Online Gamemodes");
+      }}
+    >
       <div style={{ width: "80%", marginTop: "3rem", display: "flex", flexDirection: "column", alignItems: "center" }}>
         <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
           <p className="labelText">GAMEMODES</p>
@@ -15,21 +21,21 @@ export default function GamemodeSelect({ displayState, setDisplayState }) {
             textStyle="defaultText"
             setDisplayState={setDisplayState}
             destination={"Online Matchmaking:Quickdraw"}
-          ></Button>
+          />
           <Button
             text={"TDM"}
             styles={{ marginTop: "3.5rem" }}
             textStyle="defaultText"
             setDisplayState={setDisplayState}
             destination={"Online Matchmaking:TDM"}
-          ></Button>
+          />
           <Button
             text={"S&D"}
             styles={{ marginTop: "3.5rem" }}
             textStyle="defaultText"
             setDisplayState={setDisplayState}
             destination={"Online Matchmaking:Search"}
-          ></Button>
+          />
         </div>
       </div>
       <div></div>

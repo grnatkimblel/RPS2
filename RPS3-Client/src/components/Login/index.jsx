@@ -1,9 +1,9 @@
 import { useState } from "react";
 import "../../styles/styles.css";
+import { motion } from "motion/react";
 
 import Tile from "../Tile";
 import Button from "../Button";
-import TextField from "../TextField";
 
 export default function Login({ displayState, setDisplayState }) {
   return (
@@ -27,13 +27,38 @@ export default function Login({ displayState, setDisplayState }) {
       >
         LOGIN
       </Button>
-      <div style={{ width: "80%", marginTop: "5rem", display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <TextField text={"USERNAME"} textStyle="defaultText" focus={true}></TextField>
-        <TextField text={"PASSWORD"} styles={{ marginTop: "3.5rem" }} textStyle="defaultText"></TextField>
+      <div style={{ width: "80%", marginTop: "2rem", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <motion.input
+          type="text"
+          placeholder="USERNAME"
+          required
+          minlength="1"
+          maxLength="20"
+          className="defaultText"
+          tabIndex="1"
+          autoFocus="true"
+          initial={{ borderColor: "var(--tileBorderColor_Default)" }}
+          whileHover={{ borderColor: "var(--tileBorderColor_Active)" }}
+          whileFocus={{ borderColor: "var(--tileBorderColor_Active)" }}
+          style={{ marginTop: "2.5rem", paddingLeft: "0.5rem", paddingRight: "0.5rem" }}
+        />
+        <motion.input
+          type="password"
+          placeholder="PASSWORD"
+          required
+          minlength="1"
+          maxLength="20"
+          className="defaultText"
+          tabIndex="2"
+          initial={{ borderColor: "var(--tileBorderColor_Default)" }}
+          whileHover={{ borderColor: "var(--tileBorderColor_Active)" }}
+          whileFocus={{ borderColor: "var(--tileBorderColor_Active)" }}
+          style={{ marginTop: "3.5rem", paddingLeft: "0.5rem", paddingRight: "0.5rem" }}
+        />
         <Button
           text={"CREATE USER"}
           textStyle={"defaultText"}
-          styles={{ marginTop: "4rem" }}
+          styles={{ marginTop: "4rem", width: "auto", padding: "0.1rem 1rem 0.1rem 1rem" }}
           setDisplayState={setDisplayState}
           destination={"Create Account"}
         >

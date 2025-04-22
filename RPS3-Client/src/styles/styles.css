@@ -50,6 +50,13 @@ button {
   border-radius: var(--tileBorderRadius);
 }
 
+button.none {
+  background-color: transparent;
+  border-style: none;
+  border-width: 0px;
+  border-radius: 0;
+}
+
 button.active {
   border-color: var(--tileBorderColor_Active);
 }
@@ -63,6 +70,14 @@ input {
   border-width: var(--tileBorderWidth);
   border-color: var(--tileBorderColor_Default);
   border-radius: var(--tileBorderRadius);
+}
+
+input.defaultText {
+  box-sizing: border-box;
+}
+
+input[type="search"]:focus {
+  border-color: var(--tileBorderColor_Active);
 }
 
 .green {
