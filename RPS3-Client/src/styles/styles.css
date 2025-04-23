@@ -80,6 +80,10 @@ input[type="search"]:focus {
   border-color: var(--tileBorderColor_Active);
 }
 
+.tooltip {
+  color: var(--tileBorderColor_Default);
+}
+
 .green {
   background-color: #4caf50; /* Green */
   color: white;

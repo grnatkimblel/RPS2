@@ -60,7 +60,21 @@ export default function LocalMenu({ displayState, setDisplayState }) {
             textStyle="defaultText"
             styles={{ width: "100%", marginTop: "0rem", marginBottom: "2rem" }}
           />
-          <Button text={"GO"} textStyle={"defaultText"} />
+          <motion.button
+            className={"defaultText"}
+            style={{ width: "auto" }}
+            transition={{ duration: 0.05 }}
+            whileHover={{
+              scale: 1.05,
+            }}
+            whileTap={{ y: 5 }}
+            onClick={(event) => {
+              event.stopPropagation();
+              setDisplayState("QuickdrawArena");
+            }}
+          >
+            GO
+          </motion.button>
         </div>
       </div>
       <div></div>

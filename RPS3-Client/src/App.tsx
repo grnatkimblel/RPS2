@@ -11,6 +11,7 @@ import MatchmakingSelect from "./components/MatchmakingSelect";
 import Login from "./components/Login";
 import CreateAccount from "./components/CreateAccount";
 import OpponentSearch from "./components/OpponentSearch";
+import QuickdrawArena from "./components/QuickdrawArenaDisplay";
 import { delay } from "motion";
 
 function App() {
@@ -26,74 +27,89 @@ function App() {
   }, [displayState]);
 
   useEffect(() => {
+    console.log("UseEffect called for nextDisplayState");
     setDisplayState(nextDisplayState);
   }, [nextDisplayState]);
 
-  // const testingButtons = () => {
-  //   return (
-  //     <>
-  //       <div style={{ position: "absolute", marginLeft: "2rem", zIndex: "1" }} className="RPS-Title">
-  //         RPS
-  //       </div>
-  //       <button
-  //         style={{ position: "absolute", marginLeft: "20rem", zIndex: "1" }}
-  //         onClick={() => setNextDisplayState("Home")}
-  //       >
-  //         Home
-  //       </button>
-  //       <button
-  //         style={{ position: "absolute", marginLeft: "25rem", zIndex: "1" }}
-  //         onClick={() => setNextDisplayState("Local")}
-  //       >
-  //         Local
-  //       </button>
-  //       <button
-  //         style={{ position: "absolute", marginLeft: "30rem", zIndex: "1" }}
-  //         onClick={() => setNextDisplayState("Online Gamemodes")}
-  //       >
-  //         Online1
-  //       </button>
-  //       <button
-  //         style={{ position: "absolute", marginLeft: "35rem", zIndex: "1" }}
-  //         onClick={() => setNextDisplayState("Online Matchmaking:Quickdraw")}
-  //       >
-  //         Quickdraw
-  //       </button>
-  //       <button
-  //         style={{ position: "absolute", marginLeft: "40rem", zIndex: "1" }}
-  //         onClick={() => setNextDisplayState("Online Matchmaking:TDM")}
-  //       >
-  //         TDM
-  //       </button>
-  //       <button
-  //         style={{ position: "absolute", marginLeft: "45rem", zIndex: "1" }}
-  //         onClick={() => setNextDisplayState("Online Matchmaking:Search")}
-  //       >
-  //         Search
-  //       </button>
+  const testingButtons = () => {
+    return (
+      <>
+        <button
+          style={{ position: "absolute", marginLeft: "20rem", zIndex: "1" }}
+          onClick={() => setNextDisplayState("Home")}
+        >
+          Home
+        </button>
+        <button
+          style={{ position: "absolute", marginLeft: "25rem", zIndex: "1" }}
+          onClick={() => setNextDisplayState("Local")}
+        >
+          Local
+        </button>
+        <button
+          style={{ position: "absolute", marginLeft: "30rem", zIndex: "1" }}
+          onClick={() => setNextDisplayState("Online Gamemodes")}
+        >
+          Online1
+        </button>
+        <button
+          style={{ position: "absolute", marginLeft: "35rem", zIndex: "1" }}
+          onClick={() => setNextDisplayState("Online Matchmaking:Quickdraw")}
+        >
+          Quickdraw
+        </button>
+        <button
+          style={{ position: "absolute", marginLeft: "40rem", zIndex: "1" }}
+          onClick={() => setNextDisplayState("Online Matchmaking:TDM")}
+        >
+          TDM
+        </button>
+        <button
+          style={{ position: "absolute", marginLeft: "45rem", zIndex: "1" }}
+          onClick={() => setNextDisplayState("Online Matchmaking:Search")}
+        >
+          Search
+        </button>
 
-  //       <button
-  //         style={{ position: "absolute", marginLeft: "50rem", zIndex: "1" }}
-  //         onClick={() => setNextDisplayState("Login")}
-  //       >
-  //         Login
-  //       </button>
-  //       <button
-  //         style={{ position: "absolute", marginLeft: "55rem", zIndex: "1" }}
-  //         onClick={() => setNextDisplayState("Create Account")}
-  //       >
-  //         CreateAccount
-  //       </button>
-  //       <p style={{ position: "absolute", marginLeft: "20rem", marginTop: "3rem", zIndex: "1" }}>
-  //         {"Prev DisplayState: " + previousDisplayState.current}
-  //       </p>
-  //       <p style={{ position: "absolute", marginLeft: "35rem", marginTop: "3rem", zIndex: "1" }}>
-  //         {"DisplayState: " + displayState}
-  //       </p>
-  //     </>
-  //   );
-  // };
+        <button
+          style={{ position: "absolute", marginLeft: "50rem", zIndex: "1" }}
+          onClick={() => setNextDisplayState("Login")}
+        >
+          Login
+        </button>
+        <button
+          style={{ position: "absolute", marginLeft: "55rem", zIndex: "1" }}
+          onClick={() => setNextDisplayState("Create Account")}
+        >
+          CreateAccount
+        </button>
+        <button
+          style={{ position: "absolute", marginLeft: "60rem", zIndex: "1" }}
+          onClick={() => setNextDisplayState("QuickdrawArena")}
+        >
+          QuickdrawArena
+        </button>
+        <p style={{ position: "absolute", marginLeft: "20rem", marginTop: "3rem", zIndex: "1" }}>
+          {"Prev DisplayState: " + previousDisplayState.current}
+        </p>
+        <p style={{ position: "absolute", marginLeft: "35rem", marginTop: "3rem", zIndex: "1" }}>
+          {"DisplayState: " + displayState}
+        </p>
+      </>
+    );
+  };
 
+  const MENU_DISPLAY_STATES = [
+    "Home",
+    "Local",
+    "Online Gamemodes",
+    "Online Matchmaking:Quickdraw",
+    "Online Matchmaking:TDM",
+    "Online Matchmaking:Search",
+    "Login",
+    "Create Account",
+    "Search",
+  ];
   const ONLINE_MATCHMAKING_DISPLAY_STATES = [
     "Online Matchmaking:Quickdraw",
     "Online Matchmaking:TDM",
@@ -320,203 +336,206 @@ function App() {
   return (
     <>
       {/* {testingButtons()} */}
-      <div style={{ position: "absolute", marginLeft: "2rem", zIndex: "2" }} className="RPS-Title">
-        RPS
-      </div>
-      <div
-        style={{
-          display: "flex",
-          height: "100vh",
-          width: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-          position: "relative",
-        }}
-      >
-        <AnimatePresence mode="popLayout">
-          {displayState == "Login" ? (
-            <motion.div
-              key="Login"
-              initial="loginInitial"
-              animate="present"
-              exit="loginExit"
-              variants={slimUserAccountVariant}
-              custom={{
-                nextDisplayState: nextDisplayState,
-                displayState: displayState,
-                previousDisplayState: previousDisplayState.current,
-              }}
-              // className={"tile slim pink"}
-            >
-              <Login displayState={displayState} setDisplayState={setNextDisplayState} />
-            </motion.div>
-          ) : null}
-          {displayState == "Create Account" ? (
-            <motion.div
-              key="Create Account"
-              initial="createAccountInitial"
-              animate="present"
-              exit="createAccountExit"
-              variants={slimUserAccountVariant}
-              custom={{
-                nextDisplayState: nextDisplayState,
-                displayState: displayState,
-                previousDisplayState: previousDisplayState.current,
-              }}
-              // className={"tile slim cyan"}
-            >
-              <CreateAccount displayState={displayState} setDisplayState={setNextDisplayState} />
-            </motion.div>
-          ) : null}
-          {/* {displayState !== "Login" && displayState !== "Create Account" ? ( */}
-          <motion.div
-            key="MainMenu"
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={mainMenuVariants}
-            custom={displayState}
-            // className={"tile thick green"}
-            style={{ position: "absolute", zIndex: "1" }}
+      {MENU_DISPLAY_STATES.includes(displayState) ? (
+        <>
+          <div style={{ position: "absolute", marginLeft: "2rem", zIndex: "2" }} className="RPS-Title">
+            RPS
+          </div>
+          <div
+            style={{
+              display: "flex",
+              height: "100vh",
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "relative",
+            }}
           >
-            <MainMenu displayState={displayState} setDisplayState={setNextDisplayState} />
-          </motion.div>
-          {/*}) : null */}
-          {displayState == "Local" ? (
-            <motion.div
-              key="Local"
-              initial="localInitial"
-              animate="present"
-              exit="localExit"
-              variants={localOrOnlineVariant}
-              custom={{
-                nextDisplayState: nextDisplayState,
-                displayState: displayState,
-                previousDisplayState: previousDisplayState.current,
-              }}
-              // className={"tile slim yellow"}
-              style={{ position: "absolute" }}
-            >
-              <LocalMenu displayState={displayState} setDisplayState={setNextDisplayState} />
-            </motion.div>
-          ) : null}
-          {displayState == "Online Gamemodes" ||
-          displayState == "Search" ||
-          ONLINE_MATCHMAKING_DISPLAY_STATES.includes(displayState) ? (
-            <motion.div
-              key="Online"
-              initial="onlineInitial"
-              animate="present"
-              exit="onlineExit"
-              variants={localOrOnlineVariant}
-              custom={{
-                nextDisplayState: nextDisplayState,
-                displayState: displayState,
-                previousDisplayState: previousDisplayState.current,
-              }}
-              // className={"tile slim blue"}
-              style={{ position: "absolute" }}
-            >
-              <GamemodeSelect displayState={displayState} setDisplayState={setNextDisplayState} />
-            </motion.div>
-          ) : null}
-          {displayState == "Online Matchmaking:Quickdraw" ||
-          (previousDisplayState.current == "Online Matchmaking:Quickdraw" && displayState == "Search") ? (
-            <motion.div
-              key="Matchmaking:Quickdraw"
-              initial="quickdrawInitial"
-              animate="present"
-              exit="quickdrawExit"
-              variants={onlineMatchmakingVariant}
-              custom={{
-                nextDisplayState: nextDisplayState,
-                displayState: displayState,
-                previousDisplayState: previousDisplayState.current,
-              }}
-              // className={"tile slim red"}
-              style={{ position: "absolute" }}
-            >
-              <MatchmakingSelect
-                gamemode={"Quickdraw"}
-                displayState={displayState}
-                setDisplayState={setNextDisplayState}
-              />
-            </motion.div>
-          ) : null}
-          {displayState == "Online Matchmaking:TDM" ||
-          (previousDisplayState.current == "Online Matchmaking:TDM" && displayState == "Search") ? (
-            <motion.div
-              key="Matchmaking:TDM"
-              initial="tdmInitial"
-              animate="present"
-              exit="tdmExit"
-              variants={onlineMatchmakingVariant}
-              custom={{
-                nextDisplayState: nextDisplayState,
-                displayState: displayState,
-                previousDisplayState: previousDisplayState.current,
-              }}
-              // className={"tile slim orange"}
-              style={{ position: "absolute" }}
-            >
-              <MatchmakingSelect gamemode={"TDM"} displayState={displayState} setDisplayState={setNextDisplayState} />
-            </motion.div>
-          ) : null}
-          {displayState == "Online Matchmaking:Search" ||
-          (previousDisplayState.current == "Online Matchmaking:Search" && displayState == "Search") ? (
-            <motion.div
-              key="Matchmaking:Search"
-              initial="searchInitial"
-              animate="present"
-              exit="searchExit"
-              variants={onlineMatchmakingVariant}
-              custom={{
-                nextDisplayState: nextDisplayState,
-                displayState: displayState,
-                previousDisplayState: previousDisplayState.current,
-              }}
-              // className={"tile slim purple"}
-              style={{ position: "absolute" }}
-            >
-              <MatchmakingSelect
-                gamemode={"Search"}
-                displayState={displayState}
-                setDisplayState={setNextDisplayState}
-              />
-            </motion.div>
-          ) : null}
-          {displayState == "Search" ? (
-            <motion.div
-              key="OpponentSearch"
-              initial="searchInitial"
-              animate="present"
-              exit="searchExit"
-              variants={searchVariant}
-              custom={{
-                nextDisplayState: nextDisplayState,
-                displayState: displayState,
-                previousDisplayState: previousDisplayState.current,
-              }}
-              // className={"tile slim purple"}
-              style={{ position: "absolute" }}
-            >
-              <OpponentSearch displayState={displayState} setDisplayState={setNextDisplayState} />
-            </motion.div>
-          ) : null}
-          //add remaining matchmaking tiles
-        </AnimatePresence>
-      </div>
+            <AnimatePresence mode="popLayout">
+              {displayState == "Login" ? (
+                <motion.div
+                  key="Login"
+                  initial="loginInitial"
+                  animate="present"
+                  exit="loginExit"
+                  variants={slimUserAccountVariant}
+                  custom={{
+                    nextDisplayState: nextDisplayState,
+                    displayState: displayState,
+                    previousDisplayState: previousDisplayState.current,
+                  }}
+                  // className={"tile slim pink"}
+                >
+                  <Login displayState={displayState} setDisplayState={setNextDisplayState} />
+                </motion.div>
+              ) : null}
+              {displayState == "Create Account" ? (
+                <motion.div
+                  key="Create Account"
+                  initial="createAccountInitial"
+                  animate="present"
+                  exit="createAccountExit"
+                  variants={slimUserAccountVariant}
+                  custom={{
+                    nextDisplayState: nextDisplayState,
+                    displayState: displayState,
+                    previousDisplayState: previousDisplayState.current,
+                  }}
+                  // className={"tile slim cyan"}
+                >
+                  <CreateAccount displayState={displayState} setDisplayState={setNextDisplayState} />
+                </motion.div>
+              ) : null}
+              {/* {displayState !== "Login" && displayState !== "Create Account" ? ( */}
+              <motion.div
+                key="MainMenu"
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={mainMenuVariants}
+                custom={displayState}
+                // className={"tile thick green"}
+                style={{ position: "absolute", zIndex: "1" }}
+              >
+                <MainMenu displayState={displayState} setDisplayState={setNextDisplayState} />
+              </motion.div>
+              {/*}) : null */}
+              {displayState == "Local" ? (
+                <motion.div
+                  key="Local"
+                  initial="localInitial"
+                  animate="present"
+                  exit="localExit"
+                  variants={localOrOnlineVariant}
+                  custom={{
+                    nextDisplayState: nextDisplayState,
+                    displayState: displayState,
+                    previousDisplayState: previousDisplayState.current,
+                  }}
+                  // className={"tile slim yellow"}
+                  style={{ position: "absolute" }}
+                >
+                  <LocalMenu displayState={displayState} setDisplayState={setNextDisplayState} />
+                </motion.div>
+              ) : null}
+              {displayState == "Online Gamemodes" ||
+              displayState == "Search" ||
+              ONLINE_MATCHMAKING_DISPLAY_STATES.includes(displayState) ? (
+                <motion.div
+                  key="Online"
+                  initial="onlineInitial"
+                  animate="present"
+                  exit="onlineExit"
+                  variants={localOrOnlineVariant}
+                  custom={{
+                    nextDisplayState: nextDisplayState,
+                    displayState: displayState,
+                    previousDisplayState: previousDisplayState.current,
+                  }}
+                  // className={"tile slim blue"}
+                  style={{ position: "absolute" }}
+                >
+                  <GamemodeSelect displayState={displayState} setDisplayState={setNextDisplayState} />
+                </motion.div>
+              ) : null}
+              {displayState == "Online Matchmaking:Quickdraw" ||
+              (previousDisplayState.current == "Online Matchmaking:Quickdraw" && displayState == "Search") ? (
+                <motion.div
+                  key="Matchmaking:Quickdraw"
+                  initial="quickdrawInitial"
+                  animate="present"
+                  exit="quickdrawExit"
+                  variants={onlineMatchmakingVariant}
+                  custom={{
+                    nextDisplayState: nextDisplayState,
+                    displayState: displayState,
+                    previousDisplayState: previousDisplayState.current,
+                  }}
+                  // className={"tile slim red"}
+                  style={{ position: "absolute" }}
+                >
+                  <MatchmakingSelect
+                    gamemode={"Quickdraw"}
+                    displayState={displayState}
+                    setDisplayState={setNextDisplayState}
+                  />
+                </motion.div>
+              ) : null}
+              {displayState == "Online Matchmaking:TDM" ||
+              (previousDisplayState.current == "Online Matchmaking:TDM" && displayState == "Search") ? (
+                <motion.div
+                  key="Matchmaking:TDM"
+                  initial="tdmInitial"
+                  animate="present"
+                  exit="tdmExit"
+                  variants={onlineMatchmakingVariant}
+                  custom={{
+                    nextDisplayState: nextDisplayState,
+                    displayState: displayState,
+                    previousDisplayState: previousDisplayState.current,
+                  }}
+                  // className={"tile slim orange"}
+                  style={{ position: "absolute" }}
+                >
+                  <MatchmakingSelect
+                    gamemode={"TDM"}
+                    displayState={displayState}
+                    setDisplayState={setNextDisplayState}
+                  />
+                </motion.div>
+              ) : null}
+              {displayState == "Online Matchmaking:Search" ||
+              (previousDisplayState.current == "Online Matchmaking:Search" && displayState == "Search") ? (
+                <motion.div
+                  key="Matchmaking:Search"
+                  initial="searchInitial"
+                  animate="present"
+                  exit="searchExit"
+                  variants={onlineMatchmakingVariant}
+                  custom={{
+                    nextDisplayState: nextDisplayState,
+                    displayState: displayState,
+                    previousDisplayState: previousDisplayState.current,
+                  }}
+                  // className={"tile slim purple"}
+                  style={{ position: "absolute" }}
+                >
+                  <MatchmakingSelect
+                    gamemode={"Search"}
+                    displayState={displayState}
+                    setDisplayState={setNextDisplayState}
+                  />
+                </motion.div>
+              ) : null}
+              {displayState == "Search" ? (
+                <motion.div
+                  key="OpponentSearch"
+                  initial="searchInitial"
+                  animate="present"
+                  exit="searchExit"
+                  variants={searchVariant}
+                  custom={{
+                    nextDisplayState: nextDisplayState,
+                    displayState: displayState,
+                    previousDisplayState: previousDisplayState.current,
+                  }}
+                  // className={"tile slim purple"}
+                  style={{ position: "absolute" }}
+                >
+                  <OpponentSearch displayState={displayState} setDisplayState={setNextDisplayState} />
+                </motion.div>
+              ) : null}
+              //add remaining matchmaking tiles
+            </AnimatePresence>
+          </div>
+        </>
+      ) : null}
+      {displayState == "QuickdrawArena" ? <QuickdrawArena setDisplayState={setNextDisplayState} /> : null}
     </>
   );
 }
 
 export default App;
-
-function MenuItem({ tiles }) {
-  //tiles = [] of components in order top to bottom. A comparison can be made to determine if the transition should be up or down.
-
-  return <motion.div exit={variants.down(3, false)}></motion.div>;
-}
 
 const variants = {
   present: {
