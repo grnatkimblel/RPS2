@@ -1,7 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence, LayoutGroup, usePresenceData, findSpring } from "motion/react";
+import { motion, AnimatePresence, LayoutGroup, usePresenceData, findSpring, delay } from "motion/react";
 import "./styles/texts.css";
 import "./styles/styles.css";
+
+import GameInfo from "./types/QuickdrawSessionData.ts";
+import GameType from "./types/GameType.ts";
+import PlayerInfo from "./types/PlayerModel.ts";
 
 import Tile from "./components/Tile";
 import MainMenu from "./components/MainMenu";
@@ -11,13 +15,15 @@ import MatchmakingSelect from "./components/MatchmakingSelect";
 import Login from "./components/Login";
 import CreateAccount from "./components/CreateAccount";
 import OpponentSearch from "./components/OpponentSearch";
-import QuickdrawArena from "./components/QuickdrawArenaDisplay";
-import { delay } from "motion";
+import QuickdrawArenaController from "./components/QuickdrawArenaController/index.tsx";
 
 function App() {
   const [displayState, setDisplayState] = useState("");
   const [nextDisplayState, setNextDisplayState] = useState("Home");
   const previousDisplayState = useRef(displayState);
+
+  const [localPlayer1Name, setLocalPlayer1Name] = useState("");
+  const [localPlayer2Name, setLocalPlayer2Name] = useState("");
 
   useEffect(() => {
     console.log("UseEffect called");
@@ -415,7 +421,12 @@ function App() {
                   // className={"tile slim yellow"}
                   style={{ position: "absolute" }}
                 >
-                  <LocalMenu displayState={displayState} setDisplayState={setNextDisplayState} />
+                  <LocalMenu
+                    displayState={displayState}
+                    setDisplayState={setNextDisplayState}
+                    setLocalPlayer1Name={setLocalPlayer1Name}
+                    setLocalPlayer2Name={setLocalPlayer2Name}
+                  />
                 </motion.div>
               ) : null}
               {displayState == "Online Gamemodes" ||
@@ -530,7 +541,18 @@ function App() {
           </div>
         </>
       ) : null}
-      {displayState == "QuickdrawArena" ? <QuickdrawArena setDisplayState={setNextDisplayState} /> : null}
+      {displayState == "QuickdrawArena" ? (
+        <QuickdrawArenaController
+          setDisplayState={setNextDisplayState}
+          quickdrawSessionData={{
+            sessionId: "1234",
+            gameStartTime: 1234,
+            gameType: GameType.QUICKPLAY,
+            player1: { username: localPlayer1Name, userId: "1234", emoji: "" },
+            player2: { username: localPlayer2Name, userId: "5678", emoji: "" },
+          }}
+        />
+      ) : null}
     </>
   );
 }

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, cloneElement } from "react";
 import { motion, steps } from "motion/react";
 import "../../styles/styles.css";
 
-export default function Button({ text, textStyle, setDisplayState, destination, styles }) {
+export default function Button({ text, textStyle, setDisplayState, destination, styles, onClick }) {
   return (
     <motion.button //Play Button
       transition={{ duration: 0.05 }}
@@ -10,10 +10,14 @@ export default function Button({ text, textStyle, setDisplayState, destination, 
         scale: 1.05,
       }}
       whileTap={{ y: 5 }}
-      onClick={(event) => {
-        event.stopPropagation();
-        setDisplayState(destination);
-      }}
+      onClick={
+        onClick
+          ? onClick
+          : (event) => {
+              event.stopPropagation();
+              setDisplayState(destination);
+            }
+      }
       style={{ width: "100%", ...styles }}
       className={textStyle}
     >

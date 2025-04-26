@@ -36,3 +36,14 @@
   letter-spacing: 0.2rem;
   color: var(--tertiary);
 }
+
+.descriptionText {
+  font-family: "Almarai";
+  font-weight: normal;
+  font-size: 1rem;
+  letter-spacing: 0.2rem;
+  color: var(--primary);
+  text-align: center;
+
+  white-space: pre-wrap;
+}

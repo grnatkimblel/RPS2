@@ -1,0 +1,325 @@
+import { useEffect, useState } from "react";
+import { motion, usePresenceData } from "motion/react";
+import "../../styles/styles.css";
+
+import QuickdrawSessionData from "../../types/QuickdrawSessionData.ts";
+
+import Button from "../Button";
+
+enum EMOJIS {
+  ROCK = "🗿",
+  PAPER = "📄",
+  SCISSORS = "✂️",
+  FLUTE = "🪈",
+  BOMB = "💣",
+  POW = "💥",
+  LEFT_HAND = "🫱",
+  RIGHT_HAND = "🫲",
+  ORB = "🔮",
+  ICE = "❄️",
+  GAMBLE = "🤞",
+  RUN_IT_BACK = "↩️",
+}
+interface QuickdrawArenaViewProps {
+  setMainDisplayState: (state: string) => void;
+  quickdrawSessionData: QuickdrawSessionData; // Adjust the type as needed
+}
+
+enum GamePhases {
+  PRE_GAME = "PRE_GAME",
+  START = "START",
+  DRAW = "DRAW",
+  END = "END",
+  OVER = "OVER",
+}
+
+interface ViewModel {
+  titleText: string;
+  gamePhase: GamePhases;
+  numRoundsToWin: number;
+  player1_hand: string;
+  player1_score: number;
+  player1_purplePoints: number;
+  player2_hand: string;
+  player2_score: number;
+  player2_purplePoints: number;
+}
+
+export default function QuickdrawArenaView({ setMainDisplayState, quickdrawSessionData }: QuickdrawArenaViewProps) {
+  const [viewModel, setViewModel] = useState<ViewModel>({
+    titleText: "RPS",
+    gamePhase: GamePhases.PRE_GAME,
+    numRoundsToWin: 3,
+    player1_hand: EMOJIS.LEFT_HAND,
+    player1_score: 0,
+    player1_purplePoints: 0,
+    player2_hand: EMOJIS.RIGHT_HAND,
+    player2_score: 0,
+    player2_purplePoints: 0,
+  });
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "q") {
+        setViewModel((prevState) => ({ ...prevState, player1_hand: EMOJIS.ROCK }));
+      } else if (event.key === "w") {
+        setViewModel((prevState) => ({ ...prevState, player1_hand: EMOJIS.PAPER }));
+      } else if (event.key === "e") {
+        setViewModel((prevState) => ({ ...prevState, player1_hand: EMOJIS.SCISSORS }));
+      } else if (event.key === "ArrowLeft") {
+        setViewModel((prevState) => ({ ...prevState, player2_hand: EMOJIS.ROCK }));
+      } else if (event.key === "ArrowDown") {
+        setViewModel((prevState) => ({ ...prevState, player2_hand: EMOJIS.PAPER }));
+      } else if (event.key === "ArrowRight") {
+        setViewModel((prevState) => ({ ...prevState, player2_hand: EMOJIS.SCISSORS }));
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  return (
+    <motion.div
+      style={{
+        display: "flex",
+        height: "100vh",
+        width: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          width: "1440px",
+          //   height: "1024px",
+          display: "flex",
+          flexDirection: "column",
+          //   justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ width: "100%" }}>
+          <div
+            style={{
+              width: "100%",
+              height: "6rem",
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "0.5rem",
+            }}
+          >
+            <div
+              className="defaultText"
+              style={{
+                textDecoration: "underline var(--tileBorderColor_Active) 2px",
+                alignSelf: "flex-end",
+                marginLeft: "2rem",
+              }}
+            >
+              {quickdrawSessionData.player1.username}
+            </div>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <div style={{ display: "flex", flexDirection: "row-reverse", alignItems: "flex-end" }}>
+                {Array.from({ length: viewModel.numRoundsToWin }).map((_, index) => (
+                  <div
+                    style={{ marginRight: "1rem", display: "flex", flexDirection: "column", alignItems: "center" }}
+                    key={index}
+                  >
+                    {index > viewModel.player1_score + viewModel.player1_purplePoints && (
+                      <svg width="12" height="38" viewBox="0 0 12 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="12" height="38" rx="5" fill="#007AFF" />
+                      </svg>
+                    )}
+                    <div
+                      style={{
+                        marginTop: "5px",
+                        width: "30px",
+                        height: "2px",
+                        backgroundColor: "var(--tileBorderColor_Active)",
+                      }}
+                    ></div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ width: "2px", backgroundColor: "var(--tileBorderColor_Active)" }}></div>
+              <div style={{ display: "flex", alignItems: "flex-end" }}>
+                {Array.from({ length: viewModel.numRoundsToWin }).map((_, index) => (
+                  <div
+                    style={{ marginLeft: "1rem", display: "flex", flexDirection: "column", alignItems: "center" }}
+                    key={index}
+                  >
+                    {index > viewModel.player2_score + viewModel.player2_purplePoints && (
+                      <svg width="12" height="38" viewBox="0 0 12 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="12" height="38" rx="5" fill="#007AFF" />
+                      </svg>
+                    )}
+                    <div
+                      style={{
+                        marginTop: "5px",
+                        width: "30px",
+                        height: "2px",
+                        backgroundColor: "var(--tileBorderColor_Active)",
+                      }}
+                    ></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div
+              className="defaultText"
+              style={{
+                textDecoration: "underline var(--tileBorderColor_Active) 2px",
+                alignSelf: "flex-end",
+                marginRight: "2rem",
+              }}
+            >
+              {quickdrawSessionData.player2.username}
+            </div>
+          </div>
+          <div style={{ width: "100%", display: "flex" }}>
+            <PointMenu />
+
+            <div style={{ zIndex: "2", marginTop: "-1rem", flex: "2", display: "flex", justifyContent: "center" }}>
+              <div className="RPS-Title">RPS</div>
+            </div>
+
+            <PointMenu isRight={true} />
+          </div>
+          <div
+            style={{
+              width: "100%",
+              height: "25rem",
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "-4rem",
+            }}
+          >
+            <div style={{ fontSize: "10rem", alignSelf: "flex-end", marginRight: "5rem" }}>
+              {viewModel.player1_hand}
+            </div>
+            <div style={{ fontSize: "10rem" }}>{EMOJIS.BOMB}</div>
+            <div style={{ fontSize: "10rem", alignSelf: "flex-end", marginLeft: "5rem" }}>{viewModel.player2_hand}</div>
+          </div>
+        </div>
+        <div style={{ width: "100%" }}>
+          <div style={{ width: "100%", display: "flex", justifyContent: "center", gap: "1rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+              <Button
+                text={EMOJIS.ROCK}
+                textStyle="active"
+                styles={{ fontSize: "6rem", width: "10rem", height: "10rem" }}
+                onClick={() => {
+                  setViewModel((prevState) => ({ ...prevState, player1_hand: EMOJIS.ROCK }));
+                }}
+              />
+              <div className="keyHints">(Q)</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+              <Button
+                text={EMOJIS.PAPER}
+                textStyle="active"
+                styles={{ fontSize: "6rem", width: "10rem", height: "10rem" }}
+                onClick={() => {
+                  setViewModel((prevState) => ({ ...prevState, player1_hand: EMOJIS.PAPER }));
+                }}
+              />
+              <div className="keyHints">(W)</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+              <Button
+                text={EMOJIS.SCISSORS}
+                textStyle="active"
+                styles={{ fontSize: "6rem", width: "10rem", height: "10rem" }}
+                onClick={() => {
+                  setViewModel((prevState) => ({ ...prevState, player1_hand: EMOJIS.SCISSORS }));
+                }}
+              />
+              <div className="keyHints">(E)</div>
+            </div>
+          </div>
+          <Button
+            setDisplayState={setMainDisplayState}
+            destination={"Home"}
+            text={"BACK"}
+            textStyle={"labelText"}
+            styles={{ width: "fit-content", padding: "0.1rem 1rem" }}
+          />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function PointMenu({ isRight }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const extendedStyles = {
+    width: "32rem",
+    height: "26.5rem",
+    border: "0.6rem solid var(--tileBorderColor_Default)",
+    borderRadius: "1rem",
+    display: "flex",
+    flexDirection: "column",
+    position: "absolute",
+    backgroundColor: "white",
+    zIndex: "1",
+  };
+
+  const StoreSlot = ({ emoji, description }) => {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          margin: "1rem",
+        }}
+      >
+        <div style={{ fontSize: "4rem", flex: 1 }}>{emoji}</div>
+        <div className="descriptionText">{description}</div>
+        <Button text={"BUY"} textStyle="labelText" styles={{ flex: 1, paddingLeft: "1rem", paddingRight: "1rem" }} />
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ flex: 4, display: "flex", flexDirection: isRight ? "row-reverse" : "" }}>
+      {isExpanded ? (
+        <motion.div
+          text={EMOJIS.POW}
+          style={extendedStyles}
+          whileHover={{ scale: 1.01 }}
+          onClick={() => {
+            setIsExpanded((isExpanded) => !isExpanded);
+          }}
+        >
+          <div style={{ alignSelf: "center", marginTop: "1.5rem" }} className="labelText">
+            1x PURPLE POINT
+          </div>
+          <StoreSlot emoji={EMOJIS.ICE} description={"Active:\nOpponent cannot play hands for 2 seconds"} />
+          <hr style={{ alignSelf: "center", width: "90%", border: "0.1rem solid #b1b1b1", margin: 0 }} />
+          <StoreSlot
+            emoji={EMOJIS.GAMBLE}
+            description={"Choose Rock Paper or Scissor\nIf opponents next scored hand matches, +2 points."}
+          />
+          <hr style={{ alignSelf: "center", width: "90%", border: "0.1rem solid #b1b1b1", margin: 0 }} />
+          <StoreSlot
+            emoji={EMOJIS.RUN_IT_BACK}
+            description={"Increase the score needed to win by 2 (Activates if you lose game-point)"}
+          />
+        </motion.div>
+      ) : (
+        <Button
+          text={EMOJIS.ORB}
+          styles={{ fontSize: "3rem", width: "6rem", height: "6rem" }}
+          onClick={() => {
+            setIsExpanded((isExpanded) => !isExpanded);
+          }}
+        />
+      )}
+    </div>
+  );
+}

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion, usePresenceData } from "motion/react";
 import "../../styles/styles.css";
-import { scale } from "svelte/transition";
 
 import Tile from "../Tile";
 import Button from "../Button";

@@ -7,7 +7,10 @@ import Button from "../Button";
 import CycleButton from "../CycleButton";
 import TextField from "../TextField";
 
-export default function LocalMenu({ displayState, setDisplayState }) {
+export default function LocalMenu({ displayState, setDisplayState, setLocalPlayer1Name, setLocalPlayer2Name }) {
+  const [player1Name, setPlayer1Name] = useState("PLAYER 1");
+  const [player2Name, setPlayer2Name] = useState("PLAYER 2");
+
   return (
     <Tile
       size={"slim"}
@@ -22,7 +25,7 @@ export default function LocalMenu({ displayState, setDisplayState }) {
             NAME
           </p>
           <motion.input
-            type="text"
+            type="search"
             defaultValue="PLAYER 1"
             required
             minlength="1"
@@ -33,10 +36,13 @@ export default function LocalMenu({ displayState, setDisplayState }) {
             initial={{ borderColor: "var(--tileBorderColor_Default)" }}
             whileHover={{ borderColor: "var(--tileBorderColor_Active)" }}
             whileFocus={{ borderColor: "var(--tileBorderColor_Active)" }}
+            onChange={(event) => {
+              setPlayer1Name(event.target.value);
+            }}
             style={{ marginTop: "1rem", paddingLeft: "0.5rem", paddingRight: "0.5rem" }}
           />
           <motion.input
-            type="text"
+            type="search"
             defaultValue="PLAYER 2"
             required
             minlength="1"
@@ -46,6 +52,9 @@ export default function LocalMenu({ displayState, setDisplayState }) {
             initial={{ borderColor: "var(--tileBorderColor_Default)" }}
             whileHover={{ borderColor: "var(--tileBorderColor_Active)" }}
             whileFocus={{ borderColor: "var(--tileBorderColor_Active)" }}
+            onChange={(event) => {
+              setPlayer2Name(event.target.value);
+            }}
             style={{ marginTop: "2rem", paddingLeft: "0.5rem", paddingRight: "0.5rem" }}
           />
         </div>
@@ -70,6 +79,9 @@ export default function LocalMenu({ displayState, setDisplayState }) {
             whileTap={{ y: 5 }}
             onClick={(event) => {
               event.stopPropagation();
+              player1Name === "" ? setLocalPlayer1Name("PLAYER 1") : setLocalPlayer1Name(player1Name);
+              player2Name === "" ? setLocalPlayer2Name("PLAYER 2") : setLocalPlayer2Name(player2Name);
+
               setDisplayState("QuickdrawArena");
             }}
           >

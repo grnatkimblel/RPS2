@@ -36,7 +36,7 @@ export default function OpponentSearch({}) {
           {Array.from({ length: 8 }).map((_, i) => (
             <div style={{ width: "100%" }}>
               <OpponentSearchResult></OpponentSearchResult>
-              <hr style={{ width: "100%", border: "0.1rem solid #b1b1b1", margin: "0rem 0 0.4rem" }} />
+              <hr style={{ width: "100%", border: "0.1rem solid #b1b1b1", margin: "0 0 0.4rem" }} />
             </div>
           ))}
           <OpponentSearchResult></OpponentSearchResult>
