@@ -44,6 +44,7 @@
   letter-spacing: 0.2rem;
   color: var(--primary);
   text-align: center;
-
+  margin-left: 1rem;
+  margin-right: 1rem;
   white-space: pre-wrap;
 }

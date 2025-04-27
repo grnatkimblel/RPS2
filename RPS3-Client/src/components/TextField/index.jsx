@@ -9,7 +9,7 @@ export default function TextField({ text, textStyle, setDisplayState, destinatio
       defaultValue={text}
       autoFocus={focus}
       required
-      minlength="1"
+      minLength="1"
       maxLength="16"
       className={textStyle}
       style={styles}

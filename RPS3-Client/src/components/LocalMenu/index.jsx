@@ -28,7 +28,7 @@ export default function LocalMenu({ displayState, setDisplayState, setLocalPlaye
             type="search"
             defaultValue="PLAYER 1"
             required
-            minlength="1"
+            minLength="1"
             maxLength="20"
             className="defaultText"
             tabIndex="1"
@@ -45,7 +45,7 @@ export default function LocalMenu({ displayState, setDisplayState, setLocalPlaye
             type="search"
             defaultValue="PLAYER 2"
             required
-            minlength="1"
+            minLength="1"
             maxLength="20"
             className="defaultText"
             tabIndex="2"
@@ -82,7 +82,7 @@ export default function LocalMenu({ displayState, setDisplayState, setLocalPlaye
               player1Name === "" ? setLocalPlayer1Name("PLAYER 1") : setLocalPlayer1Name(player1Name);
               player2Name === "" ? setLocalPlayer2Name("PLAYER 2") : setLocalPlayer2Name(player2Name);
 
-              setDisplayState("QuickdrawArena");
+              setDisplayState("QuickdrawArenaLocal");
             }}
           >
             GO

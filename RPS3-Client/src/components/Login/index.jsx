@@ -32,7 +32,7 @@ export default function Login({ displayState, setDisplayState }) {
           type="text"
           placeholder="USERNAME"
           required
-          minlength="1"
+          minLength="1"
           maxLength="20"
           className="defaultText"
           tabIndex="1"
@@ -46,7 +46,7 @@ export default function Login({ displayState, setDisplayState }) {
           type="password"
           placeholder="PASSWORD"
           required
-          minlength="1"
+          minLength="1"
           maxLength="20"
           className="defaultText"
           tabIndex="2"

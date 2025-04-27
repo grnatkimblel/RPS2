@@ -15,7 +15,8 @@ import MatchmakingSelect from "./components/MatchmakingSelect";
 import Login from "./components/Login";
 import CreateAccount from "./components/CreateAccount";
 import OpponentSearch from "./components/OpponentSearch";
-import QuickdrawArenaController from "./components/QuickdrawArenaController/index.tsx";
+import QuickdrawArenaController from "./components/QuickdrawArenaControllerLocal/index.tsx";
+import QuickdrawArenaControllerOnline from "./components/QuickdrawArenaControllerOnline/index";
 
 function App() {
   const [displayState, setDisplayState] = useState("");
@@ -541,9 +542,9 @@ function App() {
           </div>
         </>
       ) : null}
-      {displayState == "QuickdrawArena" ? (
+      {displayState == "QuickdrawArenaLocal" ? (
         <QuickdrawArenaController
-          setDisplayState={setNextDisplayState}
+          setDisplayState={setNextDisplayState}  
           quickdrawSessionData={{
             sessionId: "1234",
             gameStartTime: 1234,
@@ -552,7 +553,14 @@ function App() {
             player2: { username: localPlayer2Name, userId: "5678", emoji: "" },
           }}
         />
-      ) : null}
+      ) : displayState == "QuickdrawArenaOnline" ? <QuickdrawArenaControllerOnline setDisplayState={setNextDisplayState}  
+      quickdrawSessionData={{ //comes from matchmaking
+        // sessionId: "1234",
+        // gameStartTime: 1234,
+        // gameType: GameType.QUICKPLAY,
+        // player1: { username: localPlayer1Name, userId: "1234", emoji: "" },
+        // player2: { username: localPlayer2Name, userId: "5678", emoji: "" },
+      }}/> : null}
     </>
   );
 }
