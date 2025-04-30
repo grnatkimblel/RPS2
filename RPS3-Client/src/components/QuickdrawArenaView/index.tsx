@@ -13,6 +13,7 @@ interface onClicks {
   Rock: () => void;
   Paper: () => void;
   Scissors: () => void;
+  Back: () => void;
 }
 
 interface QuickdrawArenaViewProps {
@@ -50,9 +51,7 @@ export default function QuickdrawArenaView({
           alignItems: "center",
         }}
       >
-        {showExitModal && (
-          <ExitModal setShowExitModal={setShowExitModal} onClickYes={() => setMainDisplayState("Home")} />
-        )}
+        {showExitModal && <ExitModal setShowExitModal={setShowExitModal} onClickYes={onClicks.Back} />}
         <div style={{ width: "100%" }}>
           <div // Player Names and scoreboard
             style={{
@@ -164,7 +163,9 @@ export default function QuickdrawArenaView({
             <div style={{ fontSize: "10rem", alignSelf: "flex-end", marginRight: "5rem" }}>
               {viewModel.player1_hand}
             </div>
-            <div style={{ fontSize: "10rem" }}>{viewModel.titleText}</div>
+            <div style={{ fontSize: "10rem" }} className="defaultText">
+              {viewModel.titleText}
+            </div>
             <div style={{ fontSize: "10rem", alignSelf: "flex-end", marginLeft: "5rem" }}>{viewModel.player2_hand}</div>
           </div>
         </div>
