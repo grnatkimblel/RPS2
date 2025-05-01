@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import useSound from "use-sound";
 import GoodBadAndUglyURL from "../../assets/audio/The Good, the Bad and the Ugly  Main Theme  Ennio Morricone.ogg";
 import GunshotURL from "../../assets/audio/Gunshot.ogg";
@@ -10,6 +10,8 @@ import EMOJIS from "../../enums/Emojis";
 import QuickdrawArenaViewModel from "../../types/QuickdrawArenaViewModel";
 
 import useCountdownMs from "../../hooks/useCountdownMs";
+import { g, pre, view } from "motion/react-client";
+import { run } from "svelte/internal";
 
 export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdrawSessionData }) {
   const [viewModel, setViewModel] = useState<QuickdrawArenaViewModel>({
@@ -34,36 +36,15 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   const timeLeft = useCountdownMs(COUNTDOWN_TIME);
   const [gameState, setGameState] = useState<GameState>(createGameState());
   const [isAcceptingHandsInput, setIsAcceptingHandsInput] = useState(false);
-  const isCancelledRef = useRef(false); // Ref for cancellation flag
-  const roundTimeouts = useRef<{
-    drawTimeout?: NodeJS.Timeout;
-    endTimeout?: NodeJS.Timeout;
-    resolveTimeout?: NodeJS.Timeout;
-  }>({});
-
-  useEffect(() => {
-    //register keydown event listener
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "q") {
-        setViewModel((viewModel) => ({ ...viewModel, player1_hand: EMOJIS.ROCK }));
-      } else if (event.key === "w") {
-        setViewModel((viewModel) => ({ ...viewModel, player1_hand: EMOJIS.PAPER }));
-      } else if (event.key === "e") {
-        setViewModel((viewModel) => ({ ...viewModel, player1_hand: EMOJIS.SCISSORS }));
-      } else if (event.key === "ArrowLeft") {
-        setViewModel((viewModel) => ({ ...viewModel, player2_hand: EMOJIS.ROCK }));
-      } else if (event.key === "ArrowDown") {
-        setViewModel((viewModel) => ({ ...viewModel, player2_hand: EMOJIS.PAPER }));
-      } else if (event.key === "ArrowRight") {
-        setViewModel((viewModel) => ({ ...viewModel, player2_hand: EMOJIS.SCISSORS }));
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
+  const isGameOver = useRef<boolean>(false);
+  const initialRenderRefs = useRef({
+    isCancelled: false, // Ref for cancellation flag
+    roundTimeouts: {
+      drawTimeout: null as NodeJS.Timeout | null,
+      endTimeout: null as NodeJS.Timeout | null,
+      resolveTimeout: null as NodeJS.Timeout | null,
+    },
+  });
 
   //initial countdown to game start
   useEffect(() => {
@@ -81,21 +62,48 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   }, [timeLeft]);
 
   async function doGame() {
-    isCancelledRef.current = false; // Reset the flag when starting a new game
-    while (gameState.game.isFinished == false) {
+    initialRenderRefs.current.isCancelled = false; // Reset the flag when starting a new game
+    while (isGameOver.current == false) {
       await doRound();
     }
   }
 
   async function doRound(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      if (isCancelledRef.current) {
+      if (initialRenderRefs.current.isCancelled) {
         reject("Game cancelled");
         return;
       }
-
+      let now = Date.now();
       let drawTime = Math.random() * 8 + 3;
       let endTime = Math.random() * 3 + 3 + drawTime;
+      setGameState((prev: GameState) => {
+        return {
+          ...prev,
+          game: {
+            ...prev.game,
+            rounds: [
+              ...prev.game.rounds,
+              {
+                startTime: now,
+                drawTime: now + drawTime * 1000,
+                endTime: now + endTime * 1000,
+                hands: {
+                  player_1: {
+                    hand: null,
+                    time: null,
+                  },
+                  player_2: {
+                    hand: null,
+                    time: null,
+                  },
+                },
+              },
+            ],
+          },
+        };
+      });
+
       beginStartPhase();
       // let now = Date.now();
 
@@ -104,14 +112,16 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       }, drawTime * 1000);
       const endTimeout = setTimeout(() => {
         beginEndPhase();
-        if (!gameState.game.isFinished && !isCancelledRef.current) updateGameStateAfterRound();
+        if (!isGameOver.current && !initialRenderRefs.current.isCancelled) {
+          updateGameStateAfterRound();
+        }
       }, endTime * 1000);
       const resolveTimeout = setTimeout(() => {
-        if (gameState.game.isFinished || isCancelledRef.current) endGame();
+        if (isGameOver.current || initialRenderRefs.current.isCancelled) endGame();
         resolve();
       }, (endTime + 3) * 1000);
 
-      roundTimeouts.current = {
+      initialRenderRefs.current.roundTimeouts = {
         drawTimeout,
         endTimeout,
         resolveTimeout,
@@ -119,17 +129,22 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     });
   }
 
+  //prevents asynchronous game logic from running after the game is left
   function clearRoundTimeouts() {
-    if (roundTimeouts.current.drawTimeout) {
-      clearTimeout(roundTimeouts.current.drawTimeout);
+    if (initialRenderRefs.current.roundTimeouts.drawTimeout) {
+      clearTimeout(initialRenderRefs.current.roundTimeouts.drawTimeout);
     }
-    if (roundTimeouts.current.endTimeout) {
-      clearTimeout(roundTimeouts.current.endTimeout);
+    if (initialRenderRefs.current.roundTimeouts.endTimeout) {
+      clearTimeout(initialRenderRefs.current.roundTimeouts.endTimeout);
     }
-    if (roundTimeouts.current.resolveTimeout) {
-      clearTimeout(roundTimeouts.current.resolveTimeout);
+    if (initialRenderRefs.current.roundTimeouts.resolveTimeout) {
+      clearTimeout(initialRenderRefs.current.roundTimeouts.resolveTimeout);
     }
-    roundTimeouts.current = {}; // Clear the ref
+    initialRenderRefs.current.roundTimeouts = {
+      drawTimeout: null,
+      endTimeout: null,
+      resolveTimeout: null,
+    }; // Clear the ref
   }
 
   function beginStartPhase() {
@@ -164,17 +179,158 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     setIsAcceptingHandsInput(false);
   }
 
-  function updateGameStateAfterRound() {}
+  function updateGameStateAfterRound() {
+    setGameState((prev: GameState) => {
+      let p1Score = 0;
+      let p2Score = 0;
+      let p1PP = 0;
+      let p2PP = 0;
+
+      prev.game.rounds.forEach((round) => {
+        let p1 = round.hands.player_1;
+        let p2 = round.hands.player_2;
+        if (p1.hand !== null || p2.hand !== null) {
+          //if someone played a hand
+          if (didPlayer1GetPurplePoint(p1.time, p2.time)) {
+            p1PP++;
+          } else {
+            p2PP++;
+          }
+
+          if (p1.hand !== p2.hand) {
+            if (p1.hand == null) {
+              p2Score++;
+            } else if (p2.hand == null) {
+              p1Score++;
+            } else if (p1.hand === EMOJIS.ROCK && p2.hand === EMOJIS.SCISSORS) {
+              p1Score++;
+            } else if (p1.hand === EMOJIS.PAPER && p2.hand === EMOJIS.ROCK) {
+              p1Score++;
+            } else if (p1.hand === EMOJIS.SCISSORS && p2.hand === EMOJIS.PAPER) {
+              p1Score++;
+            } else {
+              p2Score++;
+            }
+          }
+        }
+      });
+
+      setViewModel((prev: QuickdrawArenaViewModel) => {
+        return {
+          ...prev,
+          player1_score: p1Score,
+          player2_score: p2Score,
+          player1_purplePoints: p1PP,
+          player2_purplePoints: p2PP,
+        };
+      });
+
+      console.log(p1Score, p2Score, p1PP, p2PP);
+      if (p1Score + p1PP >= prev.game.header.numRoundsToWin || p2Score + p2PP >= prev.game.header.numRoundsToWin) {
+        console.log("game over");
+        isGameOver.current = true;
+      }
+
+      return {
+        ...prev,
+        game: {
+          ...prev.game,
+          header: {
+            ...prev.game.header,
+            player1_score: p1Score,
+            player1_purplePoints: p1PP,
+            player2_score: p2Score,
+            player2_purplePoints: p2PP,
+          },
+        },
+      };
+    });
+  }
+
+  function didPlayer1GetPurplePoint(p1Time?: number, p2Time?: number) {
+    if (p1Time !== null && p2Time == null) return true;
+    if (p1Time == null && p2Time !== null) return false;
+    if (p1Time < p2Time) return true;
+    if (p1Time > p2Time) return false;
+  }
 
   function endGame() {
+    console.log("game end called");
     setViewModel((prev: QuickdrawArenaViewModel) => {
       return { ...prev, gamePhase: GamePhases.OVER, titleText: "GAME OVER" };
     });
   }
 
+  const playHand = useCallback(
+    (hand, isPlayer1) => {
+      let now = Date.now();
+      // console.log(gameState);
+      let roundStartTime = gameState.game.rounds[gameState.game.rounds.length - 1].startTime;
+      let roundDrawTime = gameState.game.rounds[gameState.game.rounds.length - 1].drawTime;
+      let roundEndTime = gameState.game.rounds[gameState.game.rounds.length - 1].endTime;
+
+      if (now > roundStartTime && now < roundDrawTime) {
+        setViewModel((prev: QuickdrawArenaViewModel) => {
+          return isPlayer1 ? { ...prev, player1_hand: EMOJIS.EARLY } : { ...prev, player2_hand: EMOJIS.EARLY };
+        });
+        //leave hand as null in gamestate
+        return;
+      }
+      if (now > roundDrawTime && now < roundEndTime) {
+        setViewModel((prev: QuickdrawArenaViewModel) => {
+          return isPlayer1 ? { ...prev, player1_hand: hand } : { ...prev, player2_hand: hand };
+        });
+        //update gamestate with hand
+        setGameState((prev: GameState) => {
+          return {
+            ...prev,
+            game: {
+              ...prev.game,
+              rounds: prev.game.rounds.map((round, index) => {
+                if (index === prev.game.rounds.length - 1) {
+                  return isPlayer1
+                    ? { ...round, hands: { ...round.hands, player_1: { hand: hand, time: now } } }
+                    : { ...round, hands: { ...round.hands, player_2: { hand: hand, time: now } } };
+                } else {
+                  return { ...round };
+                }
+              }),
+            },
+          };
+        });
+      }
+      return;
+    },
+    [viewModel, setViewModel, gameState, setGameState]
+  );
+
+  useEffect(() => {
+    //register keydown event listener
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "q") {
+        playHand(EMOJIS.ROCK, true);
+      } else if (event.key === "w") {
+        playHand(EMOJIS.PAPER, true);
+      } else if (event.key === "e") {
+        playHand(EMOJIS.SCISSORS, true);
+      } else if (event.key === "ArrowLeft") {
+        playHand(EMOJIS.ROCK, false);
+      } else if (event.key === "ArrowDown") {
+        playHand(EMOJIS.PAPER, false);
+      } else if (event.key === "ArrowRight") {
+        playHand(EMOJIS.SCISSORS, false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [playHand]);
+
   useEffect(() => {
     return () => {
-      isCancelledRef.current = true; // Set the flag when the component unmounts
+      initialRenderRefs.current.isCancelled = true; // Set the flag when the component unmounts
       clearRoundTimeouts(); // Clear any pending timeouts
       goodBadUglyAudio.stop();
       gunshotAudio.stop();
@@ -210,7 +366,6 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
           type="number"
           onChange={(event) =>
             setViewModel((viewModel) => {
-              console.log(viewModel.player1_score);
               return { ...viewModel, player1_score: Number(event.target.value) };
             })
           }
@@ -220,7 +375,6 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
           type="number"
           onChange={(event) =>
             setViewModel((viewModel) => {
-              console.log(viewModel.player1_purplePoints);
               return { ...viewModel, player1_purplePoints: Number(event.target.value) };
             })
           }
@@ -246,7 +400,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
 
   return (
     <>
-      {testView()}
+      {/* {testView()} */}
       <QuickdrawArenaView
         viewModel={viewModel}
         onClicks={{
@@ -260,7 +414,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
             setViewModel((prev: QuickdrawArenaViewModel) => ({ ...prev, player1_hand: EMOJIS.SCISSORS }));
           },
           Back: () => {
-            isCancelledRef.current = true;
+            initialRenderRefs.current.isCancelled = true;
             clearRoundTimeouts();
             goodBadUglyAudio.stop();
             gunshotAudio.stop();
@@ -279,12 +433,7 @@ interface GameState {
   actions: Array<{}>;
   game: {
     isFinished: boolean;
-    // players?: {
-    //   player_1: string;
-    //   player_2: string;
-    // };
     header: {
-      // gameType: string;
       numRoundsToWin: number;
       player1_score: number;
       player1_purplePoints: number;
@@ -297,51 +446,16 @@ interface GameState {
 
 function createGameState(): GameState {
   let gameState: GameState = {
-    actions: [
-      // {
-      //   game_id: ,
-      //   round_id: ,
-      //   player_id: ,
-      //   action_type: ,
-      //   action_value: ,
-      //   timestamp: ,
-      // },
-    ],
-    // gameStartTime: gameStartTime,
     game: {
       isFinished: false,
-      // players: {
-      //   player_1: roster.players[0],
-      //   player_2: roster.players[1],
-      // },
       header: {
-        // gameType: "Q",
         numRoundsToWin: 3,
         player1_score: 0,
         player1_purplePoints: 0,
         player2_score: 0,
         player2_purplePoints: 0,
       },
-      rounds: [
-        //   {
-        //   roundNumber
-        //   startTime,
-        //   drawTime,
-        //   endTime,
-        //   hands: {
-        //    player_1: {
-        //      client_id:,
-        //       hand:,
-        //       time:,
-        //    }
-        //    player_2: {
-        //      client_id:,
-        //       hand:,
-        //       time:,
-        //    }
-        //   }
-        // }
-      ],
+      rounds: [],
     },
   };
 
