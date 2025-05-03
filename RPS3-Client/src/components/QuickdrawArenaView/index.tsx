@@ -14,9 +14,13 @@ interface onClicks {
   Paper: () => void;
   Scissors: () => void;
   Back: () => void;
+  BuyFreeze: () => void;
+  BuyGamble: () => void;
+  BuyRunItBack: () => void;
 }
 
 interface QuickdrawArenaViewProps {
+  localOrOnline: "Local" | "Online";
   viewModel: QuickdrawArenaViewModel;
   onClicks: onClicks;
   setMainDisplayState: (state: string) => void;
@@ -24,12 +28,97 @@ interface QuickdrawArenaViewProps {
 }
 
 export default function QuickdrawArenaView({
+  localOrOnline,
   viewModel,
   onClicks,
   setMainDisplayState,
   quickdrawSessionData,
 }: QuickdrawArenaViewProps) {
   const [showExitModal, setShowExitModal] = useState<Boolean>(false);
+
+  function displayOnlineHandButtons() {
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+          <Button
+            text={EMOJIS.ROCK}
+            textStyle="active"
+            styles={{ fontSize: "6rem", width: "10rem", height: "10rem" }}
+            onClick={onClicks.Rock}
+            whileHover={false}
+          />
+          <div className="keyHints">(Q)</div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+          <Button
+            text={EMOJIS.PAPER}
+            textStyle="active"
+            styles={{ fontSize: "6rem", width: "10rem", height: "10rem" }}
+            onClick={onClicks.Paper}
+            whileHover={false}
+          />
+          <div className="keyHints">(W)</div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+          <Button
+            text={EMOJIS.SCISSORS}
+            textStyle="active"
+            styles={{ fontSize: "6rem", width: "10rem", height: "10rem" }}
+            onClick={onClicks.Scissors}
+            whileHover={false}
+          />
+          <div className="keyHints">(E)</div>
+        </div>
+      </div>
+    );
+  }
+
+  function displayLocalHandButtons() {
+    return (
+      <>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", paddingBottom: "1rem" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div className="active" style={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}>
+              {EMOJIS.ROCK}
+            </div>
+            <div className="keyHints">(Q)</div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div className="active" style={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}>
+              {EMOJIS.PAPER}
+            </div>
+            <div className="keyHints">(W)</div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div className="active" style={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}>
+              {EMOJIS.SCISSORS}
+            </div>
+            <div className="keyHints">(E)</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div className="active" style={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}>
+              {EMOJIS.ROCK}
+            </div>
+            <div className="keyHints">(←)</div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div className="active" style={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}>
+              {EMOJIS.PAPER}
+            </div>
+            <div className="keyHints">(↓)</div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div className="active" style={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}>
+              {EMOJIS.SCISSORS}
+            </div>
+            <div className="keyHints">(→)</div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <motion.div
@@ -145,11 +234,21 @@ export default function QuickdrawArenaView({
             </div>
           </div>
           <div style={{ width: "100%", display: "flex" }}>
-            <PointMenu />
+            <PointMenu
+              isRight={false}
+              buyFreeze={onClicks.BuyFreeze}
+              buyGamble={onClicks.BuyGamble}
+              buyRunItBack={onClicks.BuyRunItBack}
+            />
             <div style={{ zIndex: "2", marginTop: "-1rem", flex: "2", display: "flex", justifyContent: "center" }}>
               <div className="RPS-Title">RPS</div>
             </div>
-            <PointMenu isRight={true} />
+            <PointMenu
+              isRight={true}
+              buyFreeze={onClicks.BuyFreeze}
+              buyGamble={onClicks.BuyGamble}
+              buyRunItBack={onClicks.BuyRunItBack}
+            />
           </div>
           <div // Player Hands and Game Phase indicator
             style={{
@@ -170,34 +269,16 @@ export default function QuickdrawArenaView({
           </div>
         </div>
         <div style={{ width: "100%" }}>
-          <div style={{ width: "100%", display: "flex", justifyContent: "center", gap: "1rem" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-              <Button
-                text={EMOJIS.ROCK}
-                textStyle="active"
-                styles={{ fontSize: "6rem", width: "10rem", height: "10rem" }}
-                onClick={onClicks.Rock}
-              />
-              <div className="keyHints">(Q)</div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-              <Button
-                text={EMOJIS.PAPER}
-                textStyle="active"
-                styles={{ fontSize: "6rem", width: "10rem", height: "10rem" }}
-                onClick={onClicks.Paper}
-              />
-              <div className="keyHints">(W)</div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-              <Button
-                text={EMOJIS.SCISSORS}
-                textStyle="active"
-                styles={{ fontSize: "6rem", width: "10rem", height: "10rem" }}
-                onClick={onClicks.Scissors}
-              />
-              <div className="keyHints">(E)</div>
-            </div>
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: localOrOnline === "Local" ? "space-around" : "center",
+              gap: "1rem",
+            }}
+          >
+            {localOrOnline === "Online" && displayOnlineHandButtons()}
+            {localOrOnline === "Local" && displayLocalHandButtons()}
           </div>
           <Button
             onClick={() => setShowExitModal(true)}
@@ -211,7 +292,7 @@ export default function QuickdrawArenaView({
   );
 }
 
-function PointMenu({ isRight }) {
+function PointMenu({ isRight, buyFreeze, buyGamble, buyRunItBack }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const extendedStyles = {
@@ -226,7 +307,7 @@ function PointMenu({ isRight }) {
     zIndex: "1",
   };
 
-  const StoreSlot = ({ emoji, description }) => {
+  const StoreSlot = ({ emoji, description, onClick }) => {
     return (
       <div
         style={{
@@ -238,7 +319,12 @@ function PointMenu({ isRight }) {
       >
         <div style={{ fontSize: "4rem", flex: 1 }}>{emoji}</div>
         <div className="descriptionText">{description}</div>
-        <Button text={"BUY"} textStyle="labelText" styles={{ flex: 1, paddingLeft: "1rem", paddingRight: "1rem" }} />
+        <Button
+          text={"BUY"}
+          onClick={onClick}
+          textStyle="labelText"
+          styles={{ flex: 1, paddingLeft: "1rem", paddingRight: "1rem" }}
+        />
       </div>
     );
   };
@@ -265,16 +351,28 @@ function PointMenu({ isRight }) {
           <div style={{ alignSelf: "center" }} className="labelText">
             1x PURPLE POINT
           </div>
-          <StoreSlot emoji={EMOJIS.ICE} description={"Active:\nOpponent cannot play hands for 2 seconds"} />
+          <StoreSlot
+            emoji={EMOJIS.ICE}
+            description={"Active:\nOpponent cannot play hands for 2 seconds"}
+            onClick={() => {
+              buyFreeze(!isRight);
+            }}
+          />
           <hr style={{ alignSelf: "center", width: "90%", border: "0.1rem solid #b1b1b1", margin: 0 }} />
           <StoreSlot
             emoji={EMOJIS.GAMBLE}
             description={"Choose\nRock Paper or Scissor\nIf opponents next scored hand matches, gain 2 points."}
+            onClick={() => {
+              buyGamble(!isRight);
+            }}
           />
           <hr style={{ alignSelf: "center", width: "90%", border: "0.1rem solid #b1b1b1", margin: 0 }} />
           <StoreSlot
             emoji={EMOJIS.RUN_IT_BACK}
             description={"Increase the score needed to win by 2 (Activates if you lose game-point)"}
+            onClick={() => {
+              buyRunItBack(!isRight);
+            }}
           />
         </motion.div>
       ) : (
