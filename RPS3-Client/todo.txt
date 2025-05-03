@@ -1,0 +1,4 @@
+players can play hands after playing too early instead of being locked out for the round.
+make it so when a player plays to early, the other player is awarded and the round skips, no need to have them play through.
+maybe swtich the purple point and normal point scoring, its much harder to win the rps than to win the draw.
+scoring is fucked up, purple point timeleft is overwritten and so gets fucked up.

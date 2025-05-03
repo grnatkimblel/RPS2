@@ -3,6 +3,11 @@ import useSound from "use-sound";
 import GoodBadAndUglyURL from "../../assets/audio/The Good, the Bad and the Ugly  Main Theme  Ennio Morricone.ogg";
 import GunshotURL from "../../assets/audio/Gunshot.ogg";
 import DrumrollURL from "../../assets/audio/Drumroll.ogg";
+import Whistle1URL from "../../assets/audio/whistle1.ogg";
+import Whistle2URL from "../../assets/audio/whistle2.ogg";
+import Whistle3URL from "../../assets/audio/whistle3.ogg";
+import Whistle4URL from "../../assets/audio/whistle4.ogg";
+import Whistle5URL from "../../assets/audio/whistle5.ogg";
 
 import QuickdrawArenaView from "../QuickdrawArenaView";
 import GamePhases from "../../enums/GamePhases";
@@ -17,7 +22,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   const [viewModel, setViewModel] = useState<QuickdrawArenaViewModel>({
     titleText: EMOJIS.BOMB,
     gamePhase: GamePhases.PRE_GAME,
-    numRoundsToWin: 3,
+    numRoundsToWin: 5,
     player1_hand: EMOJIS.LEFT_HAND,
     player1_score: 0,
     player1_purplePoints: 0,
@@ -31,6 +36,12 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   });
   const [playGunshot, gunshotAudio] = useSound(GunshotURL, { volume: 0.1 });
   const [playDrumroll, drumrollAudio] = useSound(DrumrollURL, { volume: 0.1 });
+  const [playWhistle1, whistle1Audio] = useSound(Whistle1URL, { volume: 0.1 });
+  const [playWhistle2, whistle2Audio] = useSound(Whistle2URL, { volume: 0.1 });
+  const [playWhistle3, whistle3Audio] = useSound(Whistle3URL, { volume: 0.1 });
+  const [playWhistle4, whistle4Audio] = useSound(Whistle4URL, { volume: 0.1 });
+  const [playWhistle5, whistle5Audio] = useSound(Whistle5URL, { volume: 0.1 });
+  const whistles = [playWhistle1, playWhistle2, playWhistle3, playWhistle4, playWhistle5];
 
   const COUNTDOWN_TIME = 1000; //5 seconds
   const timeLeft = useCountdownMs(COUNTDOWN_TIME);
@@ -43,6 +54,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       drawTimeout: null as NodeJS.Timeout | null,
       endTimeout: null as NodeJS.Timeout | null,
       resolveTimeout: null as NodeJS.Timeout | null,
+      resolveCallback: null as (() => void) | null,
     },
   });
 
@@ -92,10 +104,12 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
                   player_1: {
                     hand: null,
                     time: null,
+                    isTooEarly: false,
                   },
                   player_2: {
                     hand: null,
                     time: null,
+                    isTooEarly: false,
                   },
                 },
               },
@@ -116,15 +130,18 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
           updateGameStateAfterRound();
         }
       }, endTime * 1000);
-      const resolveTimeout = setTimeout(() => {
+      const resolveCallback = () => {
         if (isGameOver.current || initialRenderRefs.current.isCancelled) endGame();
         resolve();
-      }, (endTime + 3) * 1000);
+      };
+
+      const resolveTimeout = setTimeout(resolveCallback, (endTime + 3) * 1000);
 
       initialRenderRefs.current.roundTimeouts = {
         drawTimeout,
         endTimeout,
         resolveTimeout,
+        resolveCallback,
       };
     });
   }
@@ -140,11 +157,16 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     if (initialRenderRefs.current.roundTimeouts.resolveTimeout) {
       clearTimeout(initialRenderRefs.current.roundTimeouts.resolveTimeout);
     }
-    initialRenderRefs.current.roundTimeouts = {
-      drawTimeout: null,
-      endTimeout: null,
-      resolveTimeout: null,
-    }; // Clear the ref
+    // initialRenderRefs.current.roundTimeouts = {
+    //   drawTimeout: null,
+    //   endTimeout: null,
+    //   resolveTimeout: null,
+    // }; // Clear the ref
+  }
+
+  function playWhistle() {
+    let whistleIndex = Math.floor(Math.random() * 5);
+    whistles[whistleIndex]();
   }
 
   function beginStartPhase() {
@@ -212,6 +234,12 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
               p2Score++;
             }
           }
+        } else if (p1.isTooEarly || p2.isTooEarly) {
+          if (p1.isTooEarly) {
+            p2PP++;
+          } else {
+            p1PP++;
+          }
         }
       });
 
@@ -263,6 +291,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
 
   const playHand = useCallback(
     (hand, isPlayer1) => {
+      if (!isAcceptingHandsInput) return;
       let now = Date.now();
       // console.log(gameState);
       let roundStartTime = gameState.game.rounds[gameState.game.rounds.length - 1].startTime;
@@ -273,7 +302,31 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         setViewModel((prev: QuickdrawArenaViewModel) => {
           return isPlayer1 ? { ...prev, player1_hand: EMOJIS.EARLY } : { ...prev, player2_hand: EMOJIS.EARLY };
         });
-        //leave hand as null in gamestate
+        setGameState((prev: GameState) => {
+          return {
+            ...prev,
+            game: {
+              ...prev.game,
+              rounds: prev.game.rounds.map((round, index) => {
+                if (index === prev.game.rounds.length - 1) {
+                  return isPlayer1
+                    ? { ...round, hands: { ...round.hands, player_1: { ...round.hands.player_1, isTooEarly: true } } }
+                    : {
+                        ...round,
+                        hands: { ...round.hands, player_2: { ...round.hands.player_2, isTooEarly: true } },
+                      };
+                } else {
+                  return { ...round };
+                }
+              }),
+            },
+          };
+        });
+        goodBadUglyAudio.stop();
+        playWhistle();
+        clearRoundTimeouts();
+        setTimeout(initialRenderRefs.current.roundTimeouts.resolveCallback, 2000);
+        updateGameStateAfterRound();
         return;
       }
       if (now > roundDrawTime && now < roundEndTime) {
@@ -288,9 +341,18 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
               ...prev.game,
               rounds: prev.game.rounds.map((round, index) => {
                 if (index === prev.game.rounds.length - 1) {
-                  return isPlayer1
-                    ? { ...round, hands: { ...round.hands, player_1: { hand: hand, time: now } } }
-                    : { ...round, hands: { ...round.hands, player_2: { hand: hand, time: now } } };
+                  if (isPlayer1) {
+                    return round.hands.player_1.time
+                      ? { ...round, hands: { ...round.hands, player_1: { ...round.hands.player_1, hand: hand } } }
+                      : { ...round, hands: { ...round.hands, player_1: { hand: hand, time: now } } };
+                  } else {
+                    return round.hands.player_2.time
+                      ? { ...round, hands: { ...round.hands, player_2: { ...round.hands.player_2, hand: hand } } }
+                      : { ...round, hands: { ...round.hands, player_2: { hand: hand, time: now } } };
+                  }
+                  // return isPlayer1
+                  //   ? { ...round, hands: { ...round.hands, player_1: { hand: hand, time: now } } }
+                  //   : { ...round, hands: { ...round.hands, player_2: { hand: hand, time: now } } };
                 } else {
                   return { ...round };
                 }
@@ -301,7 +363,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       }
       return;
     },
-    [viewModel, setViewModel, gameState, setGameState]
+    [viewModel, setViewModel, gameState, setGameState, isAcceptingHandsInput]
   );
 
   useEffect(() => {
@@ -449,7 +511,7 @@ function createGameState(): GameState {
     game: {
       isFinished: false,
       header: {
-        numRoundsToWin: 3,
+        numRoundsToWin: 5,
         player1_score: 0,
         player1_purplePoints: 0,
         player2_score: 0,
