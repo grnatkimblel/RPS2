@@ -17,17 +17,18 @@ import QuickdrawArenaViewModel from "../../types/QuickdrawArenaViewModel";
 import useCountdownMs from "../../hooks/useCountdownMs";
 
 export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdrawSessionData }) {
-  const [viewModel, setViewModel] = useState<QuickdrawArenaViewModel>({
+  const initialViewModel = {
     titleText: EMOJIS.BOMB,
     gamePhase: GamePhases.PRE_GAME,
-    numRoundsToWin: 5,
+    numRoundsToWin: 3,
     player1_hand: EMOJIS.LEFT_HAND,
     player1_score: 0,
     player1_purplePoints: 0,
     player2_hand: EMOJIS.RIGHT_HAND,
     player2_score: 0,
     player2_purplePoints: 0,
-  });
+  };
+  const [viewModel, setViewModel] = useState<QuickdrawArenaViewModel>(initialViewModel);
 
   const [playGoodBadUglyAudio, goodBadUglyAudio] = useSound(GoodBadAndUglyURL, {
     volume: 0.1,
@@ -41,12 +42,14 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   const [playWhistle5, whistle5Audio] = useSound(Whistle5URL, { volume: 0.1 });
   const whistles = [playWhistle1, playWhistle2, playWhistle3, playWhistle4, playWhistle5];
 
-  const COUNTDOWN_TIME = 1000; //5 seconds
-  const timeLeft = useCountdownMs(COUNTDOWN_TIME);
+  const [countdownTime, setCountdownTime] = useState(5000); //5 seconds
+  const [countdownKey, setCountdownKey] = useState(0);
+  let timeLeft = useCountdownMs(countdownTime, countdownKey);
   const [gameState, setGameState] = useState<GameState>(createGameState());
   const [isPlayer1AcceptingHandsInput, setIsPlayer1AcceptingHandsInput] = useState(false);
   const [isPlayer2AcceptingHandsInput, setIsPlayer2AcceptingHandsInput] = useState(false);
   const isGameOver = useRef<boolean>(false);
+  const [showGameOverModal, setShowGameOverModal] = useState<boolean>(false);
   const initialRenderRefs = useRef({
     isCancelled: false, // Ref for cancellation flag
     player1_freezeTimeout: null as NodeJS.Timeout | null,
@@ -68,6 +71,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   }, [timeLeft]);
 
   useEffect(() => {
+    console.log(timeLeft);
     if (timeLeft == 0) {
       //start game after countdown
       doGame();
@@ -75,6 +79,8 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   }, [timeLeft]);
 
   async function doGame() {
+    console.log("doGame called");
+    console.log(isGameOver.current);
     initialRenderRefs.current.isCancelled = false; // Reset the flag when starting a new game
     while (isGameOver.current == false) {
       await doRound();
@@ -322,6 +328,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     setViewModel((prev: QuickdrawArenaViewModel) => {
       return { ...prev, gamePhase: GamePhases.OVER, titleText: "GAME OVER" };
     });
+    setShowGameOverModal(true);
   }
 
   const playHand = useCallback(
@@ -479,6 +486,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
           }, 2000);
           return { ...prev, game: { ...prev.game, header: { ...prev.game.header, player1_hasFreeze: false } } };
         }
+        return { ...prev };
       } else {
         if (prev.game.header.player2_hasFreeze) {
           setIsPlayer1AcceptingHandsInput(false);
@@ -488,6 +496,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         }
         return { ...prev, game: { ...prev.game, header: { ...prev.game.header, player2_hasFreeze: false } } };
       }
+      return { ...prev };
     });
   }
 
@@ -687,13 +696,32 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
           Scissors: () => {
             setViewModel((prev: QuickdrawArenaViewModel) => ({ ...prev, player1_hand: EMOJIS.SCISSORS }));
           },
-          Back: () => {
+          Quit: () => {
             initialRenderRefs.current.isCancelled = true;
             clearRoundTimeouts();
             goodBadUglyAudio.stop();
             gunshotAudio.stop();
             drumrollAudio.stop();
             setDisplayState("Home");
+          },
+          PlayAgain: () => {
+            //not sure what all is necessary here but were gonna be careful
+            console.log("PlayAgain Called");
+            setShowGameOverModal(false);
+            setViewModel(initialViewModel);
+            setGameState(createGameState());
+            setIsPlayer1AcceptingHandsInput(false);
+            setIsPlayer1AcceptingHandsInput(false);
+            clearRoundTimeouts();
+            clearFreezeTimeouts();
+            isGameOver.current = false;
+            // Reset all audio
+            goodBadUglyAudio.stop();
+            gunshotAudio.stop();
+            drumrollAudio.stop();
+            // Reset countdown
+            setCountdownTime(5000);
+            setCountdownKey((prev) => prev + 1);
           },
           BuyFreeze: (isPlayer1) => {
             buyAbility(isPlayer1, "Freeze");
@@ -707,6 +735,8 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         }}
         setMainDisplayState={setDisplayState}
         quickdrawSessionData={quickdrawSessionData}
+        showGameOverModal={showGameOverModal}
+        setShowGameOverModal={setShowGameOverModal}
       />
     </>
   );
@@ -738,7 +768,7 @@ function createGameState(): GameState {
     game: {
       isFinished: false,
       header: {
-        numRoundsToWin: 5,
+        numRoundsToWin: 3,
         player1_score: 0,
         player1_purplePoints: 0,
         player1_hasFreeze: false,

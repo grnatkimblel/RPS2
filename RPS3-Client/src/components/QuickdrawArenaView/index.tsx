@@ -13,7 +13,8 @@ interface onClicks {
   Rock: () => void;
   Paper: () => void;
   Scissors: () => void;
-  Back: () => void;
+  PlayAgain: () => void;
+  Quit: () => void;
   BuyFreeze: () => void;
   BuyGamble: () => void;
   BuyRunItBack: () => void;
@@ -25,6 +26,8 @@ interface QuickdrawArenaViewProps {
   onClicks: onClicks;
   setMainDisplayState: (state: string) => void;
   quickdrawSessionData: QuickdrawSessionData; // Adjust the type as needed
+  showGameOverModal: boolean;
+  setShowGameOverModal: (state: boolean) => void;
 }
 
 export default function QuickdrawArenaView({
@@ -33,6 +36,8 @@ export default function QuickdrawArenaView({
   onClicks,
   setMainDisplayState,
   quickdrawSessionData,
+  showGameOverModal,
+  setShowGameOverModal,
 }: QuickdrawArenaViewProps) {
   const [showExitModal, setShowExitModal] = useState<Boolean>(false);
 
@@ -140,7 +145,14 @@ export default function QuickdrawArenaView({
           alignItems: "center",
         }}
       >
-        {showExitModal && <ExitModal setShowExitModal={setShowExitModal} onClickYes={onClicks.Back} />}
+        {showExitModal && <ExitModal setShowExitModal={setShowExitModal} onClickYes={onClicks.Quit} />}
+        {showGameOverModal && (
+          <GameOverModal
+            winner={quickdrawSessionData.player1.username}
+            onClickPlayAgain={onClicks.PlayAgain}
+            onClickQuit={onClicks.Quit}
+          />
+        )}
         <div style={{ width: "100%" }}>
           <div // Player Names and scoreboard
             style={{
@@ -159,7 +171,7 @@ export default function QuickdrawArenaView({
                 marginLeft: "2rem",
               }}
             >
-              {quickdrawSessionData.player1.username}
+              {"👑 " + quickdrawSessionData.player1.username}
             </div>
             <div style={{ display: "flex", justifyContent: "center" }}>
               <div style={{ display: "flex", flexDirection: "row-reverse", alignItems: "flex-end" }}>
@@ -230,7 +242,7 @@ export default function QuickdrawArenaView({
                 marginRight: "2rem",
               }}
             >
-              {quickdrawSessionData.player2.username}
+              {quickdrawSessionData.player2.username + " 👑"}
             </div>
           </div>
           <div style={{ width: "100%", display: "flex" }}>
@@ -419,6 +431,37 @@ function ExitModal({ setShowExitModal, onClickYes }) {
           styles={{ margin: "1rem" }}
           onClick={() => setShowExitModal(false)}
         />
+      </div>
+    </div>
+  );
+}
+
+function GameOverModal({ winner, onClickPlayAgain, onClickQuit }) {
+  const styles = {
+    width: "32rem",
+    border: "0.6rem solid var(--tileBorderColor_Default)",
+    borderRadius: "1rem",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    position: "absolute",
+    top: "50%",
+    translate: "0 -50%",
+    backgroundColor: "white",
+    zIndex: "1",
+  };
+
+  return (
+    <div style={styles}>
+      <div className={"defaultText"} style={{ paddingTop: "1rem", textAlign: "center" }}>
+        {winner + " WON!"}
+      </div>
+      <div className={"defaultText"} style={{ textAlign: "center" }}>
+        PLAY AGAIN?
+      </div>
+      <div style={{ width: "100%", display: "flex", justifyContent: "space-around" }}>
+        <Button text={"YES"} textStyle={"labelText"} styles={{ margin: "1rem" }} onClick={onClickPlayAgain} />
+        <Button text={"QUIT"} textStyle={"labelText"} styles={{ margin: "1rem" }} onClick={onClickQuit} />
       </div>
     </div>
   );
