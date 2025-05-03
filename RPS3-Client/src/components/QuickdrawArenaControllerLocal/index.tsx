@@ -225,97 +225,37 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     setIsPlayer2AcceptingHandsInput(false);
   }
 
-  function updatePurplePoints() {
-    let p1PP = 0;
-    let p2PP = 0;
-    setGameState((prev: GameState) => {
-      console.log(prev);
-      prev.game.rounds.forEach((round) => {
-        let p1 = round.hands.player_1;
-        let p2 = round.hands.player_2;
-        if (p1.hand !== null || p2.hand !== null) {
-          //if someone played a hand
-          if (didPlayer1GetPurplePoint(p1.time, p2.time)) {
-            p1PP++;
-          } else {
-            p2PP++;
-          }
-
-          if (round.abilites.player_1.boughtFreeze) p1PP--;
-          if (round.abilites.player_1.boughtGamble) p1PP--;
-          if (round.abilites.player_1.boughtRunItBack) p1PP--;
-          if (round.abilites.player_2.boughtFreeze) p2PP--;
-          if (round.abilites.player_2.boughtGamble) p2PP--;
-          if (round.abilites.player_2.boughtRunItBack) p2PP--;
-        }
-      });
-
-      return {
-        ...prev,
-        game: {
-          ...prev.game,
-          header: {
-            ...prev.game.header,
-            player1_purplePoints: p1PP,
-            player2_purplePoints: p2PP,
-          },
-        },
-      };
-    });
-  }
-
   function updateGameStateAfterRound() {
     setGameState((prev: GameState) => {
+      console.log("updateGameStateAfterRound", prev);
       let p1Score = 0;
       let p2Score = 0;
       let p1PP = 0;
       let p2PP = 0;
 
       prev.game.rounds.forEach((round) => {
-        let p1 = round.hands.player_1;
-        let p2 = round.hands.player_2;
-        if (p1.hand !== null || p2.hand !== null) {
-          //if someone played a hand
-          if (didPlayer1GetPurplePoint(p1.time, p2.time)) {
-            p1PP++;
-          } else {
-            p2PP++;
-          }
+        let player1 = round.hands.player_1;
+        let player2 = round.hands.player_2;
+        let tempP1Score: number, tempP2Score: number;
+        let tempP1PP: number, tempP2PP: number;
 
-          if (p1.hand !== p2.hand) {
-            if (p1.hand == null) {
-              p2Score++;
-            } else if (p2.hand == null) {
-              p1Score++;
-            } else if (p1.hand === EMOJIS.ROCK && p2.hand === EMOJIS.SCISSORS) {
-              p1Score++;
-            } else if (p1.hand === EMOJIS.PAPER && p2.hand === EMOJIS.ROCK) {
-              p1Score++;
-            } else if (p1.hand === EMOJIS.SCISSORS && p2.hand === EMOJIS.PAPER) {
-              p1Score++;
-            } else {
-              p2Score++;
-            }
-          }
-        } else if (p1.isTooEarly || p2.isTooEarly) {
-          if (p1.isTooEarly) {
-            p2PP++;
-          } else {
-            p1PP++;
-          }
-        }
+        ({ player1Score: tempP1Score, player2Score: tempP2Score } = getScoreAward(player1, player2));
+        p1Score += tempP1Score;
+        p2Score += tempP2Score;
+
+        ({ player1PP: tempP1PP, player2PP: tempP2PP } = getPurplePointsAward(player1, player2));
+        p1PP += tempP1PP;
+        p2PP += tempP2PP;
+
+        if (round.abilities.player_1.boughtFreeze) p1PP--;
+        if (round.abilities.player_1.boughtGamble) p1PP--;
+        if (round.abilities.player_1.boughtRunItBack) p1PP--;
+        if (round.abilities.player_2.boughtFreeze) p2PP--;
+        if (round.abilities.player_2.boughtGamble) p2PP--;
+        if (round.abilities.player_2.boughtRunItBack) p2PP--;
       });
 
-      setViewModel((prev: QuickdrawArenaViewModel) => {
-        return {
-          ...prev,
-          player1_score: p1Score,
-          player2_score: p2Score,
-          player1_purplePoints: p1PP,
-          player2_purplePoints: p2PP,
-        };
-      });
-
+      console.log("updateGameStateAfterRound");
       console.log(p1Score, p2Score, p1PP, p2PP);
       if (p1Score + p1PP >= prev.game.header.numRoundsToWin || p2Score + p2PP >= prev.game.header.numRoundsToWin) {
         console.log("game over");
@@ -338,11 +278,43 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     });
   }
 
-  function didPlayer1GetPurplePoint(p1Time?: number, p2Time?: number) {
-    if (p1Time !== null && p2Time == null) return true;
-    if (p1Time == null && p2Time !== null) return false;
-    if (p1Time < p2Time) return true;
-    if (p1Time > p2Time) return false;
+  function getPurplePointsAward(player1, player2): { player1PP: number; player2PP: number } {
+    let award = { player1PP: 0, player2PP: 0 };
+    if (player1.hand !== null || player2.hand !== null) {
+      // someone played a hand
+      if (player1.time !== null && player2.time == null) award.player1PP++;
+      else if (player1.time == null && player2.time !== null) award.player2PP++;
+      else if (player1.time < player2.time) award.player1PP++;
+      else if (player1.time > player2.time) award.player2PP++;
+    } else if (player1.isTooEarly || player2.isTooEarly) {
+      //no one played a hand, so did someone jump the gun
+      player1.isTooEarly ? award.player2PP++ : award.player1PP++;
+    }
+    console.log("getPurplePoints ", award);
+    return award;
+  }
+
+  function getScoreAward(player1, player2): { player1Score: number; player2Score: number } {
+    let award = { player1Score: 0, player2Score: 0 };
+    if (player1.hand !== null || player2.hand !== null) {
+      //if someone played a hand
+      if (player1.hand !== player2.hand) {
+        if (player1.hand == null) {
+          award.player2Score++;
+        } else if (player2.hand == null) {
+          award.player1Score++;
+        } else if (player1.hand === EMOJIS.ROCK && player2.hand === EMOJIS.SCISSORS) {
+          award.player1Score++;
+        } else if (player1.hand === EMOJIS.PAPER && player2.hand === EMOJIS.ROCK) {
+          award.player1Score++;
+        } else if (player1.hand === EMOJIS.SCISSORS && player2.hand === EMOJIS.PAPER) {
+          award.player1Score++;
+        } else {
+          award.player2Score++;
+        }
+      }
+    }
+    return award;
   }
 
   function endGame() {
@@ -363,7 +335,9 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
 
       let playerKey = isPlayer1 ? "player_1" : "player_2";
 
+      // someone jumped the gun
       if (now > roundStartTime && now < roundDrawTime) {
+        console.log(playerKey + " jumped the gun");
         setViewModel((prev: QuickdrawArenaViewModel) => {
           return isPlayer1 ? { ...prev, player1_hand: EMOJIS.EARLY } : { ...prev, player2_hand: EMOJIS.EARLY };
         });
@@ -378,7 +352,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
                     ...round,
                     hands: {
                       ...round.hands,
-                      player_1: { ...round.hands[playerKey], isTooEarly: true },
+                      [playerKey]: { ...round.hands[playerKey], isTooEarly: true },
                     },
                   };
                 } else {
@@ -391,10 +365,13 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         goodBadUglyAudio.stop();
         playWhistle();
         clearRoundTimeouts();
+        setIsPlayer1AcceptingHandsInput(false);
+        setIsPlayer2AcceptingHandsInput(false);
         setTimeout(initialRenderRefs.current.roundTimeouts.resolveCallback, 2000);
         updateGameStateAfterRound();
         return;
       }
+      //someone played legally
       if (now > roundDrawTime && now < roundEndTime) {
         setViewModel((prev: QuickdrawArenaViewModel) => {
           return isPlayer1 ? { ...prev, player1_hand: hand } : { ...prev, player2_hand: hand };
@@ -433,13 +410,14 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   function buyAbility(isPlayer1, ability) {
     if (isPlayer1) {
       setGameState((prev: GameState) => {
-        console.log(prev);
+        console.log("buy ability ", prev);
         if (prev.game.header.player1_purplePoints >= 1) {
           if (!prev.game.header[`player1_has${ability}`]) {
             return {
               ...prev,
               game: {
                 ...prev.game,
+                header: { ...prev.game.header, [`player1_has${ability}`]: true },
                 rounds: prev.game.rounds.map((round, index) => {
                   if (index === prev.game.rounds.length - 1) {
                     return {
@@ -456,25 +434,26 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
               },
             };
           }
-        } else {
-          return { ...prev };
         }
+        return { ...prev };
       });
     } else {
       setGameState((prev: GameState) => {
+        console.log(prev);
         if (prev.game.header.player2_purplePoints >= 1) {
           if (!prev.game.header[`player2_has${ability}`]) {
             return {
               ...prev,
               game: {
                 ...prev.game,
+                header: { ...prev.game.header, [`player2_has${ability}`]: true },
                 rounds: prev.game.rounds.map((round, index) => {
                   if (index === prev.game.rounds.length - 1) {
                     return {
                       ...round,
                       abilities: {
                         ...round.abilities,
-                        player_1: { ...round.abilities.player_2, [`bought${ability}`]: true },
+                        player_2: { ...round.abilities.player_2, [`bought${ability}`]: true },
                       },
                     };
                   } else {
@@ -484,12 +463,10 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
               },
             };
           }
-        } else {
-          return { ...prev };
         }
+        return { ...prev };
       });
     }
-    updatePurplePoints();
   }
 
   function doFreeze(isPlayer1) {
@@ -528,8 +505,67 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     });
   }
 
+  //update display score when state changes
   useEffect(() => {
-    //register keydown event listener
+    setViewModel((prev) => {
+      return {
+        ...prev,
+        numRoundsToWin: gameState.game.header.numRoundsToWin,
+        player1_score: gameState.game.header.player1_score,
+        player1_purplePoints: gameState.game.header.player1_purplePoints,
+        player2_score: gameState.game.header.player2_score,
+        player2_purplePoints: gameState.game.header.player2_purplePoints,
+      };
+    });
+  }, [
+    gameState.game.header.numRoundsToWin,
+    gameState.game.header.player1_score,
+    gameState.game.header.player1_purplePoints,
+    gameState.game.header.player2_score,
+    gameState.game.header.player2_purplePoints,
+  ]);
+
+  //updatePurplePoints when there is an ability purchase
+  useEffect(() => {
+    //only execute when purchasing, dont want to update score when abilities are consumed
+
+    setGameState((prev: GameState) => {
+      let p1PP = 0;
+      let p2PP = 0;
+      console.log("PP UseEffect: prev ", prev);
+      prev.game.rounds.forEach((round, index) => {
+        let tempP1PP: number, tempP2PP: number;
+        ({ player1PP: tempP1PP, player2PP: tempP2PP } = getPurplePointsAward(
+          round.hands.player_1,
+          round.hands.player_2
+        ));
+        p1PP += tempP1PP;
+        p2PP += tempP2PP;
+
+        if (round.abilities.player_1.boughtFreeze) p1PP--;
+        if (round.abilities.player_1.boughtGamble) p1PP--;
+        if (round.abilities.player_1.boughtRunItBack) p1PP--;
+        if (round.abilities.player_2.boughtFreeze) p2PP--;
+        if (round.abilities.player_2.boughtGamble) p2PP--;
+        if (round.abilities.player_2.boughtRunItBack) p2PP--;
+      });
+
+      return {
+        ...prev,
+        game: {
+          ...prev.game,
+          header: {
+            ...prev.game.header,
+            player1_purplePoints: p1PP,
+            player2_purplePoints: p2PP,
+          },
+        },
+      };
+    });
+  }, [gameState.game.rounds]);
+
+  //register keydown event listener
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "q") {
         playHand(EMOJIS.ROCK, true);
@@ -556,6 +592,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     };
   }, [playHand]);
 
+  //clear all things when leaving game
   useEffect(() => {
     return () => {
       initialRenderRefs.current.isCancelled = true; // Set the flag when the component unmounts
@@ -704,14 +741,14 @@ function createGameState(): GameState {
         numRoundsToWin: 5,
         player1_score: 0,
         player1_purplePoints: 0,
-        player1_hasFreeze: true,
-        player1_hasGamble: true,
-        player1_hasRunItBack: true,
+        player1_hasFreeze: false,
+        player1_hasGamble: false,
+        player1_hasRunItBack: false,
         player2_score: 0,
         player2_purplePoints: 0,
-        player2_hasFreeze: true,
-        player2_hasGamble: true,
-        player2_hasRunItBack: true,
+        player2_hasFreeze: false,
+        player2_hasGamble: false,
+        player2_hasRunItBack: false,
       },
       rounds: [],
     },

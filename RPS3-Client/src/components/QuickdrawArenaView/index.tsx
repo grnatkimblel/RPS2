@@ -354,7 +354,8 @@ function PointMenu({ isRight, buyFreeze, buyGamble, buyRunItBack }) {
           <StoreSlot
             emoji={EMOJIS.ICE}
             description={"Active:\nOpponent cannot play hands for 2 seconds"}
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation();
               buyFreeze(!isRight);
             }}
           />
@@ -362,7 +363,8 @@ function PointMenu({ isRight, buyFreeze, buyGamble, buyRunItBack }) {
           <StoreSlot
             emoji={EMOJIS.GAMBLE}
             description={"Choose\nRock Paper or Scissor\nIf opponents next scored hand matches, gain 2 points."}
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation();
               buyGamble(!isRight);
             }}
           />
@@ -370,7 +372,8 @@ function PointMenu({ isRight, buyFreeze, buyGamble, buyRunItBack }) {
           <StoreSlot
             emoji={EMOJIS.RUN_IT_BACK}
             description={"Increase the score needed to win by 2 (Activates if you lose game-point)"}
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation();
               buyRunItBack(!isRight);
             }}
           />
