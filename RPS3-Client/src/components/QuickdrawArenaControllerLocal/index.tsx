@@ -238,6 +238,8 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       let p2Score = 0;
       let p1PP = 0;
       let p2PP = 0;
+      let tempNumRoundsToWin = prev.game.header.numRoundsToWin;
+      let tempHasRunItBack;
 
       prev.game.rounds.forEach((round) => {
         let player1 = round.hands.player_1;
@@ -261,9 +263,16 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         if (round.abilities.player_2.boughtRunItBack) p2PP--;
       });
 
-      console.log("updateGameStateAfterRound");
-      console.log(p1Score, p2Score, p1PP, p2PP);
-      if (p1Score + p1PP >= prev.game.header.numRoundsToWin || p2Score + p2PP >= prev.game.header.numRoundsToWin) {
+      let standing =
+        p1Score + p1PP == prev.game.header.numRoundsToWin ? { winner: "1", loser: "2" } : { winner: "2", loser: "1" };
+      let isGamePoint = standing.winner == "1" ? p1Score + p1PP : p2Score + p2PP == prev.game.header.numRoundsToWin - 1;
+      tempHasRunItBack = prev.game.header[`player${standing.loser}_hasRunItBack`];
+      if (isGamePoint && tempHasRunItBack) {
+        //its game point
+        console.log("runItBack triggered");
+        tempHasRunItBack = false;
+        tempNumRoundsToWin = prev.game.header.numRoundsToWin + 2;
+      } else if (p1Score + p1PP >= tempNumRoundsToWin || p2Score + p2PP >= tempNumRoundsToWin) {
         console.log("game over");
         isGameOver.current = true;
       }
@@ -278,6 +287,8 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
             player1_purplePoints: p1PP,
             player2_score: p2Score,
             player2_purplePoints: p2PP,
+            [`player${standing.loser}_hasRunItBack`]: tempHasRunItBack,
+            numRoundsToWin: tempNumRoundsToWin,
           },
         },
       };
@@ -324,10 +335,6 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   }
 
   function endGame() {
-    console.log("game end called");
-    setViewModel((prev: QuickdrawArenaViewModel) => {
-      return { ...prev, gamePhase: GamePhases.OVER, titleText: "GAME OVER" };
-    });
     setShowGameOverModal(true);
   }
 
@@ -508,10 +515,6 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   }
 
   function doRunItBack(isPlayer1) {
-    setGameState((prev: GameState) => {
-      if (prev.game.header[`player${isPlayer1 ? 1 : 2}_hasRunItBack`]) {
-      }
-    });
   }
 
   //update display score when state changes
@@ -522,16 +525,28 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         numRoundsToWin: gameState.game.header.numRoundsToWin,
         player1_score: gameState.game.header.player1_score,
         player1_purplePoints: gameState.game.header.player1_purplePoints,
+        player1_hasFreeze: gameState.game.header.player1_hasFreeze,
+        player1_hasGamble: gameState.game.header.player1_hasGamble,
+        player1_hasRunItBack: gameState.game.header.player1_hasRunItBack,
         player2_score: gameState.game.header.player2_score,
         player2_purplePoints: gameState.game.header.player2_purplePoints,
+        player2_hasFreeze: gameState.game.header.player2_hasFreeze,
+        player2_hasGamble: gameState.game.header.player2_hasGamble,
+        player2_hasRunItBack: gameState.game.header.player2_hasRunItBack,
       };
     });
   }, [
     gameState.game.header.numRoundsToWin,
     gameState.game.header.player1_score,
     gameState.game.header.player1_purplePoints,
+    gameState.game.header.player1_hasFreeze,
+    gameState.game.header.player1_hasGamble,
+    gameState.game.header.player1_hasRunItBack,
     gameState.game.header.player2_score,
     gameState.game.header.player2_purplePoints,
+    gameState.game.header.player2_hasFreeze,
+    gameState.game.header.player2_hasGamble,
+    gameState.game.header.player2_hasRunItBack,
   ]);
 
   //updatePurplePoints when there is an ability purchase

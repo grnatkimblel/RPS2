@@ -169,3 +169,9 @@ input[type="search"]:focus {
   border-radius: 8px;
   position: absolute;
 }
+
+.ability-transparency {
+  background: var(--tileBorderColor_Default);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

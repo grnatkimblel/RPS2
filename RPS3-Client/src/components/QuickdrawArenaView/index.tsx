@@ -267,10 +267,15 @@ export default function QuickdrawArenaView({
               width: "100%",
               height: "22rem",
               display: "flex",
-              justifyContent: "center",
+              justifyContent: "space-between",
               marginTop: "-2rem",
             }}
           >
+            <AbilityIndicator
+              hasFreeze={viewModel.player1_hasFreeze}
+              hasGamble={viewModel.player1_hasGamble}
+              hasRunItBack={viewModel.player1_hasRunItBack}
+            />
             <div style={{ fontSize: "10rem", alignSelf: "flex-end", marginRight: "5rem" }}>
               {viewModel.player1_hand}
             </div>
@@ -278,6 +283,12 @@ export default function QuickdrawArenaView({
               {viewModel.titleText}
             </div>
             <div style={{ fontSize: "10rem", alignSelf: "flex-end", marginLeft: "5rem" }}>{viewModel.player2_hand}</div>
+            <AbilityIndicator
+              isRight={true}
+              hasFreeze={viewModel.player2_hasFreeze}
+              hasGamble={viewModel.player2_hasGamble}
+              hasRunItBack={viewModel.player2_hasRunItBack}
+            />
           </div>
         </div>
         <div style={{ width: "100%" }}>
@@ -301,6 +312,22 @@ export default function QuickdrawArenaView({
         </div>
       </div>
     </motion.div>
+  );
+}
+
+function AbilityIndicator({ isRight, hasFreeze, hasGamble, hasRunItBack }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: isRight ? "flex-end" : "flex-start" }}>
+      <div style={{ fontSize: "4rem" }} className={hasFreeze ? "" : "ability-transparency"}>
+        {EMOJIS.ICE}
+      </div>
+      <div style={{ fontSize: "4rem" }} className={hasGamble ? "" : "ability-transparency"}>
+        {EMOJIS.GAMBLE}
+      </div>
+      <div style={{ fontSize: "4rem" }} className={hasRunItBack ? "" : "ability-transparency"}>
+        {EMOJIS.RUN_IT_BACK}
+      </div>
+    </div>
   );
 }
 

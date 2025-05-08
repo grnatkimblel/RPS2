@@ -4,20 +4,20 @@ export default function useCountdownMs(duration: number, countdownKey: number): 
   const [timeLeft, setTimeLeft] = useState(duration);
 
   useEffect(() => {
-    console.log("useCountdownMs: duration changed", duration);
+    // console.log("useCountdownMs: duration changed", duration);
     setTimeLeft(duration); // Reset timeLeft when duration prop changes
-  }, [duration, countdownKey]);
+  }, [duration, countdownKey]); //For some reason countdownKey is required here otherwise the useEffect wont take place
 
   useEffect(() => {
-    console.log("useCountdownMs: timeLeft", timeLeft);
+    // console.log("useCountdownMs: timeLeft", timeLeft);
     if (timeLeft <= 0) {
-      console.log("useCountdownMs: countdown finished");
+      // console.log("useCountdownMs: countdown finished");
       return;
     }
     const subseconds = timeLeft % 1000;
     const countdown = setTimeout(
       () => {
-        console.log("useCountdownMs: tick", timeLeft, subseconds);
+        // console.log("useCountdownMs: tick", timeLeft, subseconds);
         if (subseconds > 0) {
           setTimeLeft(timeLeft - subseconds);
         } else {
@@ -28,7 +28,7 @@ export default function useCountdownMs(duration: number, countdownKey: number): 
     );
     //cleanup
     return () => {
-      console.log("useCountdownMs: clearing timeout");
+      // console.log("useCountdownMs: clearing timeout");
       clearTimeout(countdown);
     };
   }, [timeLeft]);
