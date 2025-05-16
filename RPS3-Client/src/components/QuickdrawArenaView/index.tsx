@@ -8,6 +8,7 @@ import GamePhases from "../../enums/GamePhases";
 import EMOJIS from "../../enums/Emojis";
 
 import Button from "../Button";
+import { s } from "motion/react-client";
 
 interface onClicks {
   Rock: () => void;
@@ -323,6 +324,7 @@ export default function QuickdrawArenaView({
           <div style={{ width: "100%", display: "flex" }}>
             <PointMenu
               isRight={false}
+              showKeyHints={showKeyHints}
               setShowKeyHints={setShowKeyHints}
               setIsRightShopOpen={setIsRightShopOpen}
               setIsLeftShopOpen={setIsLeftShopOpen}
@@ -335,6 +337,7 @@ export default function QuickdrawArenaView({
             </div>
             <PointMenu
               isRight={true}
+              showKeyHints={showKeyHints}
               setShowKeyHints={setShowKeyHints}
               setIsRightShopOpen={setIsRightShopOpen}
               setIsLeftShopOpen={setIsLeftShopOpen}
@@ -357,6 +360,7 @@ export default function QuickdrawArenaView({
               hasFreeze={viewModel.player1_hasFreeze}
               hasGamble={viewModel.player1_hasGamble}
               hasRunItBack={viewModel.player1_hasRunItBack}
+              showKeyHints={showKeyHints}
             />
             <div style={{ fontSize: "12rem", alignSelf: "flex-end", marginRight: "2rem" }}>
               {viewModel.player1_hand}
@@ -370,6 +374,7 @@ export default function QuickdrawArenaView({
               hasFreeze={viewModel.player2_hasFreeze}
               hasGamble={viewModel.player2_hasGamble}
               hasRunItBack={viewModel.player2_hasRunItBack}
+              showKeyHints={showKeyHints}
             />
           </div>
         </div>
@@ -397,11 +402,22 @@ export default function QuickdrawArenaView({
   );
 }
 
-function AbilityIndicator({ isRight, hasFreeze, hasGamble, hasRunItBack }) {
+function AbilityIndicator({ isRight, hasFreeze, hasGamble, hasRunItBack, showKeyHints }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: isRight ? "flex-end" : "flex-start" }}>
-      <div style={{ fontSize: "4rem" }} className={hasFreeze ? "" : "ability-transparency"}>
-        {EMOJIS.ICE}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: isRight ? "flex-end" : "flex-start",
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+        {isRight && <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(TAB)</div>}
+        <div style={{ fontSize: "4rem" }} className={hasFreeze ? "" : "ability-transparency"}>
+          {EMOJIS.ICE}
+        </div>
+        {!isRight && <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(TAB)</div>}
       </div>
       <div style={{ fontSize: "4rem" }} className={hasGamble ? "" : "ability-transparency"}>
         {EMOJIS.GAMBLE}
@@ -415,6 +431,7 @@ function AbilityIndicator({ isRight, hasFreeze, hasGamble, hasRunItBack }) {
 
 function PointMenu({
   isRight,
+  showKeyHints,
   setShowKeyHints,
   setIsRightShopOpen,
   setIsLeftShopOpen,
@@ -509,19 +526,23 @@ function PointMenu({
           />
         </motion.div>
       ) : (
-        <Button
-          text={EMOJIS.ORB}
-          styles={{ fontSize: "3rem", width: "6rem", height: "6rem" }}
-          onClick={() => {
-            setIsExpanded((isExpanded) => !isExpanded);
-          }}
-          onMouseEnter={() => {
-            setShowKeyHints(true);
-          }}
-          onMouseLeave={() => {
-            setShowKeyHints(false);
-          }}
-        />
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+          {isRight && <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(SHIFT)</div>}
+          <Button
+            text={EMOJIS.ORB}
+            styles={{ fontSize: "3rem", width: "6rem", height: "6rem" }}
+            onClick={() => {
+              setIsExpanded((isExpanded) => !isExpanded);
+            }}
+            onMouseEnter={() => {
+              setShowKeyHints(true);
+            }}
+            onMouseLeave={() => {
+              setShowKeyHints(false);
+            }}
+          />
+          {!isRight && <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(TAB)</div>}
+        </div>
       )}
     </div>
   );
