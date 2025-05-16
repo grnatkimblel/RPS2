@@ -1,4 +1,4 @@
-import GameType from "./GameType";
+import GameType from "../enums/GameType";
 import PlayerModel from "./PlayerModel";
 
 interface QuickdrawSessionData {

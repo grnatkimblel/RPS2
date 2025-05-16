@@ -2,7 +2,16 @@ import { useState, useEffect, useRef, cloneElement } from "react";
 import { motion, steps } from "motion/react";
 import "../../styles/styles.css";
 
-export default function Button({ text, textStyle, setDisplayState, destination, styles, onClick }) {
+export default function Button({
+  text,
+  textStyle,
+  setDisplayState,
+  destination,
+  styles,
+  onClick,
+  onMouseEnter,
+  onMouseLeave,
+}) {
   return (
     <motion.button //Play Button
       transition={{ duration: 0.05 }}
@@ -18,6 +27,8 @@ export default function Button({ text, textStyle, setDisplayState, destination, 
               setDisplayState(destination);
             }
       }
+      onMouseEnter={onMouseEnter ? onMouseEnter : null}
+      onMouseLeave={onMouseLeave ? onMouseLeave : null}
       style={{ width: "100%", ...styles }}
       className={textStyle}
     >

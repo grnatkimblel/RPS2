@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { motion, usePresenceData } from "motion/react";
 import "../../styles/styles.css";
 
+import DisplayStates from "../../enums/DisplayStates";
+
 import Tile from "../Tile";
 import Button from "../Button";
 import CycleButton from "../CycleButton";
@@ -82,7 +84,7 @@ export default function LocalMenu({ displayState, setDisplayState, setLocalPlaye
               player1Name === "" ? setLocalPlayer1Name("PLAYER 1") : setLocalPlayer1Name(player1Name);
               player2Name === "" ? setLocalPlayer2Name("PLAYER 2") : setLocalPlayer2Name(player2Name);
 
-              setDisplayState("QuickdrawArenaLocal");
+              setDisplayState(DisplayStates.Quickdraw_Arena_Local);
             }}
           >
             GO

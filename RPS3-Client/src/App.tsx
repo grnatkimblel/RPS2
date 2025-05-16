@@ -3,8 +3,11 @@ import { motion, AnimatePresence, LayoutGroup, usePresenceData, findSpring, dela
 import "./styles/texts.css";
 import "./styles/styles.css";
 
+import DisplayStates from "./enums/DisplayStates.ts";
+import GameSettings from "./types/GameSettings.ts";
+
 import GameInfo from "./types/QuickdrawSessionData.ts";
-import GameType from "./types/GameType.ts";
+import GameType from "./enums/GameType.ts";
 import PlayerInfo from "./types/PlayerModel.ts";
 
 import Tile from "./components/Tile";
@@ -15,26 +18,44 @@ import MatchmakingSelect from "./components/MatchmakingSelect";
 import Login from "./components/Login";
 import CreateAccount from "./components/CreateAccount";
 import OpponentSearch from "./components/OpponentSearch";
-import QuickdrawArenaController from "./components/QuickdrawArenaControllerLocal/index.tsx";
+import QuickdrawArenaController from "./components/QuickdrawArenaControllerLocal/index";
 import QuickdrawArenaControllerOnline from "./components/QuickdrawArenaControllerOnline/index";
+import Settings from "./components/Settings/index";
 
 function App() {
-  const [displayState, setDisplayState] = useState("");
-  const [nextDisplayState, setNextDisplayState] = useState("Home");
+  const [soundVolume, setSoundVolume] = useState(() => {
+    const savedValue = localStorage.getItem("soundVolume");
+    console.log("Sound volume loaded from local storage: ", savedValue);
+    console.log("Sound volume loaded from local storage: ", typeof savedValue);
+    return savedValue !== null && savedValue !== "undefined" && savedValue !== "NaN" ? parseFloat(savedValue) : 0.1;
+  });
+
+  const [displayState, setDisplayState] = useState<DisplayStates>(DisplayStates.Home);
+  const [nextDisplayState, setNextDisplayState] = useState<DisplayStates>(DisplayStates.Home);
   const previousDisplayState = useRef(displayState);
 
   const [localPlayer1Name, setLocalPlayer1Name] = useState("");
   const [localPlayer2Name, setLocalPlayer2Name] = useState("");
 
   useEffect(() => {
-    console.log("UseEffect called");
+    // Save the sound volume to local storage whenever it changes
+    localStorage.setItem("soundVolume", soundVolume.toString());
+    return () => {
+      // Cleanup function to remove the sound volume from local storage if needed
+      localStorage.clear();
+    };
+  }, [soundVolume]);
+
+  // console.log(displayState);
+  useEffect(() => {
+    // console.log("UseEffect called");
     previousDisplayState.current = displayState;
-    console.log("displayState: ", displayState);
+    // console.log("displayState: ", displayState);
     // console.log("previousDisplayState: ", previousDisplayState.current)
   }, [displayState]);
 
   useEffect(() => {
-    console.log("UseEffect called for nextDisplayState");
+    // console.log("UseEffect called for nextDisplayState");
     setDisplayState(nextDisplayState);
   }, [nextDisplayState]);
 
@@ -43,50 +64,50 @@ function App() {
       <>
         <button
           style={{ position: "absolute", marginLeft: "20rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState("Home")}
+          onClick={() => setNextDisplayState(DisplayStates.Home)}
         >
           Home
         </button>
         <button
           style={{ position: "absolute", marginLeft: "25rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState("Local")}
+          onClick={() => setNextDisplayState(DisplayStates.Local)}
         >
           Local
         </button>
         <button
           style={{ position: "absolute", marginLeft: "30rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState("Online Gamemodes")}
+          onClick={() => setNextDisplayState(DisplayStates.Online_Gamemodes)}
         >
           Online1
         </button>
         <button
           style={{ position: "absolute", marginLeft: "35rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState("Online Matchmaking:Quickdraw")}
+          onClick={() => setNextDisplayState(DisplayStates.Online_Matchmaking_Quickdraw)}
         >
           Quickdraw
         </button>
         <button
           style={{ position: "absolute", marginLeft: "40rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState("Online Matchmaking:TDM")}
+          onClick={() => setNextDisplayState(DisplayStates.Online_Matchmaking_TDM)}
         >
           TDM
         </button>
         <button
           style={{ position: "absolute", marginLeft: "45rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState("Online Matchmaking:Search")}
+          onClick={() => setNextDisplayState(DisplayStates.Online_Matchmaking_Search)}
         >
           Search
         </button>
 
         <button
           style={{ position: "absolute", marginLeft: "50rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState("Login")}
+          onClick={() => setNextDisplayState(DisplayStates.Login)}
         >
           Login
         </button>
         <button
           style={{ position: "absolute", marginLeft: "55rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState("Create Account")}
+          onClick={() => setNextDisplayState(DisplayStates.Create_Account)}
         >
           CreateAccount
         </button>
@@ -107,86 +128,90 @@ function App() {
   };
 
   const MENU_DISPLAY_STATES = [
-    "Home",
-    "Local",
-    "Online Gamemodes",
-    "Online Matchmaking:Quickdraw",
-    "Online Matchmaking:TDM",
-    "Online Matchmaking:Search",
-    "Login",
-    "Create Account",
-    "Search",
+    DisplayStates.Home,
+    DisplayStates.Local,
+    DisplayStates.Online_Gamemodes,
+    DisplayStates.Online_Matchmaking_Quickdraw,
+    DisplayStates.Online_Matchmaking_TDM,
+    DisplayStates.Online_Matchmaking_Search,
+    DisplayStates.Login,
+    DisplayStates.Create_Account,
+    DisplayStates.Search,
+    DisplayStates.Settings,
   ];
   const ONLINE_MATCHMAKING_DISPLAY_STATES = [
-    "Online Matchmaking:Quickdraw",
-    "Online Matchmaking:TDM",
-    "Online Matchmaking:Search",
+    DisplayStates.Online_Matchmaking_Quickdraw,
+    DisplayStates.Online_Matchmaking_TDM,
+    DisplayStates.Online_Matchmaking_Search,
   ];
-  const USER_ACCOUNT_DISPLAY_STATES = ["Login", "Create Account"];
+  const USER_ACCOUNT_DISPLAY_STATES = [DisplayStates.Login, DisplayStates.Create_Account];
 
   const mainMenuVariants = {
     initial: { y: "1rem", opacity: 0 },
-    Home: { x: 0, y: 0, opacity: 1 },
-    "Online Gamemodes": { x: "-14rem", y: 0, opacity: 1 },
-    "Online Matchmaking": { x: "-25rem", y: 0, opacity: 1 },
+    [DisplayStates.Home]: { x: 0, y: 0, opacity: 1 },
+    [DisplayStates.Online_Gamemodes]: { x: "-14rem", y: 0, opacity: 1 },
+    // "Online Matchmaking": { x: "-25rem", y: 0, opacity: 1 },
     animate: (displayState) => ({
       opacity: 1,
-      y: displayState == "Search" ? "-44rem" : 0,
+      y: displayState == DisplayStates.Search || displayState == DisplayStates.Settings ? "-44rem" : 0,
       x:
-        displayState == "Home"
+        displayState == DisplayStates.Home || displayState == DisplayStates.Settings
           ? 0
-          : displayState == "Online Gamemodes" || displayState == "Local"
+          : displayState == DisplayStates.Online_Gamemodes || displayState == DisplayStates.Local
           ? "-12.5rem"
           : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(displayState)
           ? "-25rem"
           : USER_ACCOUNT_DISPLAY_STATES.includes(displayState)
           ? "15.4rem"
-          : displayState == "Search"
+          : displayState == DisplayStates.Search
           ? "-25rem"
           : "100vh",
     }),
     exit: { opacity: 0, x: 0, y: 0 },
   };
-
   const localOrOnlineVariant = {
     localInitial: (custom) => ({
       opacity: 0,
       x:
-        custom.previousDisplayState == "Online Gamemodes" ||
+        custom.previousDisplayState == DisplayStates.Online_Gamemodes ||
         ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.previousDisplayState)
           ? "15.5rem"
           : "30rem",
       y:
-        custom.previousDisplayState == "Online Gamemodes" ||
+        custom.previousDisplayState == DisplayStates.Online_Gamemodes ||
         ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.previousDisplayState)
           ? "-30rem"
           : 0,
     }),
     onlineInitial: (custom) => ({
       opacity: 0,
-      x: custom.previousDisplayState == "Local" ? "15.5rem" : "30rem",
-      y: custom.previousDisplayState == "Local" ? "30rem" : 0,
+      x: custom.previousDisplayState == DisplayStates.Local ? "15.5rem" : "30rem",
+      y: custom.previousDisplayState == DisplayStates.Local ? "30rem" : 0,
     }),
     present: () => ({
       opacity: 1,
-      x: ONLINE_MATCHMAKING_DISPLAY_STATES.includes(displayState) || displayState == "Search" ? "3rem" : "15.5rem",
-      y: displayState == "Search" ? "-44rem" : 0,
+      x:
+        ONLINE_MATCHMAKING_DISPLAY_STATES.includes(displayState) || displayState == DisplayStates.Search
+          ? "3rem"
+          : "15.5rem",
+      y: displayState == DisplayStates.Search ? "-44rem" : 0,
     }),
     localExit: (custom) => ({
       opacity: 0,
-      x: custom.nextDisplayState == "Online Gamemodes" ? "15.5rem" : "30rem",
-      y: custom.nextDisplayState == "Online Gamemodes" ? "-30rem" : 0,
+      x: custom.nextDisplayState == DisplayStates.Online_Gamemodes ? "15.5rem" : "30rem",
+      y: custom.nextDisplayState == DisplayStates.Online_Gamemodes ? "-30rem" : 0,
     }),
     onlineExit: (custom) => ({
       opacity: 0,
       x:
-        custom.nextDisplayState == "Local" && ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.displayState)
+        custom.nextDisplayState == DisplayStates.Local &&
+        ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.displayState)
           ? "3rem"
-          : custom.nextDisplayState == "Local"
+          : custom.nextDisplayState == DisplayStates.Local
           ? "15.5rem"
           : "30rem",
 
-      y: custom.nextDisplayState == "Local" ? "30rem" : 0,
+      y: custom.nextDisplayState == DisplayStates.Local ? "30rem" : 0,
     }),
   };
 
@@ -194,13 +219,13 @@ function App() {
     quickdrawInitial: (custom) => ({
       opacity: 0,
       x:
-        custom.previousDisplayState == "Online Gamemodes"
+        custom.previousDisplayState == DisplayStates.Online_Gamemodes
           ? "55rem"
           : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.previousDisplayState)
           ? "28rem"
           : "100vh",
       y:
-        custom.previousDisplayState == "Online Gamemodes"
+        custom.previousDisplayState == DisplayStates.Online_Gamemodes
           ? 0
           : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.previousDisplayState)
           ? "-30rem"
@@ -209,44 +234,45 @@ function App() {
     tdmInitial: (custom) => ({
       opacity: 0,
       x:
-        custom.previousDisplayState == "Online Gamemodes"
+        custom.previousDisplayState == DisplayStates.Online_Gamemodes
           ? "55rem"
           : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.previousDisplayState)
           ? "28rem"
           : "100vh",
       y:
-        custom.previousDisplayState == "Online Gamemodes"
+        custom.previousDisplayState == DisplayStates.Online_Gamemodes
           ? 0
-          : custom.previousDisplayState == "Online Matchmaking:Quickdraw"
+          : custom.previousDisplayState == DisplayStates.Online_Matchmaking_Quickdraw
           ? "30rem"
-          : custom.previousDisplayState == "Online Matchmaking:Search"
+          : custom.previousDisplayState == DisplayStates.Online_Matchmaking_Search
           ? "-30rem"
           : "100vh",
     }),
     searchInitial: (custom) => ({
       opacity: 0,
       x:
-        custom.previousDisplayState == "Online Gamemodes"
+        custom.previousDisplayState == DisplayStates.Online_Gamemodes
           ? "55rem"
           : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.previousDisplayState)
           ? "28rem"
           : "100vh",
       y:
-        custom.previousDisplayState == "Online Gamemodes"
+        custom.previousDisplayState == DisplayStates.Online_Gamemodes
           ? 0
           : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.previousDisplayState)
           ? "30rem"
           : "100vh",
     }),
-    present: { y: displayState == "Search" ? "-44rem" : 0, x: "28rem", opacity: 1 },
+    present: { y: displayState == DisplayStates.Search ? "-44rem" : 0, x: "28rem", opacity: 1 },
     quickdrawExit: (custom) => ({
       opacity: 0,
       x:
-        custom.nextDisplayState == "Local" || ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
+        custom.nextDisplayState == DisplayStates.Local ||
+        ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
           ? "28rem"
           : "55rem",
       y:
-        custom.nextDisplayState == "Local"
+        custom.nextDisplayState == DisplayStates.Local
           ? "30rem"
           : ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
           ? "-30rem"
@@ -255,24 +281,28 @@ function App() {
     tdmExit: (custom) => ({
       opacity: 0,
       x:
-        custom.nextDisplayState == "Local" || ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
+        custom.nextDisplayState == DisplayStates.Local ||
+        ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
           ? "28rem"
           : "55rem",
       y:
-        custom.nextDisplayState == "Local" || custom.nextDisplayState == "Online Matchmaking:Quickdraw"
+        custom.nextDisplayState == DisplayStates.Local ||
+        custom.nextDisplayState == DisplayStates.Online_Matchmaking_Quickdraw
           ? "30rem"
-          : custom.nextDisplayState == "Online Matchmaking:Search"
+          : custom.nextDisplayState == DisplayStates.Online_Matchmaking_Search
           ? "-30rem"
           : 0,
     }),
     searchExit: (custom) => ({
       opacity: 0,
       x:
-        custom.nextDisplayState == "Local" || ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
+        custom.nextDisplayState == DisplayStates.Local ||
+        ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
           ? "28rem"
           : "55rem",
       y:
-        custom.nextDisplayState == "Local" || ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
+        custom.nextDisplayState == DisplayStates.Local ||
+        ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
           ? "30rem"
           : 0,
     }),
@@ -306,37 +336,37 @@ function App() {
     searchInitial: (custom) => ({
       opacity: 0,
       x: 0,
-      y: "-20rem",
+      y: "20rem",
     }),
     present: { opacity: 1, y: 0, x: 0 },
     searchExit: (custom) => ({
       opacity: 0,
       x: 0,
-      y: "-20rem",
+      y: "20rem",
     }),
   };
 
   const slimUserAccountVariant = {
     loginInitial: (custom) => ({
       opacity: 0,
-      x: custom.previousDisplayState == "Create Account" ? "-15.5rem" : "-30rem",
-      y: custom.previousDisplayState == "Create Account" ? "-30rem" : 0,
+      x: custom.previousDisplayState == DisplayStates.Create_Account ? "-15.5rem" : "-30rem",
+      y: custom.previousDisplayState == DisplayStates.Create_Account ? "-30rem" : 0,
     }),
     createAccountInitial: (custom) => ({
       opacity: 0,
-      x: custom.previousDisplayState == "Login" ? "-15.5rem" : "-30rem",
-      y: custom.previousDisplayState == "Login" ? "30rem" : 0,
+      x: custom.previousDisplayState == DisplayStates.Login ? "-15.5rem" : "-30rem",
+      y: custom.previousDisplayState == DisplayStates.Login ? "30rem" : 0,
     }),
     present: { opacity: 1, y: 0, x: "-15.5rem" },
     loginExit: (custom) => ({
       opacity: 0,
-      x: custom.nextDisplayState == "Create Account" ? "-15.5rem" : "-30rem",
-      y: custom.nextDisplayState == "Create Account" ? "-30rem" : 0,
+      x: custom.nextDisplayState == DisplayStates.Create_Account ? "-15.5rem" : "-30rem",
+      y: custom.nextDisplayState == DisplayStates.Create_Account ? "-30rem" : 0,
     }),
     createAccountExit: (custom) => ({
       opacity: 0,
-      x: custom.nextDisplayState == "Login" ? "-15.5rem" : "-30rem",
-      y: custom.nextDisplayState == "Login" ? "30rem" : 0,
+      x: custom.nextDisplayState == DisplayStates.Login ? "-15.5rem" : "-30rem",
+      y: custom.nextDisplayState == DisplayStates.Login ? "30rem" : 0,
     }),
   };
 
@@ -359,9 +389,9 @@ function App() {
             }}
           >
             <AnimatePresence mode="popLayout">
-              {displayState == "Login" ? (
+              {displayState == DisplayStates.Login ? (
                 <motion.div
-                  key="Login"
+                  key={DisplayStates.Login}
                   initial="loginInitial"
                   animate="present"
                   exit="loginExit"
@@ -376,9 +406,9 @@ function App() {
                   <Login displayState={displayState} setDisplayState={setNextDisplayState} />
                 </motion.div>
               ) : null}
-              {displayState == "Create Account" ? (
+              {displayState == DisplayStates.Create_Account ? (
                 <motion.div
-                  key="Create Account"
+                  key={DisplayStates.Create_Account}
                   initial="createAccountInitial"
                   animate="present"
                   exit="createAccountExit"
@@ -393,9 +423,9 @@ function App() {
                   <CreateAccount displayState={displayState} setDisplayState={setNextDisplayState} />
                 </motion.div>
               ) : null}
-              {/* {displayState !== "Login" && displayState !== "Create Account" ? ( */}
+              {/* {displayState !== DisplayStates.Login && displayState !== DisplayStates.Create_Account ? ( */}
               <motion.div
-                key="MainMenu"
+                key={DisplayStates.Home}
                 initial="initial"
                 animate="animate"
                 exit="exit"
@@ -407,9 +437,9 @@ function App() {
                 <MainMenu displayState={displayState} setDisplayState={setNextDisplayState} />
               </motion.div>
               {/*}) : null */}
-              {displayState == "Local" ? (
+              {displayState == DisplayStates.Local ? (
                 <motion.div
-                  key="Local"
+                  key={DisplayStates.Local}
                   initial="localInitial"
                   animate="present"
                   exit="localExit"
@@ -430,8 +460,8 @@ function App() {
                   />
                 </motion.div>
               ) : null}
-              {displayState == "Online Gamemodes" ||
-              displayState == "Search" ||
+              {displayState == DisplayStates.Online_Gamemodes ||
+              displayState == DisplayStates.Search ||
               ONLINE_MATCHMAKING_DISPLAY_STATES.includes(displayState) ? (
                 <motion.div
                   key="Online"
@@ -450,8 +480,9 @@ function App() {
                   <GamemodeSelect displayState={displayState} setDisplayState={setNextDisplayState} />
                 </motion.div>
               ) : null}
-              {displayState == "Online Matchmaking:Quickdraw" ||
-              (previousDisplayState.current == "Online Matchmaking:Quickdraw" && displayState == "Search") ? (
+              {displayState == DisplayStates.Online_Matchmaking_Quickdraw ||
+              (previousDisplayState.current == DisplayStates.Online_Matchmaking_Quickdraw &&
+                displayState == DisplayStates.Search) ? (
                 <motion.div
                   key="Matchmaking:Quickdraw"
                   initial="quickdrawInitial"
@@ -473,8 +504,9 @@ function App() {
                   />
                 </motion.div>
               ) : null}
-              {displayState == "Online Matchmaking:TDM" ||
-              (previousDisplayState.current == "Online Matchmaking:TDM" && displayState == "Search") ? (
+              {displayState == DisplayStates.Online_Matchmaking_TDM ||
+              (previousDisplayState.current == DisplayStates.Online_Matchmaking_TDM &&
+                displayState == DisplayStates.Search) ? (
                 <motion.div
                   key="Matchmaking:TDM"
                   initial="tdmInitial"
@@ -496,8 +528,9 @@ function App() {
                   />
                 </motion.div>
               ) : null}
-              {displayState == "Online Matchmaking:Search" ||
-              (previousDisplayState.current == "Online Matchmaking:Search" && displayState == "Search") ? (
+              {displayState == DisplayStates.Online_Matchmaking_Search ||
+              (previousDisplayState.current == DisplayStates.Online_Matchmaking_Search &&
+                displayState == DisplayStates.Search) ? (
                 <motion.div
                   key="Matchmaking:Search"
                   initial="searchInitial"
@@ -513,13 +546,13 @@ function App() {
                   style={{ position: "absolute" }}
                 >
                   <MatchmakingSelect
-                    gamemode={"Search"}
+                    gamemode={DisplayStates.Search}
                     displayState={displayState}
                     setDisplayState={setNextDisplayState}
                   />
                 </motion.div>
               ) : null}
-              {displayState == "Search" ? (
+              {displayState == DisplayStates.Search ? (
                 <motion.div
                   key="OpponentSearch"
                   initial="searchInitial"
@@ -538,13 +571,36 @@ function App() {
                 </motion.div>
               ) : null}
               //add remaining matchmaking tiles
+              {displayState == DisplayStates.Settings ? (
+                <motion.div
+                  key={DisplayStates.Settings}
+                  initial="searchInitial"
+                  animate="present"
+                  exit="searchExit"
+                  variants={searchVariant}
+                  custom={{
+                    nextDisplayState: nextDisplayState,
+                    displayState: displayState,
+                    previousDisplayState: previousDisplayState.current,
+                  }}
+                  // className={"tile slim purple"}
+                  style={{ position: "absolute" }}
+                >
+                  <Settings
+                    displayState={displayState}
+                    setDisplayState={setNextDisplayState}
+                    soundVolume={soundVolume}
+                    setSoundVolume={setSoundVolume}
+                  />
+                </motion.div>
+              ) : null}
             </AnimatePresence>
           </div>
         </>
       ) : null}
-      {displayState == "QuickdrawArenaLocal" ? (
+      {displayState == DisplayStates.Quickdraw_Arena_Local ? (
         <QuickdrawArenaController
-          setDisplayState={setNextDisplayState}  
+          setDisplayState={setNextDisplayState}
           quickdrawSessionData={{
             sessionId: "1234",
             gameStartTime: 1234,
@@ -552,15 +608,23 @@ function App() {
             player1: { username: localPlayer1Name, userId: "1234", emoji: "" },
             player2: { username: localPlayer2Name, userId: "5678", emoji: "" },
           }}
+          soundVolume={soundVolume}
         />
-      ) : displayState == "QuickdrawArenaOnline" ? <QuickdrawArenaControllerOnline setDisplayState={setNextDisplayState}  
-      quickdrawSessionData={{ //comes from matchmaking
-        // sessionId: "1234",
-        // gameStartTime: 1234,
-        // gameType: GameType.QUICKPLAY,
-        // player1: { username: localPlayer1Name, userId: "1234", emoji: "" },
-        // player2: { username: localPlayer2Name, userId: "5678", emoji: "" },
-      }}/> : null}
+      ) : displayState == DisplayStates.Quickdraw_Arena_Online ? (
+        <QuickdrawArenaControllerOnline
+          setDisplayState={setNextDisplayState}
+          quickdrawSessionData={
+            {
+              //comes from matchmaking
+              // sessionId: "1234",
+              // gameStartTime: 1234,
+              // gameType: GameType.QUICKPLAY,
+              // player1: { username: localPlayer1Name, userId: "1234", emoji: "" },
+              // player2: { username: localPlayer2Name, userId: "5678", emoji: "" },
+            }
+          }
+        />
+      ) : null}
     </>
   );
 }

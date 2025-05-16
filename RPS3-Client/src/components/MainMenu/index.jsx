@@ -2,6 +2,8 @@ import { useState } from "react";
 import { motion, usePresenceData } from "motion/react";
 import "../../styles/styles.css";
 
+import DisplayStates from "../../enums/DisplayStates.ts";
+
 import Tile from "../Tile";
 import Button from "../Button";
 
@@ -11,15 +13,15 @@ export default function MainMenu({ displayState, setDisplayState }) {
       size={"thick"}
       isActive={true}
       onClick={() => {
-        setDisplayState("Home");
+        setDisplayState(DisplayStates.Home);
       }}
     >
       <motion.button
         className={"labelText"}
         onClick={(event) => {
           event.stopPropagation();
-          if (displayState !== "Login") {
-            setDisplayState("Login");
+          if (displayState !== DisplayStates.Login) {
+            setDisplayState(DisplayStates.Login);
           }
         }}
         style={{
@@ -33,7 +35,7 @@ export default function MainMenu({ displayState, setDisplayState }) {
           scale: 1.05,
         }}
       >
-        {displayState !== "Login" ? "LOGIN" : "..."}
+        {displayState !== DisplayStates.Login ? "LOGIN" : "..."}
       </motion.button>
       <div
         style={{
@@ -48,21 +50,21 @@ export default function MainMenu({ displayState, setDisplayState }) {
           text={"PLAY"}
           textStyle={"defaultText"}
           setDisplayState={setDisplayState}
-          destination={"Local"}
+          destination={DisplayStates.Local}
           styles={{ marginTop: "2.5rem" }}
         />
         <Button
           text={"ONLINE"}
           textStyle={"defaultText"}
           setDisplayState={setDisplayState}
-          destination={"Online Gamemodes"}
+          destination={DisplayStates.Online_Gamemodes}
           styles={{ marginTop: "2.5rem" }}
         />
         <Button
           text={"SETTINGS"}
           textStyle={"defaultText"}
           setDisplayState={setDisplayState}
-          destination={"Settings"}
+          destination={DisplayStates.Settings}
           styles={{ marginTop: "2.5rem" }}
         />
       </div>

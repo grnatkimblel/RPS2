@@ -26,7 +26,7 @@ interface QuickdrawArenaViewProps {
   onClicks: onClicks;
   setMainDisplayState: (state: string) => void;
   quickdrawSessionData: QuickdrawSessionData; // Adjust the type as needed
-  showGameOverModal: boolean;
+  showGameOverModal: Boolean;
   setShowGameOverModal: (state: boolean) => void;
 }
 
@@ -40,6 +40,9 @@ export default function QuickdrawArenaView({
   setShowGameOverModal,
 }: QuickdrawArenaViewProps) {
   const [showExitModal, setShowExitModal] = useState<Boolean>(false);
+  const [showKeyHints, setShowKeyHints] = useState<Boolean>(false);
+  const [isRightShopOpen, setIsRightShopOpen] = useState(false);
+  const [isLeftShopOpen, setIsLeftShopOpen] = useState(false);
 
   function displayOnlineHandButtons() {
     return (
@@ -50,9 +53,15 @@ export default function QuickdrawArenaView({
             textStyle="active"
             styles={{ fontSize: "6rem", width: "10rem", height: "10rem" }}
             onClick={onClicks.Rock}
+            onMouseEnter={() => {
+              setShowKeyHints(true);
+            }}
+            onMouseLeave={() => {
+              setShowKeyHints(false);
+            }}
             whileHover={false}
           />
-          <div className="keyHints">(Q)</div>
+          <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(Q)</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
           <Button
@@ -60,9 +69,15 @@ export default function QuickdrawArenaView({
             textStyle="active"
             styles={{ fontSize: "6rem", width: "10rem", height: "10rem" }}
             onClick={onClicks.Paper}
+            onMouseEnter={() => {
+              setShowKeyHints(true);
+            }}
+            onMouseLeave={() => {
+              setShowKeyHints(false);
+            }}
             whileHover={false}
           />
-          <div className="keyHints">(W)</div>
+          <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(W)</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
           <Button
@@ -70,9 +85,15 @@ export default function QuickdrawArenaView({
             textStyle="active"
             styles={{ fontSize: "6rem", width: "10rem", height: "10rem" }}
             onClick={onClicks.Scissors}
+            onMouseEnter={() => {
+              setShowKeyHints(true);
+            }}
+            onMouseLeave={() => {
+              setShowKeyHints(false);
+            }}
             whileHover={false}
           />
-          <div className="keyHints">(E)</div>
+          <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(E)</div>
         </div>
       </div>
     );
@@ -83,42 +104,96 @@ export default function QuickdrawArenaView({
       <>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", paddingBottom: "1rem" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <div className="active" style={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}>
-              {EMOJIS.ROCK}
-            </div>
-            <div className="keyHints">(Q)</div>
+            <Button
+              text={EMOJIS.ROCK}
+              textStyle="active"
+              styles={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}
+              onClick={() => onClicks.Rock(true)}
+              onMouseEnter={() => {
+                setShowKeyHints(true);
+              }}
+              onMouseLeave={() => {
+                setShowKeyHints(false);
+              }}
+            ></Button>
+            <div className={showKeyHints ? "keyHints" : "keyHints invisible"}>(Q)</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <div className="active" style={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}>
-              {EMOJIS.PAPER}
-            </div>
-            <div className="keyHints">(W)</div>
+            <Button
+              text={EMOJIS.PAPER}
+              textStyle="active"
+              styles={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}
+              onClick={() => onClicks.Paper(true)}
+              onMouseEnter={() => {
+                setShowKeyHints(true);
+              }}
+              onMouseLeave={() => {
+                setShowKeyHints(false);
+              }}
+            ></Button>
+            <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(W)</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <div className="active" style={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}>
-              {EMOJIS.SCISSORS}
-            </div>
-            <div className="keyHints">(E)</div>
+            <Button
+              text={EMOJIS.SCISSORS}
+              textStyle="active"
+              styles={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}
+              onClick={() => onClicks.Scissors(true)}
+              onMouseEnter={() => {
+                setShowKeyHints(true);
+              }}
+              onMouseLeave={() => {
+                setShowKeyHints(false);
+              }}
+            ></Button>
+            <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(E)</div>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <div className="active" style={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}>
-              {EMOJIS.ROCK}
-            </div>
-            <div className="keyHints">(←)</div>
+            <Button
+              text={EMOJIS.ROCK}
+              textStyle="active"
+              styles={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}
+              onClick={() => onClicks.Rock(false)}
+              onMouseEnter={() => {
+                setShowKeyHints(true);
+              }}
+              onMouseLeave={() => {
+                setShowKeyHints(false);
+              }}
+            ></Button>
+            <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(← )</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <div className="active" style={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}>
-              {EMOJIS.PAPER}
-            </div>
-            <div className="keyHints">(↓)</div>
+            <Button
+              text={EMOJIS.PAPER}
+              textStyle="active"
+              styles={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}
+              onClick={() => onClicks.Paper(false)}
+              onMouseEnter={() => {
+                setShowKeyHints(true);
+              }}
+              onMouseLeave={() => {
+                setShowKeyHints(false);
+              }}
+            ></Button>
+            <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(↓ )</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <div className="active" style={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}>
-              {EMOJIS.SCISSORS}
-            </div>
-            <div className="keyHints">(→)</div>
+            <Button
+              text={EMOJIS.SCISSORS}
+              textStyle="active"
+              styles={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}
+              onClick={() => onClicks.Scissors(false)}
+              onMouseEnter={() => {
+                setShowKeyHints(true);
+              }}
+              onMouseLeave={() => {
+                setShowKeyHints(false);
+              }}
+            ></Button>
+            <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(→ )</div>
           </div>
         </div>
       </>
@@ -248,6 +323,9 @@ export default function QuickdrawArenaView({
           <div style={{ width: "100%", display: "flex" }}>
             <PointMenu
               isRight={false}
+              setShowKeyHints={setShowKeyHints}
+              setIsRightShopOpen={setIsRightShopOpen}
+              setIsLeftShopOpen={setIsLeftShopOpen}
               buyFreeze={onClicks.BuyFreeze}
               buyGamble={onClicks.BuyGamble}
               buyRunItBack={onClicks.BuyRunItBack}
@@ -257,6 +335,9 @@ export default function QuickdrawArenaView({
             </div>
             <PointMenu
               isRight={true}
+              setShowKeyHints={setShowKeyHints}
+              setIsRightShopOpen={setIsRightShopOpen}
+              setIsLeftShopOpen={setIsLeftShopOpen}
               buyFreeze={onClicks.BuyFreeze}
               buyGamble={onClicks.BuyGamble}
               buyRunItBack={onClicks.BuyRunItBack}
@@ -265,10 +346,11 @@ export default function QuickdrawArenaView({
           <div // Player Hands and Game Phase indicator
             style={{
               width: "100%",
-              height: "22rem",
+              height: "20rem",
               display: "flex",
               justifyContent: "space-between",
               marginTop: "-2rem",
+              marginBottom: "3rem",
             }}
           >
             <AbilityIndicator
@@ -276,13 +358,13 @@ export default function QuickdrawArenaView({
               hasGamble={viewModel.player1_hasGamble}
               hasRunItBack={viewModel.player1_hasRunItBack}
             />
-            <div style={{ fontSize: "10rem", alignSelf: "flex-end", marginRight: "5rem" }}>
+            <div style={{ fontSize: "12rem", alignSelf: "flex-end", marginRight: "2rem" }}>
               {viewModel.player1_hand}
             </div>
-            <div style={{ fontSize: "10rem" }} className="defaultText">
+            <div style={{ fontSize: "6rem" }} className="defaultText">
               {viewModel.titleText}
             </div>
-            <div style={{ fontSize: "10rem", alignSelf: "flex-end", marginLeft: "5rem" }}>{viewModel.player2_hand}</div>
+            <div style={{ fontSize: "12rem", alignSelf: "flex-end", marginLeft: "2rem" }}>{viewModel.player2_hand}</div>
             <AbilityIndicator
               isRight={true}
               hasFreeze={viewModel.player2_hasFreeze}
@@ -331,7 +413,15 @@ function AbilityIndicator({ isRight, hasFreeze, hasGamble, hasRunItBack }) {
   );
 }
 
-function PointMenu({ isRight, buyFreeze, buyGamble, buyRunItBack }) {
+function PointMenu({
+  isRight,
+  setShowKeyHints,
+  setIsRightShopOpen,
+  setIsLeftShopOpen,
+  buyFreeze,
+  buyGamble,
+  buyRunItBack,
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const extendedStyles = {
@@ -385,6 +475,7 @@ function PointMenu({ isRight, buyFreeze, buyGamble, buyRunItBack }) {
           whileHover={{ scale: 1.01 }}
           onClick={() => {
             setIsExpanded((isExpanded) => !isExpanded);
+            isRight ? setIsRightShopOpen(false) : setIsLeftShopOpen(false);
           }}
         >
           <div style={{ alignSelf: "center" }} className="labelText">
@@ -423,6 +514,12 @@ function PointMenu({ isRight, buyFreeze, buyGamble, buyRunItBack }) {
           styles={{ fontSize: "3rem", width: "6rem", height: "6rem" }}
           onClick={() => {
             setIsExpanded((isExpanded) => !isExpanded);
+          }}
+          onMouseEnter={() => {
+            setShowKeyHints(true);
+          }}
+          onMouseLeave={() => {
+            setShowKeyHints(false);
           }}
         />
       )}

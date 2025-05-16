@@ -80,6 +80,14 @@ input[type="search"]:focus {
   border-color: var(--tileBorderColor_Active);
 }
 
+datalist {
+  background-color: white;
+  border-style: solid;
+  border-width: var(--tileBorderWidth);
+  border-color: var(--tileBorderColor_Default);
+  border-radius: var(--tileBorderRadius);
+}
+
 .tooltip {
   color: var(--tileBorderColor_Default);
 }

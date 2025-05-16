@@ -30,7 +30,7 @@ export default function Tile({
 
   function getTileStyle(size, active) {
     if (size !== "slim" && size !== "thick") {
-      console.log(size);
+      // console.log(size);
       throw Error();
     }
     const style = {
@@ -40,15 +40,15 @@ export default function Tile({
       borderRadius: tileBorders.radius,
       backgroundColor: "white",
     };
-    console.log(active);
+    // console.log(active);
     style.width = tileSizes[size];
     if (active) {
       style.borderColor = tileBorders.color.active;
     } else {
-      console.log("test");
+      // console.log("test");
       style.borderColor = tileBorders.color.default;
     }
-    console.log(style);
+    // console.log(style);
     return style;
   }
 

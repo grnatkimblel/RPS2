@@ -16,7 +16,7 @@ import QuickdrawArenaViewModel from "../../types/QuickdrawArenaViewModel";
 
 import useCountdownMs from "../../hooks/useCountdownMs";
 
-export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdrawSessionData }) {
+export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdrawSessionData, soundVolume }) {
   const initialViewModel = {
     titleText: EMOJIS.BOMB,
     gamePhase: GamePhases.PRE_GAME,
@@ -31,15 +31,15 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   const [viewModel, setViewModel] = useState<QuickdrawArenaViewModel>(initialViewModel);
 
   const [playGoodBadUglyAudio, goodBadUglyAudio] = useSound(GoodBadAndUglyURL, {
-    volume: 0.1,
+    volume: soundVolume,
   });
-  const [playGunshot, gunshotAudio] = useSound(GunshotURL, { volume: 0.1 });
-  const [playDrumroll, drumrollAudio] = useSound(DrumrollURL, { volume: 0.1 });
-  const [playWhistle1, whistle1Audio] = useSound(Whistle1URL, { volume: 0.1 });
-  const [playWhistle2, whistle2Audio] = useSound(Whistle2URL, { volume: 0.1 });
-  const [playWhistle3, whistle3Audio] = useSound(Whistle3URL, { volume: 0.1 });
-  const [playWhistle4, whistle4Audio] = useSound(Whistle4URL, { volume: 0.1 });
-  const [playWhistle5, whistle5Audio] = useSound(Whistle5URL, { volume: 0.1 });
+  const [playGunshot, gunshotAudio] = useSound(GunshotURL, { volume: soundVolume });
+  const [playDrumroll, drumrollAudio] = useSound(DrumrollURL, { volume: soundVolume });
+  const [playWhistle1, whistle1Audio] = useSound(Whistle1URL, { volume: soundVolume });
+  const [playWhistle2, whistle2Audio] = useSound(Whistle2URL, { volume: soundVolume });
+  const [playWhistle3, whistle3Audio] = useSound(Whistle3URL, { volume: soundVolume });
+  const [playWhistle4, whistle4Audio] = useSound(Whistle4URL, { volume: soundVolume });
+  const [playWhistle5, whistle5Audio] = useSound(Whistle5URL, { volume: soundVolume });
   const whistles = [playWhistle1, playWhistle2, playWhistle3, playWhistle4, playWhistle5];
 
   const [countdownTime, setCountdownTime] = useState(5000); //5 seconds
@@ -71,7 +71,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   }, [timeLeft]);
 
   useEffect(() => {
-    console.log(timeLeft);
+    // console.log(localStorage);
     if (timeLeft == 0) {
       //start game after countdown
       doGame();
@@ -81,6 +81,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   async function doGame() {
     console.log("doGame called");
     console.log(isGameOver.current);
+    createPlayersInLocalStorage(quickdrawSessionData.player1.username, quickdrawSessionData.player2.username);
     initialRenderRefs.current.isCancelled = false; // Reset the flag when starting a new game
     while (isGameOver.current == false) {
       await doRound();
@@ -274,6 +275,11 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         tempNumRoundsToWin = prev.game.header.numRoundsToWin + 2;
       } else if (p1Score + p1PP >= tempNumRoundsToWin || p2Score + p2PP >= tempNumRoundsToWin) {
         console.log("game over");
+        let previousWinCount = localStorage.getItem(quickdrawSessionData[`player${standing.winner}.username`].winCount);
+        //need to make sure the player is initialized when the game begins
+        localStorage.setItem(quickdrawSessionData[`player${standing.winner}.username`], {
+          winCount: previousWinCount + 1,
+        });
         isGameOver.current = true;
       }
 
@@ -507,16 +513,21 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     });
   }
 
-  function doGamble(isPlayer1) {
-    setGameState((prev: GameState) => {
-      if (prev.game.header[`player${isPlayer1 ? 1 : 2}_hasGamble`]) {
-      }
-    });
+  function displayGamble(isPlayer1) {
+    console.log("displayGamble");
+    console.log("doGamble");
   }
 
-  function doRunItBack(isPlayer1) {
-  }
+  function doRunItBack(isPlayer1) {}
 
+  function createPlayersInLocalStorage(player1Username, player2Username) {
+    if (!localStorage.getItem(player1Username)) {
+      localStorage.setItem(player1Username, { winCount: 0 });
+    }
+    if (!localStorage.getItem(player2Username)) {
+      localStorage.setItem(player2Username, { winCount: 0 });
+    }
+  }
   //update display score when state changes
   useEffect(() => {
     setViewModel((prev) => {
@@ -597,7 +608,8 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         playHand(EMOJIS.PAPER, true);
       } else if (event.key === "e") {
         playHand(EMOJIS.SCISSORS, true);
-      } else if (event.key === "1" && event.location == 0) {
+      } else if (event.key === "Tab") {
+        event.preventDefault();
         doFreeze(true);
       } else if (event.key === "ArrowLeft") {
         playHand(EMOJIS.ROCK, false);
@@ -635,10 +647,9 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
           <option value={EMOJIS.FLUTE}></option>
           <option value={EMOJIS.BOMB}></option>
           <option value={EMOJIS.POW}></option>
-          <option value={EMOJIS.ROCK}></option>
-          <option value={EMOJIS.PAPER}></option>
-          <option value={EMOJIS.SCISSORS}></option>
-        </datalist>
+          <option value={EMOJIS.ROCK}></option> <option value={EMOJIS.PAPER}></option>{" "}
+          <option value={EMOJIS.SCISSORS}></option>{" "}
+        </datalist>{" "}
         <input
           type="text"
           list="emoji-choices"
@@ -702,14 +713,14 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         localOrOnline="Local"
         viewModel={viewModel}
         onClicks={{
-          Rock: () => {
-            setViewModel((prev: QuickdrawArenaViewModel) => ({ ...prev, player1_hand: EMOJIS.ROCK }));
+          Rock: (isPlayer1) => {
+            playHand(EMOJIS.ROCK, isPlayer1);
           },
-          Paper: () => {
-            setViewModel((prev: QuickdrawArenaViewModel) => ({ ...prev, player1_hand: EMOJIS.PAPER }));
+          Paper: (isPlayer1) => {
+            playHand(EMOJIS.PAPER, isPlayer1);
           },
-          Scissors: () => {
-            setViewModel((prev: QuickdrawArenaViewModel) => ({ ...prev, player1_hand: EMOJIS.SCISSORS }));
+          Scissors: (isPlayer1) => {
+            playHand(EMOJIS.SCISSORS, isPlayer1);
           },
           Quit: () => {
             initialRenderRefs.current.isCancelled = true;
