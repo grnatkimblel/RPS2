@@ -15,8 +15,10 @@ import EMOJIS from "../../enums/Emojis";
 import QuickdrawArenaViewModel from "../../types/QuickdrawArenaViewModel";
 
 import useCountdownMs from "../../hooks/useCountdownMs";
+import { big } from "motion/react-client";
 
 export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdrawSessionData, soundVolume }) {
+  //View
   const initialViewModel = {
     titleText: EMOJIS.BOMB,
     gamePhase: GamePhases.PRE_GAME,
@@ -29,7 +31,12 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     player2_purplePoints: 0,
   };
   const [viewModel, setViewModel] = useState<QuickdrawArenaViewModel>(initialViewModel);
+  const [isLeftShopOpen, setIsLeftShopOpen] = useState(false);
+  const [isRightShopOpen, setIsRightShopOpen] = useState(false);
+  const [isLeftGambling, setIsLeftGambling] = useState(false);
+  const [isRightGambling, setIsRightGambling] = useState(false);
 
+  // Audio
   const [playGoodBadUglyAudio, goodBadUglyAudio] = useSound(GoodBadAndUglyURL, {
     volume: soundVolume,
   });
@@ -42,9 +49,12 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   const [playWhistle5, whistle5Audio] = useSound(Whistle5URL, { volume: soundVolume });
   const whistles = [playWhistle1, playWhistle2, playWhistle3, playWhistle4, playWhistle5];
 
-  const [countdownTime, setCountdownTime] = useState(5000); //5 seconds
+  //Countdown
+  const [countdownTime, setCountdownTime] = useState(2000); //5 seconds
   const [countdownKey, setCountdownKey] = useState(0);
   let timeLeft = useCountdownMs(countdownTime, countdownKey);
+
+  //GameState
   const [gameState, setGameState] = useState<GameState>(createGameState());
   const [isPlayer1AcceptingHandsInput, setIsPlayer1AcceptingHandsInput] = useState(false);
   const [isPlayer2AcceptingHandsInput, setIsPlayer2AcceptingHandsInput] = useState(false);
@@ -124,11 +134,13 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
                   player_1: {
                     boughtFreeze: false,
                     boughtGamble: false,
+                    activeGamble: null,
                     boughtRunItBack: false,
                   },
                   player_2: {
                     boughtFreeze: false,
                     boughtGamble: false,
+                    activeGamble: null,
                     boughtRunItBack: false,
                   },
                 },
@@ -242,17 +254,32 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       let tempNumRoundsToWin = prev.game.header.numRoundsToWin;
       let tempHasRunItBack;
 
+      //did anything happen in the round?
+      const roundBeforeLast = prev.game.rounds[prev.game.rounds.length - 2]; //only way to know if ability was bought is to check the round before last
+      const latestRound = prev.game.rounds[prev.game.rounds.length - 1];
+      if (prev.game.rounds.length > 1 && !didAnythingHappenThisRound(roundBeforeLast, latestRound)) {
+        //if nothing happened, delete the round and return, dont want to have a billion rounds looping to process if the user goes afk
+        return { ...prev, game: { ...prev.game, rounds: [...prev.game.rounds.slice(-1)] } };
+      }
+
       prev.game.rounds.forEach((round) => {
-        let player1 = round.hands.player_1;
-        let player2 = round.hands.player_2;
+        let player1Hand = round.hands.player_1;
+        let player2Hand = round.hands.player_2;
+        let player1Abilities = round.abilities.player_1;
+        let player2Abilities = round.abilities.player_2;
         let tempP1Score: number, tempP2Score: number;
         let tempP1PP: number, tempP2PP: number;
 
-        ({ player1Score: tempP1Score, player2Score: tempP2Score } = getScoreAward(player1, player2));
+        ({ player1Score: tempP1Score, player2Score: tempP2Score } = getScoreAward(
+          player1Hand,
+          player1Abilities,
+          player2Hand,
+          player2Abilities
+        ));
         p1Score += tempP1Score;
         p2Score += tempP2Score;
 
-        ({ player1PP: tempP1PP, player2PP: tempP2PP } = getPurplePointsAward(player1, player2));
+        ({ player1PP: tempP1PP, player2PP: tempP2PP } = getPurplePointsAward(player1Hand, player2Hand));
         p1PP += tempP1PP;
         p2PP += tempP2PP;
 
@@ -291,14 +318,41 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
             ...prev.game.header,
             player1_score: p1Score,
             player1_purplePoints: p1PP,
+            player1_activeGamble: false,
             player2_score: p2Score,
             player2_purplePoints: p2PP,
+            player2_activeGamble: false,
             [`player${standing.loser}_hasRunItBack`]: tempHasRunItBack,
             numRoundsToWin: tempNumRoundsToWin,
           },
         },
       };
     });
+  }
+
+  function didAnythingHappenThisRound(roundBeforeLast: Round, latestRound: Round): Boolean {
+    let lastRoundAbilities = roundBeforeLast.abilities;
+    let thisRoundAbilities = latestRound.abilities;
+    //if any player has purchased an ability
+    if (
+      lastRoundAbilities.player_1.boughtFreeze !== thisRoundAbilities.player_1.boughtFreeze ||
+      lastRoundAbilities.player_1.boughtGamble !== thisRoundAbilities.player_1.boughtGamble ||
+      lastRoundAbilities.player_1.boughtRunItBack !== thisRoundAbilities.player_1.boughtRunItBack ||
+      lastRoundAbilities.player_2.boughtFreeze !== thisRoundAbilities.player_2.boughtFreeze ||
+      lastRoundAbilities.player_2.boughtGamble !== thisRoundAbilities.player_2.boughtGamble ||
+      lastRoundAbilities.player_2.boughtRunItBack !== thisRoundAbilities.player_2.boughtRunItBack
+    )
+      return true;
+    // if any player has played a hand
+    if (
+      latestRound.hands.player_1.hand ||
+      latestRound.hands.player_2.hand ||
+      latestRound.hands.player_1.isTooEarly ||
+      latestRound.hands.player_2.isTooEarly
+    ) {
+      return true;
+    }
+    return false;
   }
 
   function getPurplePointsAward(player1, player2): { player1PP: number; player2PP: number } {
@@ -313,11 +367,16 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       //no one played a hand, so did someone jump the gun
       player1.isTooEarly ? award.player2PP++ : award.player1PP++;
     }
-    console.log("getPurplePoints ", award);
+    // console.log("getPurplePoints ", award);
     return award;
   }
 
-  function getScoreAward(player1, player2): { player1Score: number; player2Score: number } {
+  function getScoreAward(
+    player1,
+    player1Abilities,
+    player2,
+    player2Abilities
+  ): { player1Score: number; player2Score: number } {
     let award = { player1Score: 0, player2Score: 0 };
     if (player1.hand !== null || player2.hand !== null) {
       //if someone played a hand
@@ -335,6 +394,12 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         } else {
           award.player2Score++;
         }
+      }
+      if (player1Abilities.activeGamble && player1Abilities.activeGamble == player2.hand) {
+        award.player1Score += 2;
+      }
+      if (player2Abilities.activeGamble && player2Abilities.activeGamble == player1.hand) {
+        award.player2Score += 2;
       }
     }
     return award;
@@ -428,10 +493,11 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   );
 
   function buyAbility(isPlayer1, ability) {
+    console.log("buy ability");
     if (isPlayer1) {
       setGameState((prev: GameState) => {
-        console.log("buy ability ", prev);
         if (prev.game.header.player1_purplePoints >= 1) {
+          if (ability == "Gamble") setIsLeftGambling(true);
           if (!prev.game.header[`player1_has${ability}`]) {
             return {
               ...prev,
@@ -459,8 +525,9 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       });
     } else {
       setGameState((prev: GameState) => {
-        console.log(prev);
+        // console.log(prev);
         if (prev.game.header.player2_purplePoints >= 1) {
+          if (ability == "Gamble") setIsRightGambling(true);
           if (!prev.game.header[`player2_has${ability}`]) {
             return {
               ...prev,
@@ -513,19 +580,96 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     });
   }
 
-  function displayGamble(isPlayer1) {
-    console.log("displayGamble");
-    console.log("doGamble");
+  function doGamble(isPlayer1, hand) {
+    console.log("doGamble", isPlayer1, hand);
+    if (isPlayer1) {
+      setGameState((prev: GameState) => {
+        return {
+          ...prev,
+          game: {
+            ...prev.game,
+            header: { ...prev.game.header, player1_hasGamble: false, player1_activeGamble: true },
+            rounds: prev.game.rounds.map((round, index) => {
+              if (index === prev.game.rounds.length - 1) {
+                return {
+                  ...round,
+                  abilities: {
+                    ...round.abilities,
+                    player_1: { ...round.abilities.player_1, activeGamble: hand },
+                  },
+                };
+              } else {
+                return { ...round };
+              }
+            }),
+          },
+        };
+      });
+      setIsLeftGambling(false);
+    } else {
+      setGameState((prev: GameState) => {
+        return {
+          ...prev,
+          game: {
+            ...prev.game,
+            header: { ...prev.game.header, player2_hasGamble: false, player2_activeGamble: true },
+            rounds: prev.game.rounds.map((round, index) => {
+              if (index === prev.game.rounds.length - 1) {
+                return {
+                  ...round,
+                  abilities: {
+                    ...round.abilities,
+                    player_2: { ...round.abilities.player_2, activeGamble: hand },
+                  },
+                };
+              } else {
+                return { ...round };
+              }
+            }),
+          },
+        };
+      });
+      setIsRightGambling(false);
+    }
   }
 
-  function doRunItBack(isPlayer1) {}
-
-  function createPlayersInLocalStorage(player1Username, player2Username) {
-    if (!localStorage.getItem(player1Username)) {
-      localStorage.setItem(player1Username, { winCount: 0 });
+  function createPlayersInLocalStorage(player1Username: string, player2Username: string) {
+    // console.log(localStorage.getItem(player1Username));
+    // console.log(typeof localStorage.getItem(player2Username));
+    const player1 = localStorage.getItem(player1Username);
+    const player2 = localStorage.getItem(player2Username);
+    if (player1 == null) {
+      console.log("player1 is not found, creating new player");
+      localStorage.setItem(player1Username, JSON.stringify({ winCount: 0 }));
+      addUsernameToLocalStorage(player1Username);
+    } else {
+      //get player data and do stuff
     }
-    if (!localStorage.getItem(player2Username)) {
-      localStorage.setItem(player2Username, { winCount: 0 });
+
+    if (player2 == null) {
+      console.log("player2 is not found, creating new player");
+      localStorage.setItem(player2Username, JSON.stringify({ winCount: 0 }));
+      addUsernameToLocalStorage(player2Username);
+    } else {
+      //get player data and do stuff
+    }
+  }
+
+  function addUsernameToLocalStorage(username: string) {
+    //if player names themselves the value of a localStorage variable, they can hack the game
+    let localPlayerUsernames = localStorage.getItem("localPlayerUsernames");
+    let localPlayerUsernamesArray;
+    if (localPlayerUsernames !== null) {
+      localPlayerUsernamesArray = JSON.parse(localPlayerUsernames);
+      if (!localPlayerUsernamesArray.includes(username)) {
+        localPlayerUsernamesArray.push(username);
+        console.log("localPlayerUsernamesArray", localPlayerUsernamesArray);
+        localStorage.setItem("localPlayerUsernames", JSON.stringify(localPlayerUsernamesArray));
+      }
+    } else {
+      localPlayerUsernamesArray = [username];
+      console.log("localPlayerUsernamesArray", localPlayerUsernamesArray);
+      localStorage.setItem("localPlayerUsernames", JSON.stringify(localPlayerUsernamesArray));
     }
   }
   //update display score when state changes
@@ -538,11 +682,13 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         player1_purplePoints: gameState.game.header.player1_purplePoints,
         player1_hasFreeze: gameState.game.header.player1_hasFreeze,
         player1_hasGamble: gameState.game.header.player1_hasGamble,
+        player1_activeGamble: gameState.game.header.player1_activeGamble,
         player1_hasRunItBack: gameState.game.header.player1_hasRunItBack,
         player2_score: gameState.game.header.player2_score,
         player2_purplePoints: gameState.game.header.player2_purplePoints,
         player2_hasFreeze: gameState.game.header.player2_hasFreeze,
         player2_hasGamble: gameState.game.header.player2_hasGamble,
+        player2_activeGamble: gameState.game.header.player2_activeGamble,
         player2_hasRunItBack: gameState.game.header.player2_hasRunItBack,
       };
     });
@@ -552,11 +698,13 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     gameState.game.header.player1_purplePoints,
     gameState.game.header.player1_hasFreeze,
     gameState.game.header.player1_hasGamble,
+    gameState.game.header.player1_activeGamble,
     gameState.game.header.player1_hasRunItBack,
     gameState.game.header.player2_score,
     gameState.game.header.player2_purplePoints,
     gameState.game.header.player2_hasFreeze,
     gameState.game.header.player2_hasGamble,
+    gameState.game.header.player2_activeGamble,
     gameState.game.header.player2_hasRunItBack,
   ]);
 
@@ -601,32 +749,61 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
 
   //register keydown event listener
   useEffect(() => {
+    function bigButtons(isPlayer1: Boolean, isShopOpen: Boolean, isGambling: Boolean, hand, ability) {
+      if (isGambling) {
+        doGamble(isPlayer1, hand);
+      } else if (isShopOpen) {
+        buyAbility(isPlayer1, ability);
+      } else {
+        playHand(hand, isPlayer1);
+      }
+    }
+
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "q") {
-        playHand(EMOJIS.ROCK, true);
-      } else if (event.key === "w") {
-        playHand(EMOJIS.PAPER, true);
-      } else if (event.key === "e") {
-        playHand(EMOJIS.SCISSORS, true);
-      } else if (event.key === "Tab") {
-        event.preventDefault();
+      event.preventDefault();
+      if (event.repeat) return; // Ignore repeated key presses
+      // console.log("Key pressed Logic: ", event.code);
+      //Player 1
+      if (event.code === "KeyQ") {
+        bigButtons(true, isLeftShopOpen, isLeftGambling, EMOJIS.ROCK, "Freeze");
+      } else if (event.code === "KeyW") {
+        bigButtons(true, isLeftShopOpen, isLeftGambling, EMOJIS.PAPER, "Gamble");
+      } else if (event.code === "KeyE") {
+        bigButtons(true, isLeftShopOpen, isLeftGambling, EMOJIS.SCISSORS, "RunItBack");
+      } else if (event.code === "Tab") {
+        setIsLeftShopOpen((prev) => !prev);
+      } else if (event.code === "Digit1") {
         doFreeze(true);
-      } else if (event.key === "ArrowLeft") {
-        playHand(EMOJIS.ROCK, false);
-      } else if (event.key === "ArrowDown") {
-        playHand(EMOJIS.PAPER, false);
-      } else if (event.key === "ArrowRight") {
-        playHand(EMOJIS.SCISSORS, false);
-      } else if (event.key === "0" && event.location == 3) {
+        //Player 2
+      } else if (event.code === "ArrowLeft") {
+        bigButtons(false, isRightShopOpen, isRightGambling, EMOJIS.ROCK, "Freeze");
+      } else if (event.code === "ArrowDown") {
+        bigButtons(false, isRightShopOpen, isRightGambling, EMOJIS.PAPER, "Gamble");
+      } else if (event.code === "ArrowRight") {
+        bigButtons(false, isRightShopOpen, isRightGambling, EMOJIS.SCISSORS, "RunItBack");
+      } else if (event.code === "ArrowUp") {
         doFreeze(false);
+      } else if (event.code === "ShiftRight") {
+        setIsRightShopOpen((prev) => !prev);
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      event.preventDefault();
+      if (event.code === "Tab") {
+        setIsLeftShopOpen(false);
+      } else if (event.code === "ShiftRight") {
+        setIsRightShopOpen(false);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [playHand]);
+  }, [playHand, isRightShopOpen, isLeftShopOpen]);
 
   //clear all things when leaving game
   useEffect(() => {
@@ -763,6 +940,12 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         quickdrawSessionData={quickdrawSessionData}
         showGameOverModal={showGameOverModal}
         setShowGameOverModal={setShowGameOverModal}
+        isLeftShopOpen={isLeftShopOpen}
+        setIsLeftShopOpen={setIsLeftShopOpen}
+        isLeftGambling={isLeftGambling}
+        isRightShopOpen={isRightShopOpen}
+        setIsRightShopOpen={setIsRightShopOpen}
+        isRightGambling={isRightGambling}
       />
     </>
   );
@@ -778,15 +961,49 @@ interface GameState {
       player1_purplePoints: number;
       player1_hasFreeze: boolean;
       player1_hasGamble: boolean;
+      player1_activeGamble: boolean;
       player1_hasRunItBack: boolean;
       player2_score: number;
       player2_purplePoints: number;
       player2_hasFreeze: boolean;
       player2_hasGamble: boolean;
+      player2_activeGamble: boolean;
       player2_hasRunItBack: boolean;
     };
-    rounds?: Array<{}>;
+    rounds?: Array<Round>;
   };
+}
+
+interface Round {
+  abilities: {
+    player_1: {
+      boughtFreeze: boolean;
+      boughtGamble: boolean;
+      activeGamble: EMOJIS | null;
+      boughtRunItBack: boolean;
+    };
+    player_2: {
+      boughtFreeze: boolean;
+      boughtGamble: boolean;
+      activeGamble: EMOJIS | null;
+      boughtRunItBack: boolean;
+    };
+  };
+  hands: {
+    player_1: {
+      hand: string | null;
+      time: number | null;
+      isTooEarly: boolean;
+    };
+    player_2: {
+      hand: string | null;
+      time: number | null;
+      isTooEarly: boolean;
+    };
+  };
+  startTime: number;
+  drawTime: number;
+  endTime: number;
 }
 
 function createGameState(): GameState {
@@ -794,16 +1011,18 @@ function createGameState(): GameState {
     game: {
       isFinished: false,
       header: {
-        numRoundsToWin: 3,
+        numRoundsToWin: 5,
         player1_score: 0,
         player1_purplePoints: 0,
         player1_hasFreeze: false,
         player1_hasGamble: false,
+        player1_activeGamble: false,
         player1_hasRunItBack: false,
         player2_score: 0,
         player2_purplePoints: 0,
         player2_hasFreeze: false,
         player2_hasGamble: false,
+        player2_activeGamble: false,
         player2_hasRunItBack: false,
       },
       rounds: [],

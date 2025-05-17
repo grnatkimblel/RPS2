@@ -14,13 +14,7 @@ export default function LocalMenu({ displayState, setDisplayState, setLocalPlaye
   const [player2Name, setPlayer2Name] = useState("PLAYER 2");
 
   return (
-    <Tile
-      size={"slim"}
-      isActive={true}
-      onClick={() => {
-        setDisplayState("Local");
-      }}
-    >
+    <Tile size={"slim"} isActive={true}>
       <div style={{ width: "80%", marginTop: "3rem", display: "flex", flexDirection: "column", alignItems: "center" }}>
         <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
           <p className="labelText" style={{ marginTop: "1rem", marginBottom: "0rem" }}>
@@ -32,6 +26,7 @@ export default function LocalMenu({ displayState, setDisplayState, setLocalPlaye
             required
             minLength="1"
             maxLength="20"
+            list="localPlayerUsernames"
             className="defaultText"
             tabIndex="1"
             autoFocus="true"
@@ -49,6 +44,7 @@ export default function LocalMenu({ displayState, setDisplayState, setLocalPlaye
             required
             minLength="1"
             maxLength="20"
+            list="localPlayerUsernames"
             className="defaultText"
             tabIndex="2"
             initial={{ borderColor: "var(--tileBorderColor_Default)" }}
@@ -59,6 +55,16 @@ export default function LocalMenu({ displayState, setDisplayState, setLocalPlaye
             }}
             style={{ marginTop: "2rem", paddingLeft: "0.5rem", paddingRight: "0.5rem" }}
           />
+          <datalist id="localPlayerUsernames">
+            {localStorage.getItem("localPlayerUsernames") &&
+              JSON.parse(localStorage.getItem("localPlayerUsernames")).map((username) => {
+                return (
+                  <option key={username} value={username}>
+                    {username}
+                  </option>
+                );
+              })}
+          </datalist>
         </div>
         <div
           style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", marginTop: "1rem" }}

@@ -42,7 +42,7 @@ function App() {
     localStorage.setItem("soundVolume", soundVolume.toString());
     return () => {
       // Cleanup function to remove the sound volume from local storage if needed
-      localStorage.clear();
+      // localStorage.clear();
     };
   }, [soundVolume]);
 

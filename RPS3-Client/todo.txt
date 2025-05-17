@@ -1,4 +1,3 @@
-players can play hands after playing too early instead of being locked out for the round.
-make it so when a player plays to early, the other player is awarded and the round skips, no need to have them play through.
-maybe swtich the purple point and normal point scoring, its much harder to win the rps than to win the draw.
-scoring is fucked up, purple point timeleft is overwritten and so gets fucked up.
+have the shop slots not have the buy buttons, instead have the rock paper and scissor buttons for the player change into the 
+emoji of the ability, they will buy the ability by opening the shop (tab of shift) then pressing the corresponding Button
+(Q,W,E). When Buying gamble they will get an additional choice to confirm what they want the gamble to be towards.

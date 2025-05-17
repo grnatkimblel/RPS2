@@ -8,7 +8,7 @@ import GamePhases from "../../enums/GamePhases";
 import EMOJIS from "../../enums/Emojis";
 
 import Button from "../Button";
-import { s } from "motion/react-client";
+import { filter, s } from "motion/react-client";
 
 interface onClicks {
   Rock: () => void;
@@ -29,6 +29,12 @@ interface QuickdrawArenaViewProps {
   quickdrawSessionData: QuickdrawSessionData; // Adjust the type as needed
   showGameOverModal: Boolean;
   setShowGameOverModal: (state: boolean) => void;
+  isLeftShopOpen: Boolean;
+  setIsLeftShopOpen: (state: boolean) => void;
+  isLeftGambling: Boolean;
+  isRightShopOpen: Boolean;
+  setIsRightShopOpen: (state: boolean) => void;
+  isRightGambling: Boolean;
 }
 
 export default function QuickdrawArenaView({
@@ -39,11 +45,15 @@ export default function QuickdrawArenaView({
   quickdrawSessionData,
   showGameOverModal,
   setShowGameOverModal,
+  isLeftShopOpen,
+  setIsLeftShopOpen,
+  isLeftGambling,
+  isRightShopOpen,
+  setIsRightShopOpen,
+  isRightGambling,
 }: QuickdrawArenaViewProps) {
   const [showExitModal, setShowExitModal] = useState<Boolean>(false);
   const [showKeyHints, setShowKeyHints] = useState<Boolean>(false);
-  const [isRightShopOpen, setIsRightShopOpen] = useState(false);
-  const [isLeftShopOpen, setIsLeftShopOpen] = useState(false);
 
   function displayOnlineHandButtons() {
     return (
@@ -100,13 +110,25 @@ export default function QuickdrawArenaView({
     );
   }
 
-  function displayLocalHandButtons() {
+  function displayLocalHandButtons(isLeftShopOpen, isRightShopOpen) {
     return (
       <>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", paddingBottom: "1rem" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {isLeftGambling && (
+              <div
+                style={{
+                  position: "absolute",
+                  fontSize: "3.5rem",
+                  transform: "translate(-4.6rem, -2.5rem)",
+                  zIndex: 2,
+                }}
+              >
+                {EMOJIS.GAMBLE}
+              </div>
+            )}
             <Button
-              text={EMOJIS.ROCK}
+              text={isLeftGambling ? EMOJIS.ROCK : isLeftShopOpen ? EMOJIS.ICE : EMOJIS.ROCK}
               textStyle="active"
               styles={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}
               onClick={() => onClicks.Rock(true)}
@@ -120,8 +142,20 @@ export default function QuickdrawArenaView({
             <div className={showKeyHints ? "keyHints" : "keyHints invisible"}>(Q)</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {isLeftGambling && (
+              <div
+                style={{
+                  position: "absolute",
+                  fontSize: "3.5rem",
+                  transform: "translate(-4.6rem, -2.5rem)",
+                  zIndex: 2,
+                }}
+              >
+                {EMOJIS.GAMBLE}
+              </div>
+            )}
             <Button
-              text={EMOJIS.PAPER}
+              text={isLeftGambling ? EMOJIS.PAPER : isLeftShopOpen ? EMOJIS.GAMBLE : EMOJIS.PAPER}
               textStyle="active"
               styles={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}
               onClick={() => onClicks.Paper(true)}
@@ -135,8 +169,20 @@ export default function QuickdrawArenaView({
             <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(W)</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {isLeftGambling && (
+              <div
+                style={{
+                  position: "absolute",
+                  fontSize: "3.5rem",
+                  transform: "translate(-4.6rem, -2.5rem)",
+                  zIndex: 2,
+                }}
+              >
+                {EMOJIS.GAMBLE}
+              </div>
+            )}
             <Button
-              text={EMOJIS.SCISSORS}
+              text={isLeftGambling ? EMOJIS.SCISSORS : isLeftShopOpen ? EMOJIS.RUN_IT_BACK : EMOJIS.SCISSORS}
               textStyle="active"
               styles={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}
               onClick={() => onClicks.Scissors(true)}
@@ -150,10 +196,22 @@ export default function QuickdrawArenaView({
             <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(E)</div>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", paddingBottom: "1rem" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {isRightGambling && (
+              <div
+                style={{
+                  position: "absolute",
+                  fontSize: "3.5rem",
+                  transform: "translate(-4.6rem, -2.5rem)",
+                  zIndex: 2,
+                }}
+              >
+                {EMOJIS.GAMBLE}
+              </div>
+            )}
             <Button
-              text={EMOJIS.ROCK}
+              text={isRightGambling ? EMOJIS.ROCK : isRightShopOpen ? EMOJIS.ICE : EMOJIS.ROCK}
               textStyle="active"
               styles={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}
               onClick={() => onClicks.Rock(false)}
@@ -167,8 +225,20 @@ export default function QuickdrawArenaView({
             <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(← )</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {isRightGambling && (
+              <div
+                style={{
+                  position: "absolute",
+                  fontSize: "3.5rem",
+                  transform: "translate(-4.6rem, -2.5rem)",
+                  zIndex: 2,
+                }}
+              >
+                {EMOJIS.GAMBLE}
+              </div>
+            )}
             <Button
-              text={EMOJIS.PAPER}
+              text={isRightGambling ? EMOJIS.PAPER : isRightShopOpen ? EMOJIS.GAMBLE : EMOJIS.PAPER}
               textStyle="active"
               styles={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}
               onClick={() => onClicks.Paper(false)}
@@ -182,8 +252,20 @@ export default function QuickdrawArenaView({
             <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(↓ )</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {isRightGambling && (
+              <div
+                style={{
+                  position: "absolute",
+                  fontSize: "3.5rem",
+                  transform: "translate(-4.6rem, -2.5rem)",
+                  zIndex: 2,
+                }}
+              >
+                {EMOJIS.GAMBLE}
+              </div>
+            )}
             <Button
-              text={EMOJIS.SCISSORS}
+              text={isRightGambling ? EMOJIS.SCISSORS : isRightShopOpen ? EMOJIS.RUN_IT_BACK : EMOJIS.SCISSORS}
               textStyle="active"
               styles={{ fontSize: "6rem", width: "10rem", height: "10rem", textAlign: "center" }}
               onClick={() => onClicks.Scissors(false)}
@@ -326,8 +408,10 @@ export default function QuickdrawArenaView({
               isRight={false}
               showKeyHints={showKeyHints}
               setShowKeyHints={setShowKeyHints}
-              setIsRightShopOpen={setIsRightShopOpen}
+              isLeftShopOpen={isLeftShopOpen}
               setIsLeftShopOpen={setIsLeftShopOpen}
+              isRightShopOpen={isRightShopOpen}
+              setIsRightShopOpen={setIsRightShopOpen}
               buyFreeze={onClicks.BuyFreeze}
               buyGamble={onClicks.BuyGamble}
               buyRunItBack={onClicks.BuyRunItBack}
@@ -339,8 +423,10 @@ export default function QuickdrawArenaView({
               isRight={true}
               showKeyHints={showKeyHints}
               setShowKeyHints={setShowKeyHints}
-              setIsRightShopOpen={setIsRightShopOpen}
+              isLeftShopOpen={isLeftShopOpen}
               setIsLeftShopOpen={setIsLeftShopOpen}
+              isRightShopOpen={isRightShopOpen}
+              setIsRightShopOpen={setIsRightShopOpen}
               buyFreeze={onClicks.BuyFreeze}
               buyGamble={onClicks.BuyGamble}
               buyRunItBack={onClicks.BuyRunItBack}
@@ -359,6 +445,7 @@ export default function QuickdrawArenaView({
             <AbilityIndicator
               hasFreeze={viewModel.player1_hasFreeze}
               hasGamble={viewModel.player1_hasGamble}
+              hasCurrentGamble={viewModel.player1_activeGamble}
               hasRunItBack={viewModel.player1_hasRunItBack}
               showKeyHints={showKeyHints}
             />
@@ -373,6 +460,7 @@ export default function QuickdrawArenaView({
               isRight={true}
               hasFreeze={viewModel.player2_hasFreeze}
               hasGamble={viewModel.player2_hasGamble}
+              hasCurrentGamble={viewModel.player2_activeGamble}
               hasRunItBack={viewModel.player2_hasRunItBack}
               showKeyHints={showKeyHints}
             />
@@ -388,7 +476,7 @@ export default function QuickdrawArenaView({
             }}
           >
             {localOrOnline === "Online" && displayOnlineHandButtons()}
-            {localOrOnline === "Local" && displayLocalHandButtons()}
+            {localOrOnline === "Local" && displayLocalHandButtons(isLeftShopOpen, isRightShopOpen)}
           </div>
           <Button
             onClick={() => setShowExitModal(true)}
@@ -402,7 +490,7 @@ export default function QuickdrawArenaView({
   );
 }
 
-function AbilityIndicator({ isRight, hasFreeze, hasGamble, hasRunItBack, showKeyHints }) {
+function AbilityIndicator({ isRight, hasFreeze, hasGamble, hasCurrentGamble, hasRunItBack, showKeyHints }) {
   return (
     <div
       style={{
@@ -410,16 +498,21 @@ function AbilityIndicator({ isRight, hasFreeze, hasGamble, hasRunItBack, showKey
         flexDirection: "column",
         justifyContent: "center",
         alignItems: isRight ? "flex-end" : "flex-start",
+        marginLeft: isRight ? "0" : "1.3rem",
+        marginRight: isRight ? "1.3rem" : "0",
       }}
     >
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-        {isRight && <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(TAB)</div>}
+        {isRight && <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(↑)</div>}
         <div style={{ fontSize: "4rem" }} className={hasFreeze ? "" : "ability-transparency"}>
           {EMOJIS.ICE}
         </div>
-        {!isRight && <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(TAB)</div>}
+        {!isRight && <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(1)</div>}
       </div>
-      <div style={{ fontSize: "4rem" }} className={hasGamble ? "" : "ability-transparency"}>
+      <div
+        style={{ fontSize: "4rem" }}
+        className={hasCurrentGamble ? "ability-activated" : hasGamble ? "" : "ability-transparency"}
+      >
         {EMOJIS.GAMBLE}
       </div>
       <div style={{ fontSize: "4rem" }} className={hasRunItBack ? "" : "ability-transparency"}>
@@ -433,15 +526,17 @@ function PointMenu({
   isRight,
   showKeyHints,
   setShowKeyHints,
-  setIsRightShopOpen,
+  isLeftShopOpen,
   setIsLeftShopOpen,
+  isRightShopOpen,
+  setIsRightShopOpen,
   buyFreeze,
   buyGamble,
   buyRunItBack,
 }) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  // const [isExpanded, setIsExpanded] = useState(false);
 
-  const extendedStyles = {
+  const expandedStyles = {
     width: "32rem",
     padding: "1rem",
     border: "0.6rem solid var(--tileBorderColor_Default)",
@@ -465,12 +560,12 @@ function PointMenu({
       >
         <div style={{ fontSize: "4rem", flex: 1 }}>{emoji}</div>
         <div className="descriptionText">{description}</div>
-        <Button
+        {/* <Button
           text={"BUY"}
           onClick={onClick}
           textStyle="labelText"
           styles={{ flex: 1, paddingLeft: "1rem", paddingRight: "1rem" }}
-        />
+        /> */}
       </div>
     );
   };
@@ -485,13 +580,19 @@ function PointMenu({
         marginRight: isRight ? "1rem" : "",
       }}
     >
-      {isExpanded ? (
+      {(isRight && isRightShopOpen) || (!isRight && isLeftShopOpen) ? (
         <motion.div
           text={EMOJIS.POW}
-          style={extendedStyles}
+          style={expandedStyles}
           whileHover={{ scale: 1.01 }}
+          onMouseEnter={() => {
+            setShowKeyHints(true);
+          }}
+          onMouseLeave={() => {
+            setShowKeyHints(false);
+          }}
           onClick={() => {
-            setIsExpanded((isExpanded) => !isExpanded);
+            // setIsExpanded((isExpanded) => !isExpanded);
             isRight ? setIsRightShopOpen(false) : setIsLeftShopOpen(false);
           }}
         >
@@ -501,38 +602,45 @@ function PointMenu({
           <StoreSlot
             emoji={EMOJIS.ICE}
             description={"Active:\nOpponent cannot play hands for 2 seconds"}
-            onClick={(event) => {
-              event.stopPropagation();
-              buyFreeze(!isRight);
-            }}
+            // onClick={(event) => {
+            //   event.stopPropagation();
+            //   buyFreeze(!isRight);
+            // }}
           />
           <hr style={{ alignSelf: "center", width: "90%", border: "0.1rem solid #b1b1b1", margin: 0 }} />
           <StoreSlot
             emoji={EMOJIS.GAMBLE}
             description={"Choose\nRock Paper or Scissor\nIf opponents next scored hand matches, gain 2 points."}
-            onClick={(event) => {
-              event.stopPropagation();
-              buyGamble(!isRight);
-            }}
+            // onClick={(event) => {
+            //   event.stopPropagation();
+            //   buyGamble(!isRight);
+            // }}
           />
           <hr style={{ alignSelf: "center", width: "90%", border: "0.1rem solid #b1b1b1", margin: 0 }} />
           <StoreSlot
             emoji={EMOJIS.RUN_IT_BACK}
             description={"Increase the score needed to win by 2 (Activates if you lose game-point)"}
-            onClick={(event) => {
-              event.stopPropagation();
-              buyRunItBack(!isRight);
-            }}
+            // onClick={(event) => {
+            //   event.stopPropagation();
+            //   buyRunItBack(!isRight);
+            // }}
           />
         </motion.div>
       ) : (
         <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-          {isRight && <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(SHIFT)</div>}
+          {isRight && (
+            <div className={showKeyHints ? "keyHints " : "keyHints invisible"} style={{ paddingRight: "1rem" }}>
+              (SHIFT)
+            </div>
+          )}
           <Button
             text={EMOJIS.ORB}
             styles={{ fontSize: "3rem", width: "6rem", height: "6rem" }}
             onClick={() => {
-              setIsExpanded((isExpanded) => !isExpanded);
+              console.log(isLeftShopOpen);
+              console.log(isRightShopOpen);
+              // setIsExpanded((isExpanded) => !isExpanded);
+              isRight ? setIsRightShopOpen(true) : setIsLeftShopOpen(true);
             }}
             onMouseEnter={() => {
               setShowKeyHints(true);
@@ -541,7 +649,11 @@ function PointMenu({
               setShowKeyHints(false);
             }}
           />
-          {!isRight && <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(TAB)</div>}
+          {!isRight && (
+            <div className={showKeyHints ? "keyHints " : "keyHints invisible"} style={{ paddingLeft: "1rem" }}>
+              (TAB)
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -560,24 +672,38 @@ function ExitModal({ setShowExitModal, onClickYes }) {
     top: "50%",
     translate: "0 -50%",
     backgroundColor: "white",
-    zIndex: "1",
+    zIndex: "10",
   };
 
   return (
-    <div style={styles}>
-      <div className={"defaultText"} style={{ padding: "1rem" }}>
-        ARE YOU SURE?
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      style={{
+        position: "absolute",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100vw",
+        height: "100vh",
+        backdropFilter: "blur(5px)",
+      }}
+    >
+      <div style={styles}>
+        <div className={"defaultText"} style={{ padding: "1rem" }}>
+          ARE YOU SURE?
+        </div>
+        <div style={{ width: "100%", display: "flex", justifyContent: "space-around" }}>
+          <Button text={"YES"} textStyle={"labelText"} styles={{ margin: "1rem" }} onClick={onClickYes} />
+          <Button
+            text={"NO"}
+            textStyle={"labelText"}
+            styles={{ margin: "1rem" }}
+            onClick={() => setShowExitModal(false)}
+          />
+        </div>
       </div>
-      <div style={{ width: "100%", display: "flex", justifyContent: "space-around" }}>
-        <Button text={"YES"} textStyle={"labelText"} styles={{ margin: "1rem" }} onClick={onClickYes} />
-        <Button
-          text={"NO"}
-          textStyle={"labelText"}
-          styles={{ margin: "1rem" }}
-          onClick={() => setShowExitModal(false)}
-        />
-      </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -593,21 +719,35 @@ function GameOverModal({ winner, onClickPlayAgain, onClickQuit }) {
     top: "50%",
     translate: "0 -50%",
     backgroundColor: "white",
-    zIndex: "1",
+    zIndex: "10",
   };
 
   return (
-    <div style={styles}>
-      <div className={"defaultText"} style={{ paddingTop: "1rem", textAlign: "center" }}>
-        {winner + " WON!"}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      style={{
+        position: "absolute",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100vw",
+        height: "100vh",
+        backdropFilter: "blur(5px)",
+      }}
+    >
+      <div style={styles}>
+        <div className={"defaultText"} style={{ paddingTop: "1rem", textAlign: "center" }}>
+          {winner + " WON!"}
+        </div>
+        <div className={"defaultText"} style={{ textAlign: "center" }}>
+          PLAY AGAIN?
+        </div>
+        <div style={{ width: "100%", display: "flex", justifyContent: "space-around" }}>
+          <Button text={"YES"} textStyle={"labelText"} styles={{ margin: "1rem" }} onClick={onClickPlayAgain} />
+          <Button text={"QUIT"} textStyle={"labelText"} styles={{ margin: "1rem" }} onClick={onClickQuit} />
+        </div>
       </div>
-      <div className={"defaultText"} style={{ textAlign: "center" }}>
-        PLAY AGAIN?
-      </div>
-      <div style={{ width: "100%", display: "flex", justifyContent: "space-around" }}>
-        <Button text={"YES"} textStyle={"labelText"} styles={{ margin: "1rem" }} onClick={onClickPlayAgain} />
-        <Button text={"QUIT"} textStyle={"labelText"} styles={{ margin: "1rem" }} onClick={onClickQuit} />
-      </div>
-    </div>
+    </motion.div>
   );
 }

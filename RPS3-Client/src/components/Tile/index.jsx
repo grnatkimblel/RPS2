@@ -16,7 +16,7 @@ export default function Tile({
   children,
 }) {
   const tileSizes = {
-    slim: "22rem",
+    slim: "22.5rem",
     thick: "28rem",
     height: "35rem",
   };

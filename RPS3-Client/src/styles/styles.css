@@ -8,11 +8,10 @@
   --tileBorderColor_Active: #626262;
 }
 
-.tile {
-  /* default the border details */
-  border-color: var(--tileBorderColor_Default);
-  border-style: solid;
-  border-width: var(--tileBorderWidth);
+/* .tile {
+border-color: var(--tileBorderColor_Default);
+border-style: solid;
+border-width: var(--tileBorderWidth);
   border-radius: var(--tileBorderRadius);
   background-color: white;
   position: absolute;
@@ -24,16 +23,14 @@
 }
 
 .tile.thick {
-  /* leave this distinction for size */
   height: var(--tileHeight);
   width: var(--tileWidth_Thick);
 }
 
 .tile.slim {
-  /* leave this distinction for size */
   height: var(--tileHeight);
   width: var(--tileWidth_Slim);
-}
+} */
 
 body {
   margin: 0;
@@ -80,12 +77,9 @@ input[type="search"]:focus {
   border-color: var(--tileBorderColor_Active);
 }
 
-datalist {
-  background-color: white;
-  border-style: solid;
-  border-width: var(--tileBorderWidth);
-  border-color: var(--tileBorderColor_Default);
-  border-radius: var(--tileBorderRadius);
+input[type="range"] {
+  border: none;
+  width: 10rem;
 }
 
 .tooltip {
@@ -182,4 +176,8 @@ datalist {
   background: var(--tileBorderColor_Default);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.ability-activated {
+  filter: drop-shadow(0 0 10px yellow);
 }
