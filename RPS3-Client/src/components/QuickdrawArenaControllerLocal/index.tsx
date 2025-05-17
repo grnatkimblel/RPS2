@@ -108,6 +108,14 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       let drawTime = Math.random() * 8 + 3;
       let endTime = Math.random() * 3 + 3 + drawTime;
       setGameState((prev: GameState) => {
+        let p1CarryOver = { gamble: null, time: null };
+        let p2CarryOver = { gamble: null, time: null };
+        if (prev.game.carryOver.player_1.gamble && prev.game.carryOver.player_1.time < now) {
+          p1CarryOver = prev.game.carryOver.player_1;
+        }
+        if (prev.game.carryOver.player_2.gamble && prev.game.carryOver.player_1.time < now) {
+          p2CarryOver = prev.game.carryOver.player_2;
+        }
         return {
           ...prev,
           game: {
@@ -134,18 +142,24 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
                   player_1: {
                     boughtFreeze: false,
                     boughtGamble: false,
-                    activeGamble: null,
+                    activeGamble: p1CarryOver.gamble,
+                    activeGambleTime: p1CarryOver.time,
                     boughtRunItBack: false,
                   },
                   player_2: {
                     boughtFreeze: false,
                     boughtGamble: false,
-                    activeGamble: null,
+                    activeGamble: p2CarryOver.gamble,
+                    activeGambleTime: p2CarryOver.time,
                     boughtRunItBack: false,
                   },
                 },
               },
             ],
+            carryOver: {
+              player_1: { gamble: null, time: null },
+              player_2: { gamble: null, time: null },
+            },
           },
         };
       });
@@ -253,6 +267,8 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       let p2PP = 0;
       let tempNumRoundsToWin = prev.game.header.numRoundsToWin;
       let tempHasRunItBack;
+      let p1CarryOver = { gamble: null, time: null };
+      let p2CarryOver = { gamble: null, time: null };
 
       //did anything happen in the round?
       const roundBeforeLast = prev.game.rounds[prev.game.rounds.length - 2]; //only way to know if ability was bought is to check the round before last
@@ -319,9 +335,11 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
             player1_score: p1Score,
             player1_purplePoints: p1PP,
             player1_activeGamble: false,
+            player1_hasGamble: false,
             player2_score: p2Score,
             player2_purplePoints: p2PP,
             player2_activeGamble: false,
+            player2_hasGamble: false,
             [`player${standing.loser}_hasRunItBack`]: tempHasRunItBack,
             numRoundsToWin: tempNumRoundsToWin,
           },
@@ -340,7 +358,12 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       lastRoundAbilities.player_1.boughtRunItBack !== thisRoundAbilities.player_1.boughtRunItBack ||
       lastRoundAbilities.player_2.boughtFreeze !== thisRoundAbilities.player_2.boughtFreeze ||
       lastRoundAbilities.player_2.boughtGamble !== thisRoundAbilities.player_2.boughtGamble ||
-      lastRoundAbilities.player_2.boughtRunItBack !== thisRoundAbilities.player_2.boughtRunItBack
+      lastRoundAbilities.player_2.boughtRunItBack !== thisRoundAbilities.player_2.boughtRunItBack ||
+      roundBeforeLast.abilities.player_1.activeGamble ||
+      roundBeforeLast.abilities.player_2.activeGamble
+      //this is not efficient but whatever, ideally we would check the header to see if there is a carry over but since we only have last round and i dont want to change the params,
+      //any round that comes after a gamble has been played is kept even if nothing happens. This is not going to affect the main goal which is preventing infinite rounds accruing during afk.
+      // Unless the carry over is broken and every round is now the round after a gamble, so dont do that.
     )
       return true;
     // if any player has played a hand
@@ -437,7 +460,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
                     ...round,
                     hands: {
                       ...round.hands,
-                      [playerKey]: { ...round.hands[playerKey], isTooEarly: true },
+                      [playerKey]: { ...round.hands[playerKey], time: now, isTooEarly: true },
                     },
                   };
                 } else {
@@ -493,7 +516,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   );
 
   function buyAbility(isPlayer1, ability) {
-    console.log("buy ability");
+    console.log("buy ability called");
     if (isPlayer1) {
       setGameState((prev: GameState) => {
         if (prev.game.header.player1_purplePoints >= 1) {
@@ -588,14 +611,14 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
           ...prev,
           game: {
             ...prev.game,
-            header: { ...prev.game.header, player1_hasGamble: false, player1_activeGamble: true },
+            header: { ...prev.game.header, player1_activeGamble: true },
             rounds: prev.game.rounds.map((round, index) => {
               if (index === prev.game.rounds.length - 1) {
                 return {
                   ...round,
                   abilities: {
                     ...round.abilities,
-                    player_1: { ...round.abilities.player_1, activeGamble: hand },
+                    player_1: { ...round.abilities.player_1, activeGamble: hand, activeGambleTime: Date.now() },
                   },
                 };
               } else {
@@ -612,7 +635,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
           ...prev,
           game: {
             ...prev.game,
-            header: { ...prev.game.header, player2_hasGamble: false, player2_activeGamble: true },
+            header: { ...prev.game.header, player2_activeGamble: true },
             rounds: prev.game.rounds.map((round, index) => {
               if (index === prev.game.rounds.length - 1) {
                 return {
@@ -709,13 +732,37 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   ]);
 
   //updatePurplePoints when there is an ability purchase
+  //handle carry over when gambling after jumped gun
   useEffect(() => {
     //only execute when purchasing, dont want to update score when abilities are consumed
 
     setGameState((prev: GameState) => {
       let p1PP = 0;
       let p2PP = 0;
-      console.log("PP UseEffect: prev ", prev);
+      let tempCarryOver = prev.game.carryOver;
+      console.log("RoundChanged UseEffect: prev ", prev);
+
+      if (prev.game.rounds.length > 0) {
+        let currentRound = prev.game.rounds[prev.game.rounds.length - 1];
+        console.log(currentRound);
+        if (
+          currentRound.abilities.player_1.activeGamble &&
+          currentRound.abilities.player_1.activeGambleTime > currentRound.endTime
+        ) {
+          tempCarryOver.player_1.gamble = currentRound.abilities.player_1.activeGamble;
+          tempCarryOver.player_1.time = currentRound.abilities.player_1.activeGambleTime;
+        }
+
+        if (
+          currentRound.abilities.player_2.activeGamble &&
+          currentRound.abilities.player_2.activeGambleTime > currentRound.endTime
+        ) {
+          tempCarryOver.player_2.gamble = currentRound.abilities.player_2.activeGamble;
+          tempCarryOver.player_2.time = currentRound.abilities.player_2.activeGambleTime;
+        }
+      }
+      console.log("tempCarryOver", tempCarryOver);
+
       prev.game.rounds.forEach((round, index) => {
         let tempP1PP: number, tempP2PP: number;
         ({ player1PP: tempP1PP, player2PP: tempP2PP } = getPurplePointsAward(
@@ -742,6 +789,10 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
             player1_purplePoints: p1PP,
             player2_purplePoints: p2PP,
           },
+          carryOver: {
+            player_1: { ...tempCarryOver.player_1 },
+            player_2: { ...tempCarryOver.player_2 },
+          },
         },
       };
     });
@@ -750,6 +801,8 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   //register keydown event listener
   useEffect(() => {
     function bigButtons(isPlayer1: Boolean, isShopOpen: Boolean, isGambling: Boolean, hand, ability) {
+      // console.log("bigButtons called");
+      // console.log(isPlayer1, isShopOpen, isGambling, hand, ability);
       if (isGambling) {
         doGamble(isPlayer1, hand);
       } else if (isShopOpen) {
@@ -803,7 +856,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [playHand, isRightShopOpen, isLeftShopOpen]);
+  }, [playHand, isRightShopOpen, isLeftShopOpen, isLeftGambling, isRightGambling]);
 
   //clear all things when leaving game
   useEffect(() => {
@@ -885,7 +938,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
 
   return (
     <>
-      {testView()}
+      {/* {testView()} */}
       <QuickdrawArenaView
         localOrOnline="Local"
         viewModel={viewModel}
@@ -971,6 +1024,16 @@ interface GameState {
       player2_hasRunItBack: boolean;
     };
     rounds?: Array<Round>;
+    carryOver: {
+      player_1: {
+        gamble: EMOJIS | null;
+        time: number | null;
+      };
+      player_2: {
+        gamble: EMOJIS | null;
+        time: number | null;
+      };
+    };
   };
 }
 
@@ -980,12 +1043,14 @@ interface Round {
       boughtFreeze: boolean;
       boughtGamble: boolean;
       activeGamble: EMOJIS | null;
+      activeGambleTime: number | null;
       boughtRunItBack: boolean;
     };
     player_2: {
       boughtFreeze: boolean;
       boughtGamble: boolean;
       activeGamble: EMOJIS | null;
+      activeGambleTime: number | null;
       boughtRunItBack: boolean;
     };
   };
@@ -1026,6 +1091,10 @@ function createGameState(): GameState {
         player2_hasRunItBack: false,
       },
       rounds: [],
+      carryOver: {
+        player_1: { gamble: null, time: null },
+        player_2: { gamble: null, time: null },
+      },
     },
   };
 

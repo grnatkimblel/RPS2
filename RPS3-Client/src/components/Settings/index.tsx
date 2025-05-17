@@ -68,6 +68,12 @@ export default function Settings({ displayState, setDisplayState, soundVolume, s
             localStorage.removeItem("localPlayerUsernames");
           }}
         />
+        {/* <input
+          type="color"
+          onChange={(event) => {
+            console.log(event.target.value);
+          }}
+        /> */}
       </div>
     </Tile>
   );

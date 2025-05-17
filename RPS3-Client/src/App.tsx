@@ -386,6 +386,7 @@ function App() {
               alignItems: "center",
               justifyContent: "center",
               position: "relative",
+              backgroundColor: "var(--backgroundColor)",
             }}
           >
             <AnimatePresence mode="popLayout">

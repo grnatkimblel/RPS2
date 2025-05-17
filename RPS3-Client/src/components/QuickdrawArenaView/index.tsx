@@ -291,6 +291,7 @@ export default function QuickdrawArenaView({
         width: "100%",
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "var(--backgroundColor)",
       }}
     >
       <div
@@ -448,6 +449,8 @@ export default function QuickdrawArenaView({
               hasCurrentGamble={viewModel.player1_activeGamble}
               hasRunItBack={viewModel.player1_hasRunItBack}
               showKeyHints={showKeyHints}
+              showExitModal={showExitModal}
+              showGameOverModal={showGameOverModal}
             />
             <div style={{ fontSize: "12rem", alignSelf: "flex-end", marginRight: "2rem" }}>
               {viewModel.player1_hand}
@@ -463,6 +466,8 @@ export default function QuickdrawArenaView({
               hasCurrentGamble={viewModel.player2_activeGamble}
               hasRunItBack={viewModel.player2_hasRunItBack}
               showKeyHints={showKeyHints}
+              showExitModal={showExitModal}
+              showGameOverModal={showGameOverModal}
             />
           </div>
         </div>
@@ -490,7 +495,16 @@ export default function QuickdrawArenaView({
   );
 }
 
-function AbilityIndicator({ isRight, hasFreeze, hasGamble, hasCurrentGamble, hasRunItBack, showKeyHints }) {
+function AbilityIndicator({
+  isRight,
+  hasFreeze,
+  hasGamble,
+  hasCurrentGamble,
+  hasRunItBack,
+  showKeyHints,
+  showExitModal,
+  showGameOverModal,
+}) {
   return (
     <div
       style={{
@@ -504,18 +518,24 @@ function AbilityIndicator({ isRight, hasFreeze, hasGamble, hasCurrentGamble, has
     >
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
         {isRight && <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(↑)</div>}
-        <div style={{ fontSize: "4rem" }} className={hasFreeze ? "" : "ability-transparency"}>
+        <div
+          style={{ fontSize: "4rem" }}
+          className={hasFreeze ? (showExitModal || showGameOverModal ? "" : "ice-glow") : "ability-transparency"}
+        >
           {EMOJIS.ICE}
         </div>
         {!isRight && <div className={showKeyHints ? "keyHints " : "keyHints invisible"}>(1)</div>}
       </div>
       <div
         style={{ fontSize: "4rem" }}
-        className={hasCurrentGamble ? "ability-activated" : hasGamble ? "" : "ability-transparency"}
+        className={hasGamble ? (showExitModal || showGameOverModal ? "" : "yellow-glow") : "ability-transparency"}
       >
         {EMOJIS.GAMBLE}
       </div>
-      <div style={{ fontSize: "4rem" }} className={hasRunItBack ? "" : "ability-transparency"}>
+      <div
+        style={{ fontSize: "4rem" }}
+        className={hasRunItBack ? (showExitModal || showGameOverModal ? "" : "red-glow") : "ability-transparency"}
+      >
         {EMOJIS.RUN_IT_BACK}
       </div>
     </div>
@@ -544,7 +564,8 @@ function PointMenu({
     display: "flex",
     flexDirection: "column",
     position: "absolute",
-    backgroundColor: "white",
+    backgroundColor: "var(--backgroundColor)",
+    top: "50%",
     zIndex: "1",
   };
 
@@ -671,7 +692,7 @@ function ExitModal({ setShowExitModal, onClickYes }) {
     position: "absolute",
     top: "50%",
     translate: "0 -50%",
-    backgroundColor: "white",
+    backgroundColor: "var(--backgroundColor)",
     zIndex: "10",
   };
 
@@ -718,7 +739,7 @@ function GameOverModal({ winner, onClickPlayAgain, onClickQuit }) {
     position: "absolute",
     top: "50%",
     translate: "0 -50%",
-    backgroundColor: "white",
+    backgroundColor: "var(--backgroundColor)",
     zIndex: "10",
   };
 

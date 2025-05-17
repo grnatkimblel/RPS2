@@ -4,7 +4,7 @@ import "../../styles/styles.css";
 
 export default function Tile({
   size,
-  isActive = false,
+  // isActive = false,
   layoutId = undefined,
   initial = false,
   animate = false,
@@ -25,10 +25,10 @@ export default function Tile({
     width: "0.6rem",
     radius: "1rem",
     style: "solid",
-    color: { default: "#b1b1b1", active: "#626262" },
+    color: "var(--tileBorderColor_Active)",
   };
 
-  function getTileStyle(size, active) {
+  function getTileStyle(size) {
     if (size !== "slim" && size !== "thick") {
       // console.log(size);
       throw Error();
@@ -38,16 +38,12 @@ export default function Tile({
       borderStyle: tileBorders.style,
       borderWidth: tileBorders.width,
       borderRadius: tileBorders.radius,
-      backgroundColor: "white",
+      backgroundColor: "var(--backgroundColor)",
     };
     // console.log(active);
     style.width = tileSizes[size];
-    if (active) {
-      style.borderColor = tileBorders.color.active;
-    } else {
-      // console.log("test");
-      style.borderColor = tileBorders.color.default;
-    }
+    style.borderColor = tileBorders.color;
+
     // console.log(style);
     return style;
   }
@@ -63,7 +59,7 @@ export default function Tile({
       // transition={transition}
       onClick={onClick}
       style={{
-        ...getTileStyle(size, isActive),
+        ...getTileStyle(size),
         display: "flex",
         flexDirection: "column",
         alignItems: "center",

@@ -1,16 +1,21 @@
 @import url(./fonts.css);
 
 :root {
-  --primary: #494949;
+  /* --primary: #494949;
   --secondary: #626262;
-  --tertiary: #b1b1b1;
+  --tertiary: #b1b1b1; */
+  /* --RPS: black; */
+  --primary: #cdd6f4;
+  --secondary: #bac2de;
+  --tertiary: #a6adc8;
+  --RPS: #a6adc8;
 }
 
 .RPS-Title {
   font-family: "Almarai";
   font-weight: bold;
   font-size: 6rem;
-  color: black;
+  color: var(--RPS);
 }
 
 .defaultText {
