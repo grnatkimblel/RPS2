@@ -19,10 +19,11 @@ export default function MainMenu({ displayState, setDisplayState }) {
       <motion.button
         className={"labelText"}
         onClick={(event) => {
-          event.stopPropagation();
-          if (displayState !== DisplayStates.Login) {
-            setDisplayState(DisplayStates.Login);
-          }
+          //   event.stopPropagation();
+          //   if (displayState !== DisplayStates.Login) {
+          //     setDisplayState(DisplayStates.Login);
+          //   }
+          //
         }}
         style={{
           width: "auto",
@@ -35,7 +36,8 @@ export default function MainMenu({ displayState, setDisplayState }) {
           scale: 1.05,
         }}
       >
-        {displayState !== DisplayStates.Login ? "LOGIN" : "..."}
+        {/* {displayState !== DisplayStates.Login ? "LOGIN" : "..."} */}
+        {"COMING SOON"}
       </motion.button>
       <div
         style={{
@@ -53,13 +55,13 @@ export default function MainMenu({ displayState, setDisplayState }) {
           destination={DisplayStates.Local}
           styles={{ marginTop: "2.5rem" }}
         />
-        <Button
+        {/* <Button
           text={"ONLINE"}
           textStyle={"defaultText"}
           setDisplayState={setDisplayState}
           destination={DisplayStates.Online_Gamemodes}
           styles={{ marginTop: "2.5rem" }}
-        />
+        /> */}
         <Button
           text={"SETTINGS"}
           textStyle={"defaultText"}

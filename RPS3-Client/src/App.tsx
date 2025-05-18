@@ -59,74 +59,6 @@ function App() {
     setDisplayState(nextDisplayState);
   }, [nextDisplayState]);
 
-  const testingButtons = () => {
-    return (
-      <>
-        <button
-          style={{ position: "absolute", marginLeft: "20rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState(DisplayStates.Home)}
-        >
-          Home
-        </button>
-        <button
-          style={{ position: "absolute", marginLeft: "25rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState(DisplayStates.Local)}
-        >
-          Local
-        </button>
-        <button
-          style={{ position: "absolute", marginLeft: "30rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState(DisplayStates.Online_Gamemodes)}
-        >
-          Online1
-        </button>
-        <button
-          style={{ position: "absolute", marginLeft: "35rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState(DisplayStates.Online_Matchmaking_Quickdraw)}
-        >
-          Quickdraw
-        </button>
-        <button
-          style={{ position: "absolute", marginLeft: "40rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState(DisplayStates.Online_Matchmaking_TDM)}
-        >
-          TDM
-        </button>
-        <button
-          style={{ position: "absolute", marginLeft: "45rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState(DisplayStates.Online_Matchmaking_Search)}
-        >
-          Search
-        </button>
-
-        <button
-          style={{ position: "absolute", marginLeft: "50rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState(DisplayStates.Login)}
-        >
-          Login
-        </button>
-        <button
-          style={{ position: "absolute", marginLeft: "55rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState(DisplayStates.Create_Account)}
-        >
-          CreateAccount
-        </button>
-        <button
-          style={{ position: "absolute", marginLeft: "60rem", zIndex: "1" }}
-          onClick={() => setNextDisplayState("QuickdrawArena")}
-        >
-          QuickdrawArena
-        </button>
-        <p style={{ position: "absolute", marginLeft: "20rem", marginTop: "3rem", zIndex: "1" }}>
-          {"Prev DisplayState: " + previousDisplayState.current}
-        </p>
-        <p style={{ position: "absolute", marginLeft: "35rem", marginTop: "3rem", zIndex: "1" }}>
-          {"DisplayState: " + displayState}
-        </p>
-      </>
-    );
-  };
-
   const MENU_DISPLAY_STATES = [
     DisplayStates.Home,
     DisplayStates.Local,
@@ -305,30 +237,6 @@ function App() {
         ONLINE_MATCHMAKING_DISPLAY_STATES.includes(custom.nextDisplayState)
           ? "30rem"
           : 0,
-    }),
-  };
-
-  const thickUserAccountVariant = {
-    loginInitial: (custom) => ({
-      opacity: 0,
-      x: 0,
-      y: 0,
-    }),
-    createAccountInitial: (custom) => ({
-      opacity: 0,
-      x: 0,
-      y: 0,
-    }),
-    present: { opacity: 1, y: 0, x: 0 },
-    loginExit: (custom) => ({
-      opacity: 0,
-      x: 0,
-      y: 0,
-    }),
-    createAccountExit: (custom) => ({
-      opacity: 0,
-      x: 0,
-      y: 0,
     }),
   };
 

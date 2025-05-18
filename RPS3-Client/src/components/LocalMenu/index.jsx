@@ -23,6 +23,7 @@ export default function LocalMenu({ displayState, setDisplayState, setLocalPlaye
           <motion.input
             type="search"
             defaultValue="PLAYER 1"
+            placeholder="Enter Name"
             required
             minLength="1"
             maxLength="20"
@@ -41,6 +42,7 @@ export default function LocalMenu({ displayState, setDisplayState, setLocalPlaye
           <motion.input
             type="search"
             defaultValue="PLAYER 2"
+            placeholder="Enter Name"
             required
             minLength="1"
             maxLength="20"
@@ -73,7 +75,8 @@ export default function LocalMenu({ displayState, setDisplayState, setLocalPlaye
             GAMEMODES
           </p>
           <CycleButton
-            options={["QUICKDRAW", "TDM"]}
+            // options={["QUICKDRAW", "TDM"]}
+            options={["QUICKDRAW"]}
             textStyle="defaultText"
             styles={{ width: "100%", marginTop: "0rem", marginBottom: "2rem" }}
           />
