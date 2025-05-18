@@ -4,12 +4,12 @@
   --tileHeight: 35rem;
   --tileBorderWidth: 0.6rem;
   --tileBorderRadius: 1rem;
-  /* --tileBorderColor_Default: #b1b1b1;
+  --tileBorderColor_Default: #b1b1b1;
   --tileBorderColor_Active: #626262;
-  --backgroundColor: white; */
-  --tileBorderColor_Default: #a6adc8;
-  --tileBorderColor_Active: #6c7086;
-  --backgroundColor: #181825;
+  --backgroundColor: white;
+  /* --tileBorderColor_Default: #6c7086;
+  --tileBorderColor_Active: #a6adc8;
+  --backgroundColor: #181825; */
 
   /*catppuccin colors*/
   /*

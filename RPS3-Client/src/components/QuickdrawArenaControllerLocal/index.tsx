@@ -267,8 +267,8 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       let p2PP = 0;
       let tempNumRoundsToWin = prev.game.header.numRoundsToWin;
       let tempHasRunItBack;
-      let p1CarryOver = { gamble: null, time: null };
-      let p2CarryOver = { gamble: null, time: null };
+      // let p1CarryOver = { gamble: null, time: null };
+      // let p2CarryOver = { gamble: null, time: null };
 
       //did anything happen in the round?
       const roundBeforeLast = prev.game.rounds[prev.game.rounds.length - 2]; //only way to know if ability was bought is to check the round before last
@@ -358,9 +358,9 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       lastRoundAbilities.player_1.boughtRunItBack !== thisRoundAbilities.player_1.boughtRunItBack ||
       lastRoundAbilities.player_2.boughtFreeze !== thisRoundAbilities.player_2.boughtFreeze ||
       lastRoundAbilities.player_2.boughtGamble !== thisRoundAbilities.player_2.boughtGamble ||
-      lastRoundAbilities.player_2.boughtRunItBack !== thisRoundAbilities.player_2.boughtRunItBack ||
-      roundBeforeLast.abilities.player_1.activeGamble ||
-      roundBeforeLast.abilities.player_2.activeGamble
+      lastRoundAbilities.player_2.boughtRunItBack !== thisRoundAbilities.player_2.boughtRunItBack
+      // roundBeforeLast.abilities.player_1.activeGamble ||
+      // roundBeforeLast.abilities.player_2.activeGamble
       //this is not efficient but whatever, ideally we would check the header to see if there is a carry over but since we only have last round and i dont want to change the params,
       //any round that comes after a gamble has been played is kept even if nothing happens. This is not going to affect the main goal which is preventing infinite rounds accruing during afk.
       // Unless the carry over is broken and every round is now the round after a gamble, so dont do that.
@@ -519,6 +519,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     console.log("buy ability called");
     if (isPlayer1) {
       setGameState((prev: GameState) => {
+        console.log("buyability P1", prev);
         if (prev.game.header.player1_purplePoints >= 1) {
           if (ability == "Gamble") setIsLeftGambling(true);
           if (!prev.game.header[`player1_has${ability}`]) {
@@ -548,6 +549,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       });
     } else {
       setGameState((prev: GameState) => {
+        console.log("buyability P2", prev);
         // console.log(prev);
         if (prev.game.header.player2_purplePoints >= 1) {
           if (ability == "Gamble") setIsRightGambling(true);
@@ -695,7 +697,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       localStorage.setItem("localPlayerUsernames", JSON.stringify(localPlayerUsernamesArray));
     }
   }
-  //update display score when state changes
+  //update viewModel when gameState changes
   useEffect(() => {
     setViewModel((prev) => {
       return {
@@ -802,7 +804,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   useEffect(() => {
     function bigButtons(isPlayer1: Boolean, isShopOpen: Boolean, isGambling: Boolean, hand, ability) {
       // console.log("bigButtons called");
-      // console.log(isPlayer1, isShopOpen, isGambling, hand, ability);
+      console.log(isPlayer1, isShopOpen, isGambling, hand, ability);
       if (isGambling) {
         doGamble(isPlayer1, hand);
       } else if (isShopOpen) {

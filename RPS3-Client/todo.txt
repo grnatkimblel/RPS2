@@ -3,5 +3,5 @@ emoji of the ability, they will buy the ability by opening the shop (tab of shif
 (Q,W,E). When Buying gamble they will get an additional choice to confirm what they want the gamble to be towards.
 
 
-scoring is fucked up is someone jumps the gun after points are on the board, early PP is fucked up, carry over is fucked up
+scoring is fucked up is someone jumps the gun after points are on the board, early PP is fucked up, carry over is fucked up, winning is fucked
 pointmenu display position is fucked up on 4k monitor, some stuff is fucked on mac display
