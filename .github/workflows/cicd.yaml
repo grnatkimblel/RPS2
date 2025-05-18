@@ -2,7 +2,7 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - Dockerize
+      - Vite
 
 jobs:
   build-and-deploy:
