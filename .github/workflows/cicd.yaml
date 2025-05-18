@@ -72,6 +72,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          debug: true
           overwrite: true
           source: ./deployment
           target: /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/
