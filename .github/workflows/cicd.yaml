@@ -65,7 +65,7 @@ jobs:
           mv ./secrets deployment/
 
       - name: SCP images and files to remote machine
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ vars.DOMAIN_NAME }}
           port: ${{ secrets.SSH_PORT }}
