@@ -3,7 +3,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY ./RPS3-Client/package*.json .
-RUN npm ci --omit=dev
+RUN npm ci --include=dev
 
 COPY ./RPS3-Client .
 COPY ./sharedCode ./src/shared
@@ -18,7 +18,7 @@ RUN npm run build
 # This stage is now named 'build' for clarity
 FROM scratch AS artifacts 
 # Start from scratch to minimize size
-COPY --from=builder /app/build /app
+COPY --from=builder /app/dist /app
 
 FROM ubuntu:latest
 
