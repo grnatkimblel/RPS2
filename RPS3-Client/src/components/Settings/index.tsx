@@ -61,11 +61,12 @@ export default function Settings({ displayState, setDisplayState, soundVolume, s
           text={"CLEAR LOCAL USERS"}
           textStyle={"labelText"}
           onClick={() => {
-            let localPlayerUsernames = JSON.parse(localStorage.getItem("localPlayerUsernames") || "[]");
-            localPlayerUsernames.map((username) => {
-              localStorage.removeItem(username);
-            });
-            localStorage.removeItem("localPlayerUsernames");
+            localStorage.clear();
+            // let localPlayerUsernames = JSON.parse(localStorage.getItem("localPlayerUsernames") || "[]");
+            // localPlayerUsernames.map((username) => {
+            //   localStorage.removeItem(username);
+            // });
+            // localStorage.removeItem("localPlayerUsernames");
           }}
         />
         {/* <input

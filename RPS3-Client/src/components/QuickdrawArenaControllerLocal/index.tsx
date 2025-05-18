@@ -15,7 +15,7 @@ import EMOJIS from "../../enums/Emojis";
 import QuickdrawArenaViewModel from "../../types/QuickdrawArenaViewModel";
 
 import useCountdownMs from "../../hooks/useCountdownMs";
-import { big } from "motion/react-client";
+import { big, p } from "motion/react-client";
 
 export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdrawSessionData, soundVolume }) {
   //View
@@ -29,6 +29,15 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     player2_hand: EMOJIS.RIGHT_HAND,
     player2_score: 0,
     player2_purplePoints: 0,
+    player1WonLastGame: null,
+    player1_winCount:
+      localStorage.getItem(quickdrawSessionData.player1.username) == null
+        ? 0
+        : JSON.parse(localStorage.getItem(quickdrawSessionData.player1.username)).winCount,
+    player2_winCount:
+      localStorage.getItem(quickdrawSessionData.player2.username) == null
+        ? 0
+        : JSON.parse(localStorage.getItem(quickdrawSessionData.player2.username)).winCount,
   };
   const [viewModel, setViewModel] = useState<QuickdrawArenaViewModel>(initialViewModel);
   const [isLeftShopOpen, setIsLeftShopOpen] = useState(false);
@@ -80,6 +89,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     });
   }, [timeLeft]);
 
+  //start game when countdown is over
   useEffect(() => {
     // console.log(localStorage);
     if (timeLeft == 0) {
@@ -88,9 +98,10 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     }
   }, [timeLeft]);
 
+  //game loop, initializes players in localstorage then calls doRound until the game is over
   async function doGame() {
-    console.log("doGame called");
-    console.log(isGameOver.current);
+    // console.log("doGame called");
+    // console.log("isGameOver", isGameOver.current);
     createPlayersInLocalStorage(quickdrawSessionData.player1.username, quickdrawSessionData.player2.username);
     initialRenderRefs.current.isCancelled = false; // Reset the flag when starting a new game
     while (isGameOver.current == false) {
@@ -98,12 +109,15 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     }
   }
 
+  //creates the new round object, kicks off the game phase timeouts, and resolves its promise when the round is over
+  //update gamestate occurs after the pow, or endphase
   async function doRound(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if (initialRenderRefs.current.isCancelled) {
         reject("Game cancelled");
         return;
       }
+
       let now = Date.now();
       let drawTime = Math.random() * 8 + 3;
       let endTime = Math.random() * 3 + 3 + drawTime;
@@ -116,6 +130,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         if (prev.game.carryOver.player_2.gamble && prev.game.carryOver.player_1.time < now) {
           p2CarryOver = prev.game.carryOver.player_2;
         }
+
         return {
           ...prev,
           game: {
@@ -177,6 +192,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         }
       }, endTime * 1000);
       const resolveCallback = () => {
+        // console.log("resolveCallback called", isGameOver.current, initialRenderRefs.current.isCancelled);
         if (isGameOver.current || initialRenderRefs.current.isCancelled) endGame();
         resolve();
       };
@@ -201,6 +217,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       clearTimeout(initialRenderRefs.current.roundTimeouts.endTimeout);
     }
     if (initialRenderRefs.current.roundTimeouts.resolveTimeout) {
+      // console.log("clearing resolveTimeout");
       clearTimeout(initialRenderRefs.current.roundTimeouts.resolveTimeout);
     }
     // initialRenderRefs.current.roundTimeouts = {
@@ -224,6 +241,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     whistles[whistleIndex]();
   }
 
+  //sets viewModel to start phase, plays audio and enables playing hands
   function beginStartPhase() {
     setViewModel((prev: QuickdrawArenaViewModel) => {
       return {
@@ -239,6 +257,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     setIsPlayer2AcceptingHandsInput(true);
   }
 
+  //sets viewModel to draw phase, plays audio
   function beginDrawPhase() {
     setViewModel((prev: QuickdrawArenaViewModel) => {
       return { ...prev, gamePhase: GamePhases.DRAW, titleText: EMOJIS.BOMB };
@@ -248,6 +267,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     playDrumroll();
   }
 
+  //sets viewModel to end phase, plays audio and disables playing hands
   function beginEndPhase() {
     setViewModel((prev: QuickdrawArenaViewModel) => {
       return { ...prev, gamePhase: GamePhases.END, titleText: EMOJIS.POW };
@@ -258,9 +278,10 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     setIsPlayer2AcceptingHandsInput(false);
   }
 
+  //updates the game state after a round, calculates scores and purple points, and checks for game over conditions
   function updateGameStateAfterRound() {
     setGameState((prev: GameState) => {
-      console.log("updateGameStateAfterRound", prev);
+      // console.log("updateGameStateAfterRound", prev);
       let p1Score = 0;
       let p2Score = 0;
       let p1PP = 0;
@@ -275,7 +296,10 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       const latestRound = prev.game.rounds[prev.game.rounds.length - 1];
       if (prev.game.rounds.length > 1 && !didAnythingHappenThisRound(roundBeforeLast, latestRound)) {
         //if nothing happened, delete the round and return, dont want to have a billion rounds looping to process if the user goes afk
-        return { ...prev, game: { ...prev.game, rounds: [...prev.game.rounds.slice(-1)] } };
+        // console.log("prev.rounds", prev.game.rounds);
+        let newRounds = prev.game.rounds.slice(0, -1);
+        // console.log("new rounds", newRounds);
+        return { ...prev, game: { ...prev.game, rounds: [...newRounds] } };
       }
 
       prev.game.rounds.forEach((round) => {
@@ -317,13 +341,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         tempHasRunItBack = false;
         tempNumRoundsToWin = prev.game.header.numRoundsToWin + 2;
       } else if (p1Score + p1PP >= tempNumRoundsToWin || p2Score + p2PP >= tempNumRoundsToWin) {
-        console.log("game over");
-        let previousWinCount = localStorage.getItem(quickdrawSessionData[`player${standing.winner}.username`].winCount);
-        //need to make sure the player is initialized when the game begins
-        localStorage.setItem(quickdrawSessionData[`player${standing.winner}.username`], {
-          winCount: previousWinCount + 1,
-        });
-        isGameOver.current = true;
+        endGame(standing.winner);
       }
 
       return {
@@ -348,6 +366,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     });
   }
 
+  //determines if the round is useful for determining the gamestate, other wise will be discarded
   function didAnythingHappenThisRound(roundBeforeLast: Round, latestRound: Round): Boolean {
     let lastRoundAbilities = roundBeforeLast.abilities;
     let thisRoundAbilities = latestRound.abilities;
@@ -378,6 +397,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     return false;
   }
 
+  //calculates the purple points award based on the players hands
   function getPurplePointsAward(player1, player2): { player1PP: number; player2PP: number } {
     let award = { player1PP: 0, player2PP: 0 };
     if (player1.hand !== null || player2.hand !== null) {
@@ -394,6 +414,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     return award;
   }
 
+  //calculates the score award based on the players hands
   function getScoreAward(
     player1,
     player1Abilities,
@@ -428,8 +449,31 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     return award;
   }
 
-  function endGame() {
+  //shows the game over modal
+  function endGame(winner: "1" | "2") {
+    if (isGameOver.current) return;
+    console.log("endGame called");
+    clearRoundTimeouts();
+    clearFreezeTimeouts();
+    let winnerStoredUser = localStorage.getItem(quickdrawSessionData[`player${winner}`].username);
+    let previousWinCount = JSON.parse(winnerStoredUser).winCount;
+    //need to make sure the player is initialized when the game begins
+    localStorage.setItem(
+      quickdrawSessionData[`player${winner}`].username,
+      JSON.stringify({
+        winCount: previousWinCount + 1,
+      })
+    );
     setShowGameOverModal(true);
+    setViewModel((prev: QuickdrawArenaViewModel) => {
+      console.log(winner == "1" ? true : false);
+      return {
+        ...prev,
+        [`player${winner}_winCount`]: previousWinCount + 1,
+        player1WonLastGame: winner == "1" ? true : false,
+      };
+    });
+    isGameOver.current = true;
   }
 
   const playHand = useCallback(
@@ -475,7 +519,8 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
         clearRoundTimeouts();
         setIsPlayer1AcceptingHandsInput(false);
         setIsPlayer2AcceptingHandsInput(false);
-        setTimeout(initialRenderRefs.current.roundTimeouts.resolveCallback, 2000);
+        let resolveTimeout = setTimeout(initialRenderRefs.current.roundTimeouts.resolveCallback, 2000);
+        initialRenderRefs.current.roundTimeouts.resolveTimeout = resolveTimeout;
         updateGameStateAfterRound();
         return;
       }
@@ -516,10 +561,10 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   );
 
   function buyAbility(isPlayer1, ability) {
-    console.log("buy ability called");
+    // console.log("buy ability called");
     if (isPlayer1) {
       setGameState((prev: GameState) => {
-        console.log("buyability P1", prev);
+        // console.log("buyability P1", prev);
         if (prev.game.header.player1_purplePoints >= 1) {
           if (ability == "Gamble") setIsLeftGambling(true);
           if (!prev.game.header[`player1_has${ability}`]) {
@@ -549,7 +594,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       });
     } else {
       setGameState((prev: GameState) => {
-        console.log("buyability P2", prev);
+        // console.log("buyability P2", prev)
         // console.log(prev);
         if (prev.game.header.player2_purplePoints >= 1) {
           if (ability == "Gamble") setIsRightGambling(true);
@@ -606,7 +651,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   }
 
   function doGamble(isPlayer1, hand) {
-    console.log("doGamble", isPlayer1, hand);
+    // console.log("doGamble", isPlayer1, hand);
     if (isPlayer1) {
       setGameState((prev: GameState) => {
         return {
@@ -688,12 +733,12 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       localPlayerUsernamesArray = JSON.parse(localPlayerUsernames);
       if (!localPlayerUsernamesArray.includes(username)) {
         localPlayerUsernamesArray.push(username);
-        console.log("localPlayerUsernamesArray", localPlayerUsernamesArray);
+        // console.log("localPlayerUsernamesArray", localPlayerUsernamesArray);
         localStorage.setItem("localPlayerUsernames", JSON.stringify(localPlayerUsernamesArray));
       }
     } else {
       localPlayerUsernamesArray = [username];
-      console.log("localPlayerUsernamesArray", localPlayerUsernamesArray);
+      // console.log("localPlayerUsernamesArray", localPlayerUsernamesArray);
       localStorage.setItem("localPlayerUsernames", JSON.stringify(localPlayerUsernamesArray));
     }
   }
@@ -734,7 +779,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   ]);
 
   //updatePurplePoints when there is an ability purchase
-  //handle carry over when gambling after jumped gun
+  //handle carry over when gambling after jumped gun or after a round ends (pow)
   useEffect(() => {
     //only execute when purchasing, dont want to update score when abilities are consumed
 
@@ -742,11 +787,12 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
       let p1PP = 0;
       let p2PP = 0;
       let tempCarryOver = prev.game.carryOver;
-      console.log("RoundChanged UseEffect: prev ", prev);
+      // console.log("RoundChanged UseEffect: prev ", prev);
 
+      // gambling after the pow
       if (prev.game.rounds.length > 0) {
         let currentRound = prev.game.rounds[prev.game.rounds.length - 1];
-        console.log(currentRound);
+        // console.log(currentRound);
         if (
           currentRound.abilities.player_1.activeGamble &&
           currentRound.abilities.player_1.activeGambleTime > currentRound.endTime
@@ -762,8 +808,27 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
           tempCarryOver.player_2.gamble = currentRound.abilities.player_2.activeGamble;
           tempCarryOver.player_2.time = currentRound.abilities.player_2.activeGambleTime;
         }
+
+        //gambling after a jumped gun
+        if (
+          currentRound.abilities.player_1.activeGamble &&
+          currentRound.hands.player_2.isTooEarly &&
+          currentRound.abilities.player_1.activeGambleTime > currentRound.hands.player_2.time
+        ) {
+          tempCarryOver.player_1.gamble = currentRound.abilities.player_1.activeGamble;
+          tempCarryOver.player_1.time = currentRound.abilities.player_1.activeGambleTime;
+        }
+        if (
+          currentRound.abilities.player_2.activeGamble &&
+          currentRound.hands.player_1.isTooEarly &&
+          currentRound.abilities.player_2.activeGambleTime > currentRound.hands.player_1.time
+        ) {
+          tempCarryOver.player_2.gamble = currentRound.abilities.player_2.activeGamble;
+          tempCarryOver.player_2.time = currentRound.abilities.player_2.activeGambleTime;
+        }
       }
-      console.log("tempCarryOver", tempCarryOver);
+
+      // console.log("tempCarryOver", tempCarryOver);
 
       prev.game.rounds.forEach((round, index) => {
         let tempP1PP: number, tempP2PP: number;
@@ -804,7 +869,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   useEffect(() => {
     function bigButtons(isPlayer1: Boolean, isShopOpen: Boolean, isGambling: Boolean, hand, ability) {
       // console.log("bigButtons called");
-      console.log(isPlayer1, isShopOpen, isGambling, hand, ability);
+      // console.log(isPlayer1, isShopOpen, isGambling, hand, ability);
       if (isGambling) {
         doGamble(isPlayer1, hand);
       } else if (isShopOpen) {
@@ -872,75 +937,8 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
     };
   }, []);
 
-  const testView = () => {
-    return (
-      <div style={{ display: "flex", position: "absolute" }}>
-        <datalist id="emoji-choices">
-          <option value={EMOJIS.FLUTE}></option>
-          <option value={EMOJIS.BOMB}></option>
-          <option value={EMOJIS.POW}></option>
-          <option value={EMOJIS.ROCK}></option> <option value={EMOJIS.PAPER}></option>{" "}
-          <option value={EMOJIS.SCISSORS}></option>{" "}
-        </datalist>{" "}
-        <input
-          type="text"
-          list="emoji-choices"
-          onChange={(event) => setViewModel((viewModel) => ({ ...viewModel, titleText: event.target.value }))}
-          style={{ width: "5rem" }}
-        />
-        <input
-          type="number"
-          onChange={(event) =>
-            setViewModel((viewModel) => ({ ...viewModel, numRoundsToWin: Number(event.target.value) }))
-          }
-          style={{ width: "5rem" }}
-        />
-        <input
-          type="number"
-          onChange={(event) =>
-            setViewModel((viewModel) => {
-              return { ...viewModel, player1_score: Number(event.target.value) };
-            })
-          }
-          style={{ width: "5rem" }}
-        />
-        <input
-          type="number"
-          onChange={(event) =>
-            setViewModel((viewModel) => {
-              return { ...viewModel, player1_purplePoints: Number(event.target.value) };
-            })
-          }
-          style={{ width: "5rem" }}
-        />
-        <input
-          type="number"
-          onChange={(event) =>
-            setViewModel((viewModel) => ({ ...viewModel, player2_score: Number(event.target.value) }))
-          }
-          style={{ width: "5rem" }}
-        />
-        <input
-          type="number"
-          onChange={(event) =>
-            setViewModel((viewModel) => ({ ...viewModel, player2_purplePoints: Number(event.target.value) }))
-          }
-          style={{ width: "5rem" }}
-        />
-        <button
-          onClick={() => {
-            doFreeze(true);
-          }}
-        >
-          doFreeze
-        </button>
-      </div>
-    );
-  };
-
   return (
     <>
-      {/* {testView()} */}
       <QuickdrawArenaView
         localOrOnline="Local"
         viewModel={viewModel}
@@ -966,12 +964,10 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
             //not sure what all is necessary here but were gonna be careful
             console.log("PlayAgain Called");
             setShowGameOverModal(false);
-            setViewModel(initialViewModel);
+            setViewModel({ ...initialViewModel, player1WonLastGame: viewModel.player1WonLastGame });
             setGameState(createGameState());
             setIsPlayer1AcceptingHandsInput(false);
             setIsPlayer1AcceptingHandsInput(false);
-            clearRoundTimeouts();
-            clearFreezeTimeouts();
             isGameOver.current = false;
             // Reset all audio
             goodBadUglyAudio.stop();
@@ -1078,7 +1074,7 @@ function createGameState(): GameState {
     game: {
       isFinished: false,
       header: {
-        numRoundsToWin: 5,
+        numRoundsToWin: 3,
         player1_score: 0,
         player1_purplePoints: 0,
         player1_hasFreeze: false,

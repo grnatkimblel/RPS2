@@ -18,6 +18,11 @@
   color: var(--RPS);
 }
 
+.RPS-Title::selection {
+  color: var(--backgroundColor);
+  background-color: var(--RPS);
+}
+
 .defaultText {
   font-family: "Almarai";
   font-weight: normal;

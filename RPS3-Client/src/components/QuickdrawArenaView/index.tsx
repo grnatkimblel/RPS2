@@ -291,7 +291,7 @@ export default function QuickdrawArenaView({
         width: "100%",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "var(--backgroundColor)",
+        // backgroundColor: "var(--backgroundColor)",
       }}
     >
       <div
@@ -307,7 +307,11 @@ export default function QuickdrawArenaView({
         {showExitModal && <ExitModal setShowExitModal={setShowExitModal} onClickYes={onClicks.Quit} />}
         {showGameOverModal && (
           <GameOverModal
-            winner={quickdrawSessionData.player1.username}
+            winner={
+              viewModel.player1WonLastGame
+                ? quickdrawSessionData.player1.username
+                : quickdrawSessionData.player2.username
+            }
             onClickPlayAgain={onClicks.PlayAgain}
             onClickQuit={onClicks.Quit}
           />
@@ -320,6 +324,7 @@ export default function QuickdrawArenaView({
               display: "flex",
               justifyContent: "space-between",
               marginBottom: "0.5rem",
+              position: "relative",
             }}
           >
             <div //player 1 Name Display
@@ -330,9 +335,20 @@ export default function QuickdrawArenaView({
                 marginLeft: "2rem",
               }}
             >
-              {"👑 " + quickdrawSessionData.player1.username}
+              {viewModel.player1WonLastGame == true
+                ? "👑 " + quickdrawSessionData.player1.username + ": " + viewModel.player1_winCount
+                : quickdrawSessionData.player1.username + ": " + viewModel.player1_winCount}
             </div>
-            <div style={{ display: "flex", justifyContent: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                position: "absolute",
+                left: "50%",
+                transform: " translateX(-50%)",
+                height: "100%",
+              }}
+            >
               <div style={{ display: "flex", flexDirection: "row-reverse", alignItems: "flex-end" }}>
                 {Array.from({ length: viewModel.numRoundsToWin }).map((_, index) => (
                   <div //player 1 scoreboard
@@ -401,7 +417,9 @@ export default function QuickdrawArenaView({
                 marginRight: "2rem",
               }}
             >
-              {quickdrawSessionData.player2.username + " 👑"}
+              {viewModel.player1WonLastGame == false
+                ? "👑 " + quickdrawSessionData.player2.username + ": " + viewModel.player2_winCount
+                : quickdrawSessionData.player2.username + ": " + viewModel.player2_winCount}
             </div>
           </div>
           <div style={{ width: "100%", display: "flex" }}>
@@ -550,9 +568,6 @@ function PointMenu({
   setIsLeftShopOpen,
   isRightShopOpen,
   setIsRightShopOpen,
-  buyFreeze,
-  buyGamble,
-  buyRunItBack,
 }) {
   // const [isExpanded, setIsExpanded] = useState(false);
 
@@ -565,7 +580,7 @@ function PointMenu({
     flexDirection: "column",
     position: "absolute",
     backgroundColor: "var(--backgroundColor)",
-    top: "50%",
+    // top: "50%",
     zIndex: "1",
   };
 
@@ -599,6 +614,7 @@ function PointMenu({
         flexDirection: isRight ? "row-reverse" : "",
         marginLeft: isRight ? "" : "1rem",
         marginRight: isRight ? "1rem" : "",
+        marginTop: "1rem",
       }}
     >
       {(isRight && isRightShopOpen) || (!isRight && isLeftShopOpen) ? (
@@ -648,7 +664,7 @@ function PointMenu({
           />
         </motion.div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+        <div style={{ display: "flex", flexDirection: "row" }}>
           {isRight && (
             <div className={showKeyHints ? "keyHints " : "keyHints invisible"} style={{ paddingRight: "1rem" }}>
               (SHIFT)
