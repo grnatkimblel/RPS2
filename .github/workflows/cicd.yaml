@@ -70,7 +70,7 @@ jobs:
           ls -alh ./deployment
           du -sh ./deployment
       - name: Echo Target Directory
-        run: echo ls /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/
+        run: ls /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/
 
       - name: SCP images and files to remote machine
         uses: appleboy/scp-action@v1
