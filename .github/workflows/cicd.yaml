@@ -69,7 +69,6 @@ jobs:
           echo "Contents of ./deployment:"
           ls -alh ./deployment
           du -sh ./deployment
-
       - name: Echo Target Directory
         run: echo "Target Directory: /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/deployment"
    
