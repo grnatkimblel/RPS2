@@ -74,20 +74,22 @@ jobs:
         uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ vars.DOMAIN_NAME }}
-          port: ${{ secrets.SSH_PORT }}
+          port: 22
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           debug: true
           overwrite: true
+          capture_stdout: true
+          rm: true
           source: ./deployment
-          target: /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/
+          target: /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/deployment
 
       - name: Deploy on the remote machine
         uses: appleboy/ssh-action@v1.2.1
         with:
           host: ${{ vars.DOMAIN_NAME }}
-          port: ${{ secrets.SSH_PORT }}
+          port: 22
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
