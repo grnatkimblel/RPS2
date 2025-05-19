@@ -46,12 +46,6 @@ jobs:
           docker save -o mysql.tar mysql:8.0
           chmod 644 *.tar  # Ensure readability
 
-      - name: List Deployment Contents
-        run: |
-          echo "Contents of ./deployment:"
-          ls -alh ./deployment
-          du -sh ./deployment
-
       - name: Write the github secrets to the secrets directory
         run: |
           mkdir secrets
@@ -69,6 +63,12 @@ jobs:
           mv server.tar deployment/
           mv mysql.tar deployment/
           mv ./secrets deployment/
+
+      - name: List Deployment Contents
+        run: |
+          echo "Contents of ./deployment:"
+          ls -alh ./deployment
+          du -sh ./deployment
 
       - name: SCP images and files to remote machine
         uses: appleboy/scp-action@v0.1.7
