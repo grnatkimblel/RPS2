@@ -64,6 +64,12 @@ jobs:
           mv mysql.tar deployment/
           mv ./secrets deployment/
 
+      - name: List Deployment Contents
+        run: |
+          echo "Contents of ./deployment:"
+          ls -alh ./deployment
+          du -sh ./deployment
+
       - name: SCP images and files to remote machine
         uses: appleboy/scp-action@v1.0.0
         with:
