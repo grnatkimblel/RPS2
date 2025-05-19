@@ -452,6 +452,7 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   //shows the game over modal
   function endGame(winner: "1" | "2") {
     if (isGameOver.current) return;
+
     console.log("endGame called");
     clearRoundTimeouts();
     clearFreezeTimeouts();
