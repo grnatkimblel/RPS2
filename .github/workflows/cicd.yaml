@@ -80,7 +80,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           debug: true
           overwrite: true
-          capture_stdout: true
+
           rm: true
           source: ./deployment/*
           target: /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/deployment
