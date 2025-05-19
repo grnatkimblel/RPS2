@@ -1074,7 +1074,7 @@ function createGameState(): GameState {
     game: {
       isFinished: false,
       header: {
-        numRoundsToWin: 3,
+        numRoundsToWin: 5,
         player1_score: 0,
         player1_purplePoints: 0,
         player1_hasFreeze: false,

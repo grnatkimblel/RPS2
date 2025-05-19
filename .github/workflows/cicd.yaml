@@ -71,7 +71,7 @@ jobs:
           du -sh ./deployment
 
       - name: SCP images and files to remote machine
-        uses: appleboy/scp-action@v1.0.0
+        uses: appleboy/scp-action@v1
         with:
           host: ${{ vars.DOMAIN_NAME }}
           port: 22
@@ -82,7 +82,7 @@ jobs:
           overwrite: true
           capture_stdout: true
           rm: true
-          source: ./deployment
+          source: ./deployment/*
           target: /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/deployment
 
       - name: Deploy on the remote machine
