@@ -62,6 +62,7 @@ jobs:
           mv nginx.tar deployment/
           mv server.tar deployment/
           mv mysql.tar deployment/
+
           mv ./secrets deployment/
 
       - name: List Deployment Contents
@@ -97,7 +98,7 @@ jobs:
             docker load -i ./mysql.tar
 
              # Explicitly define the project name (keep this consistent)
-            PROJECT_NAME="rps-prod"
+            PROJECT_NAME="rps-prod:${TAG:-latest}"
 
             # Bring down the previous containers, leave the volumes
             docker compose -p "$PROJECT_NAME" -f docker-compose.prod.yml down --remove-orphans
