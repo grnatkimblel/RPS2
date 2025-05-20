@@ -59,9 +59,9 @@ jobs:
         run: |
           mkdir deployment
           mv docker-compose.prod.yml deployment/
-          mv nginx.tar deployment/
-          mv server.tar deployment/
-          mv mysql.tar deployment/
+          # mv nginx.tar deployment/
+          # mv server.tar deployment/
+          # mv mysql.tar deployment/
           mv ./secrets deployment/
 
       - name: List Deployment Contents
@@ -100,6 +100,11 @@ jobs:
             docker load -i ./nginx.tar
             docker load -i ./server.tar
             docker load -i ./mysql.tar
-            docker compose -f docker-compose.prod.yml down
+            echo "Loaded Docker images successfully"
+
+            docker compose -f docker-compose.prod.yml down --remove-orphans
+            echo "Removed old containers"
             TAG=${{ github.sha }} VITE_HOST_URL="https://${{ vars.DOMAIN_NAME }}/" docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            echo "Started new containers"
             rm -rf ./secrets
+            echo "Removed secrets directory"
