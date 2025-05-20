@@ -6,7 +6,7 @@ services:
       args:
         - VITE_HOST_URL=http://localhost:8080/
     volumes:
-      - ./RPS3-Client:/usr/app
+      - ./RPS3-Client/src:/usr/app/src
       - ./sharedCode:/usr/app/src/shared
       - /usr/app/node_modules # Preserve built node_modules gen during image build time so it isnt overwritten when local ./client is mounted
     container_name: client

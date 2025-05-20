@@ -84,9 +84,8 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           debug: true
           overwrite: true
-          rm: true
-          source: ./deployment/*
-          target: /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS\ Webserver/deployment
+          source: ./deployment
+          target: /home/${{ secrets.SSH_USERNAME }}/Hosting/RPS Webserver/
 
       - name: Deploy on the remote machine
         uses: appleboy/ssh-action@v1.2.1

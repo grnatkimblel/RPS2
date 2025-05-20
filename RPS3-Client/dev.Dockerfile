@@ -9,7 +9,7 @@ WORKDIR /usr/app
 COPY ./RPS3-Client/package*.json ./
 RUN npm ci
 
-COPY . .
+COPY ./RPS3-Client .
 
 # Use a command that supports polling for file changes
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--poll"]
