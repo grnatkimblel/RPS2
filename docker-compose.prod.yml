@@ -1,4 +1,4 @@
-name: rps-prod_${TAG:-latest}
+name: rps-prod
 services:
   nginx:
     image: RPS3/nginx:${TAG:-latest}

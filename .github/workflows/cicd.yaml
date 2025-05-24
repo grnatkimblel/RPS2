@@ -102,7 +102,7 @@ jobs:
             docker load -i ./mysql.tar
             echo "Loaded Docker images successfully"
 
-            PROJECT_NAME="rps-prod_${{ github.sha }}"
+            PROJECT_NAME="rps-prod"
 
             docker compose -f docker-compose.prod.yml down --remove-orphans
             echo "Removed old containers"
