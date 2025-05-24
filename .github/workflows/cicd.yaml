@@ -59,9 +59,9 @@ jobs:
         run: |
           mkdir deployment
           mv docker-compose.prod.yml deployment/
-          # mv nginx.tar deployment/
-          # mv server.tar deployment/
-          # mv mysql.tar deployment/
+          mv nginx.tar deployment/
+          mv server.tar deployment/
+          mv mysql.tar deployment/
           mv ./secrets deployment/
 
       - name: List Deployment Contents
