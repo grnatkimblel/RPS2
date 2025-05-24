@@ -102,9 +102,11 @@ jobs:
             docker load -i ./mysql.tar
             echo "Loaded Docker images successfully"
 
+            PROJECT_NAME="rps-prod:${{ github.sha }}"
+
             docker compose -f docker-compose.prod.yml down --remove-orphans
             echo "Removed old containers"
-            TAG=${{ github.sha }} VITE_HOST_URL="https://${{ vars.DOMAIN_NAME }}/" docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            TAG=${{ github.sha }} VITE_HOST_URL="https://${{ vars.DOMAIN_NAME }}/" docker compose -p "$PROJECT_NAME" -f docker-compose.prod.yml up -d --remove-orphans
             echo "Started new containers"
             rm -rf ./secrets
             echo "Removed secrets directory"

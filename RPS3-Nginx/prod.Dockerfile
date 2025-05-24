@@ -26,11 +26,11 @@ FROM ubuntu:latest
 RUN apt-get update -qq && apt-get -y install apache2-utils certbot python3-certbot-nginx cron
 
 # Copy from the client's build stage
-COPY --from=artifacts /app /usr/share/RPS3-Nginx/html 
+COPY --from=artifacts /app /usr/share/nginx/html 
 
 # Optional custom Nginx config
-COPY ./RPS3-Nginx/default.prod.conf /etc/RPS3-Nginx/nginx.conf 
-COPY ./RPS3-Nginx/certbot.prod.conf /etc/RPS3-Nginx/certbot.nginx.conf
+COPY ./RPS3-Nginx/default.prod.conf /etc/nginx/nginx.conf 
+COPY ./RPS3-Nginx/certbot.prod.conf /etc/nginx/certbot.nginx.conf
 
 # Create a directory for the certbot challenge
 RUN mkdir -p /var/www/certbot/.well-known/acme-challenge
@@ -41,6 +41,6 @@ RUN chmod +x /usr/entrypoint.sh
 EXPOSE 80
 EXPOSE 443
 
-#CMD ["nginx", "-g", "deamon off;"]
+# CMD ["nginx", "-c", "/etc/nginx/nginx.conf", "-g", "daemon off;"	]
 ENTRYPOINT ["/usr/entrypoint.sh"]
 # ENTRYPOINT for the script

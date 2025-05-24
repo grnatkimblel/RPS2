@@ -1,4 +1,5 @@
 version: "3.8"
+name: rps-prod_${TAG:-latest}
 services:
   nginx:
     image: RPS3/nginx:${TAG:-latest}
