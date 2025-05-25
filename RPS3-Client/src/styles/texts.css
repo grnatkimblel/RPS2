@@ -5,6 +5,8 @@
   --secondary: #626262;
   --tertiary: #b1b1b1;
   --RPS: black;
+  --SpecialBlue: #007aff;
+  --SpecialPurple: #a300bd;
   /* --primary: #a6e3a1;
   --secondary: #bac2de;
   --tertiary: #a6adc8;
@@ -21,6 +23,13 @@
 .RPS-Title::selection {
   color: var(--backgroundColor);
   background-color: var(--RPS);
+}
+
+.RPS-Subtitle {
+  font-family: "Almarai";
+  font-weight: bold;
+  font-size: 1.3rem;
+  color: var(--RPS);
 }
 
 .defaultText {
@@ -62,4 +71,22 @@
   margin-left: 1rem;
   margin-right: 1rem;
   white-space: pre-wrap;
+}
+
+.explanationText {
+  font-family: "Almarai";
+  font-weight: normal;
+  font-size: 1.2rem;
+  letter-spacing: 0.2rem;
+  color: var(--RPS);
+  text-align: center;
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+b.purple {
+  color: var(--SpecialPurple);
+}
+b.blue {
+  color: var(--SpecialBlue);
 }

@@ -3,6 +3,7 @@ import "../../styles/styles.css";
 
 import Tile from "../Tile";
 import Button from "../Button";
+import DisplayStates from "../../enums/DisplayStates";
 
 export default function GamemodeSelect({ displayState, setDisplayState }) {
   return (
@@ -20,21 +21,21 @@ export default function GamemodeSelect({ displayState, setDisplayState }) {
             text={"QUICKDRAW"}
             textStyle="defaultText"
             setDisplayState={setDisplayState}
-            destination={"Online Matchmaking:Quickdraw"}
+            destination={DisplayStates.Online_Matchmaking_Quickdraw}
           />
           <Button
             text={"TDM"}
             styles={{ marginTop: "3.5rem" }}
             textStyle="defaultText"
             setDisplayState={setDisplayState}
-            destination={"Online Matchmaking:TDM"}
+            destination={DisplayStates.Online_Matchmaking_TDM}
           />
           <Button
             text={"S&D"}
             styles={{ marginTop: "3.5rem" }}
             textStyle="defaultText"
             setDisplayState={setDisplayState}
-            destination={"Online Matchmaking:Search"}
+            destination={DisplayStates.Online_Matchmaking_Search}
           />
         </div>
       </div>

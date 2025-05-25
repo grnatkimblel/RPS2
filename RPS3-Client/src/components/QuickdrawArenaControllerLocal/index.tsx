@@ -17,7 +17,12 @@ import QuickdrawArenaViewModel from "../../types/QuickdrawArenaViewModel";
 import useCountdownMs from "../../hooks/useCountdownMs";
 import { big, p } from "motion/react-client";
 
-export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdrawSessionData, soundVolume }) {
+export default function QuickdrawArenaControllerLocal({
+  setDisplayState,
+  displayVariant,
+  quickdrawSessionData,
+  soundVolume,
+}) {
   //View
   const initialViewModel = {
     titleText: EMOJIS.BOMB,
@@ -939,67 +944,66 @@ export default function QuickdrawArenaControllerLocal({ setDisplayState, quickdr
   }, []);
 
   return (
-    <>
-      <QuickdrawArenaView
-        localOrOnline="Local"
-        viewModel={viewModel}
-        onClicks={{
-          Rock: (isPlayer1) => {
-            playHand(EMOJIS.ROCK, isPlayer1);
-          },
-          Paper: (isPlayer1) => {
-            playHand(EMOJIS.PAPER, isPlayer1);
-          },
-          Scissors: (isPlayer1) => {
-            playHand(EMOJIS.SCISSORS, isPlayer1);
-          },
-          Quit: () => {
-            initialRenderRefs.current.isCancelled = true;
-            clearRoundTimeouts();
-            goodBadUglyAudio.stop();
-            gunshotAudio.stop();
-            drumrollAudio.stop();
-            setDisplayState("Home");
-          },
-          PlayAgain: () => {
-            //not sure what all is necessary here but were gonna be careful
-            console.log("PlayAgain Called");
-            setShowGameOverModal(false);
-            setViewModel({ ...initialViewModel, player1WonLastGame: viewModel.player1WonLastGame });
-            setGameState(createGameState());
-            setIsPlayer1AcceptingHandsInput(false);
-            setIsPlayer1AcceptingHandsInput(false);
-            isGameOver.current = false;
-            // Reset all audio
-            goodBadUglyAudio.stop();
-            gunshotAudio.stop();
-            drumrollAudio.stop();
-            // Reset countdown
-            setCountdownTime(5000);
-            setCountdownKey((prev) => prev + 1);
-          },
-          BuyFreeze: (isPlayer1) => {
-            buyAbility(isPlayer1, "Freeze");
-          },
-          BuyGamble: (isPlayer1) => {
-            buyAbility(isPlayer1, "Gamble");
-          },
-          BuyRunItBack: (isPlayer1) => {
-            buyAbility(isPlayer1, "RunItBack");
-          },
-        }}
-        setMainDisplayState={setDisplayState}
-        quickdrawSessionData={quickdrawSessionData}
-        showGameOverModal={showGameOverModal}
-        setShowGameOverModal={setShowGameOverModal}
-        isLeftShopOpen={isLeftShopOpen}
-        setIsLeftShopOpen={setIsLeftShopOpen}
-        isLeftGambling={isLeftGambling}
-        isRightShopOpen={isRightShopOpen}
-        setIsRightShopOpen={setIsRightShopOpen}
-        isRightGambling={isRightGambling}
-      />
-    </>
+    <QuickdrawArenaView
+      localOrOnline="Local"
+      viewModel={viewModel}
+      displayVariant={displayVariant}
+      onClicks={{
+        Rock: (isPlayer1) => {
+          playHand(EMOJIS.ROCK, isPlayer1);
+        },
+        Paper: (isPlayer1) => {
+          playHand(EMOJIS.PAPER, isPlayer1);
+        },
+        Scissors: (isPlayer1) => {
+          playHand(EMOJIS.SCISSORS, isPlayer1);
+        },
+        Quit: () => {
+          initialRenderRefs.current.isCancelled = true;
+          clearRoundTimeouts();
+          goodBadUglyAudio.stop();
+          gunshotAudio.stop();
+          drumrollAudio.stop();
+          setDisplayState("Home");
+        },
+        PlayAgain: () => {
+          //not sure what all is necessary here but were gonna be careful
+          console.log("PlayAgain Called");
+          setShowGameOverModal(false);
+          setViewModel({ ...initialViewModel, player1WonLastGame: viewModel.player1WonLastGame });
+          setGameState(createGameState());
+          setIsPlayer1AcceptingHandsInput(false);
+          setIsPlayer1AcceptingHandsInput(false);
+          isGameOver.current = false;
+          // Reset all audio
+          goodBadUglyAudio.stop();
+          gunshotAudio.stop();
+          drumrollAudio.stop();
+          // Reset countdown
+          setCountdownTime(5000);
+          setCountdownKey((prev) => prev + 1);
+        },
+        BuyFreeze: (isPlayer1) => {
+          buyAbility(isPlayer1, "Freeze");
+        },
+        BuyGamble: (isPlayer1) => {
+          buyAbility(isPlayer1, "Gamble");
+        },
+        BuyRunItBack: (isPlayer1) => {
+          buyAbility(isPlayer1, "RunItBack");
+        },
+      }}
+      setMainDisplayState={setDisplayState}
+      quickdrawSessionData={quickdrawSessionData}
+      showGameOverModal={showGameOverModal}
+      setShowGameOverModal={setShowGameOverModal}
+      isLeftShopOpen={isLeftShopOpen}
+      setIsLeftShopOpen={setIsLeftShopOpen}
+      isLeftGambling={isLeftGambling}
+      isRightShopOpen={isRightShopOpen}
+      setIsRightShopOpen={setIsRightShopOpen}
+      isRightGambling={isRightGambling}
+    />
   );
 }
 

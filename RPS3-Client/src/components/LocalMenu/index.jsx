@@ -93,7 +93,7 @@ export default function LocalMenu({ displayState, setDisplayState, setLocalPlaye
               player1Name === "" ? setLocalPlayer1Name("PLAYER 1") : setLocalPlayer1Name(player1Name);
               player2Name === "" ? setLocalPlayer2Name("PLAYER 2") : setLocalPlayer2Name(player2Name);
 
-              setDisplayState(DisplayStates.Quickdraw_Arena_Local);
+              setDisplayState(DisplayStates.Quickdraw_InfoGraphic);
             }}
           >
             GO

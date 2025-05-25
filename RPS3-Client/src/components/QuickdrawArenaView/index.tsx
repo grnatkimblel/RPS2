@@ -8,7 +8,7 @@ import GamePhases from "../../enums/GamePhases";
 import EMOJIS from "../../enums/Emojis";
 
 import Button from "../Button";
-import { filter, s } from "motion/react-client";
+import { animate } from "motion";
 
 interface onClicks {
   Rock: () => void;
@@ -23,6 +23,7 @@ interface onClicks {
 
 interface QuickdrawArenaViewProps {
   localOrOnline: "Local" | "Online";
+  displayVariant: any;
   viewModel: QuickdrawArenaViewModel;
   onClicks: onClicks;
   setMainDisplayState: (state: string) => void;
@@ -39,6 +40,7 @@ interface QuickdrawArenaViewProps {
 
 export default function QuickdrawArenaView({
   localOrOnline,
+  displayVariant,
   viewModel,
   onClicks,
   setMainDisplayState,
@@ -54,6 +56,9 @@ export default function QuickdrawArenaView({
 }: QuickdrawArenaViewProps) {
   const [showExitModal, setShowExitModal] = useState<Boolean>(false);
   const [showKeyHints, setShowKeyHints] = useState<Boolean>(false);
+  useEffect(() => {
+    console.log(displayVariant);
+  }, []);
 
   function displayOnlineHandButtons() {
     return (
@@ -293,6 +298,10 @@ export default function QuickdrawArenaView({
         alignItems: "center",
         // backgroundColor: "var(--backgroundColor)",
       }}
+      variants={displayVariant}
+      initial="initial"
+      animate="animate"
+      exit="exit"
     >
       <div
         style={{

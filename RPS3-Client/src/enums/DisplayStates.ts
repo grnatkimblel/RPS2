@@ -5,6 +5,7 @@ enum DisplayStates {
   Online_Matchmaking_Quickdraw = "Online Matchmaking:Quickdraw",
   Online_Matchmaking_TDM = "Online Matchmaking:TDM",
   Online_Matchmaking_Search = "Online Matchmaking:Search",
+  Quickdraw_InfoGraphic = "Quickdraw Infographic",
   Quickdraw_Arena_Local = "Quickdraw Arena:Local",
   Quickdraw_Arena_Online = "Quickdraw Arena:Online",
   Login = "Login",

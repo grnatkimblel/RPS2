@@ -24,6 +24,8 @@ export default function Button({
           ? onClick
           : (event) => {
               event.stopPropagation();
+              console.log("Button clicked");
+              console.log(setDisplayState);
               setDisplayState(destination);
             }
       }

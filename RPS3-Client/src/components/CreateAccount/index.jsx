@@ -25,9 +25,7 @@ export default function CreateAccount({}) {
           marginLeft: "1rem",
           padding: "0.1rem 1rem 0.1rem 1rem",
         }}
-      >
-        CREATE USER
-      </Button>
+      />
       <div style={{ width: "80%", marginTop: "2rem", display: "flex", flexDirection: "column", alignItems: "center" }}>
         <motion.input
           type="text"
