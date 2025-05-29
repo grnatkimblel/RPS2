@@ -23,20 +23,30 @@ import Settings from "./components/Settings/index";
 import { userInfo } from "os";
 
 function AppView({
+  //displayState stuff
   previousDisplayState,
   displayState,
   nextDisplayState,
   setNextDisplayState,
+  //auth stuff
+  setAccessToken,
+  setRefreshToken,
+  refreshToken,
   loginHelper,
   authorizeThenCallHttp,
   userInfo,
   setUserInfo,
+  //local stuff
   localPlayer1Name,
   localPlayer2Name,
   setLocalPlayer1Name,
   setLocalPlayer2Name,
+  //online stuff
   currentGameInfo,
   setCurrentGameInfo,
+  matchmakingPreferences,
+  setMatchmakingPreferences,
+  //settings stuff
   soundVolume,
   setSoundVolume,
 }) {
@@ -355,9 +365,14 @@ function AppView({
                     // className={"tile slim cyan"}
                   >
                     <Account
-                      displayState={displayState}
+                      // displayState={displayState}
                       setDisplayState={setNextDisplayState}
-                      // authorizeThenCallHttp={authorizeThenCallHttp}
+                      authorizeThenCallHttp={authorizeThenCallHttp}
+                      refreshToken={refreshToken}
+                      setAccessToken={setAccessToken}
+                      setRefreshToken={setRefreshToken}
+                      userInfo={userInfo}
+                      setUserInfo={setUserInfo}
                       // loginHelper={loginHelper}
                     />
                   </motion.div>
@@ -437,11 +452,13 @@ function AppView({
                     style={{ position: "absolute" }}
                   >
                     <MatchmakingSelect
+                      userInfo={userInfo}
                       gamemode={"Quickdraw"}
                       displayState={displayState}
                       setDisplayState={setNextDisplayState}
                       authorizeThenCallHttp={authorizeThenCallHttp}
                       gameInfoSetter={setCurrentGameInfo}
+                      setMatchmakingPreferences={setMatchmakingPreferences}
                     />
                   </motion.div>
                 ) : null}
@@ -467,6 +484,7 @@ function AppView({
                       displayState={displayState}
                       setDisplayState={setNextDisplayState}
                       gameInfoSetter={setCurrentGameInfo}
+                      setMatchmakingPreferences={setMatchmakingPreferences}
                     />
                   </motion.div>
                 ) : null}
@@ -492,6 +510,7 @@ function AppView({
                       displayState={displayState}
                       setDisplayState={setNextDisplayState}
                       gameInfoSetter={setCurrentGameInfo}
+                      setMatchmakingPreferences={setMatchmakingPreferences}
                     />
                   </motion.div>
                 ) : null}
@@ -510,7 +529,14 @@ function AppView({
                     // className={"tile slim purple"}
                     style={{ position: "absolute" }}
                   >
-                    <OpponentSearch displayState={displayState} setDisplayState={setNextDisplayState} />
+                    <OpponentSearch
+                      // displayState={displayState}
+                      setDisplayState={setNextDisplayState}
+                      authorizeThenCallHttp={authorizeThenCallHttp}
+                      matchmakingPreferences={matchmakingPreferences}
+                      userInfo={userInfo}
+                      setCurrentGameInfo={setCurrentGameInfo}
+                    />
                   </motion.div>
                 ) : null}
                 //add remaining matchmaking tiles

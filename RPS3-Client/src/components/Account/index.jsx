@@ -5,7 +5,18 @@ import "../../styles/styles.css";
 import Tile from "../Tile";
 import Button from "../Button";
 
-export default function Account({ displayState, setDisplayState }) {
+import API_ROUTES from "../../enums/API_Routes";
+import DisplayStates from "../../enums/DisplayStates";
+
+export default function Account({
+  setDisplayState,
+  authorizeThenCallHttp,
+  refreshToken,
+  setAccessToken,
+  setRefreshToken,
+  userInfo,
+  setUserInfo,
+}) {
   return (
     <Tile
       size={"thick"}
@@ -42,39 +53,29 @@ export default function Account({ displayState, setDisplayState }) {
           alignItems: "center",
         }}
       >
-        {/* <div style={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
-          <p className="labelText">VOLUME:</p>
-          <p className="labelText">{`${Math.ceil(soundVolume * 100)}`}</p>
-          <input
-            type="range"
-            min="0"
-            max="1.0"
-            step="0.05"
-            value={soundVolume}
-            onChange={(event) => {
-              console.log(event.target.value);
-              setSoundVolume(event.target.value);
+        <div style={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
+          <Button
+            text={"LOGOUT"}
+            textStyle={"labelText"}
+            onClick={async () => {
+              if (userInfo && userInfo.userId) {
+                console.log(refreshToken);
+                await authorizeThenCallHttp(API_ROUTES.LOGOUT, "DELETE", {
+                  refreshToken,
+                });
+                setAccessToken("");
+                setRefreshToken("");
+                setUserInfo({
+                  username: "",
+                  userId: "",
+                  emoji: "",
+                });
+              }
+              localStorage.removeItem("lastUserCredentials");
+              setDisplayState(DisplayStates.Home);
             }}
           />
         </div>
-        <Button
-          text={"CLEAR LOCAL USERS"}
-          textStyle={"labelText"}
-          onClick={() => {
-            localStorage.clear();
-            // let localPlayerUsernames = JSON.parse(localStorage.getItem("localPlayerUsernames") || "[]");
-            // localPlayerUsernames.map((username) => {
-            //   localStorage.removeItem(username);
-            // });
-            // localStorage.removeItem("localPlayerUsernames");
-          }}
-        /> */}
-        {/* <input
-          type="color"
-          onChange={(event) => {
-            console.log(event.target.value);
-          }}
-        /> */}
       </div>
     </Tile>
   );

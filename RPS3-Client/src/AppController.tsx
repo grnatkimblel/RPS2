@@ -15,6 +15,10 @@ function AppController() {
     emoji: "",
   });
 
+  const [matchmakingPreferences, setMatchmakingPreferences] = useState({
+    gameMode: "",
+    gameType: "",
+  });
   const [currentGameInfo, setCurrentGameInfo] = useState("");
 
   const [soundVolume, setSoundVolume] = useState(() => {
@@ -104,6 +108,30 @@ function AppController() {
   );
 
   useEffect(() => {
+    async function autoLogIn() {
+      const userCredentialsString = localStorage.getItem("lastUserCredentials");
+      console.log(userCredentialsString);
+      const userCredentials = JSON.parse(userCredentialsString);
+      if (userCredentials) {
+        if (!userInfo.userId) {
+          await loginHelper(userCredentials);
+        }
+      }
+    }
+    autoLogIn();
+
+    return () => {
+      if (userInfo.userId) {
+        authorizeThenCallHttp(API_ROUTES.LOGOUT, "DELETE", {
+          refreshToken: refreshToken,
+        });
+        setAccessToken("");
+        setRefreshToken("");
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     // Save the sound volume to local storage whenever it changes
     localStorage.setItem("soundVolume", soundVolume.toString());
     return () => {
@@ -125,6 +153,12 @@ function AppController() {
     setDisplayState(nextDisplayState);
   }, [nextDisplayState]);
 
+  //just for testing
+  useEffect(() => {
+    // console.log(currentGameInfo);
+    // console.log("recentPlayers", localStorage.getItem("recentPlayers"));
+  }, [currentGameInfo]);
+
   return (
     <AppView
       //displayState stuff
@@ -133,6 +167,9 @@ function AppController() {
       nextDisplayState={nextDisplayState}
       setNextDisplayState={setNextDisplayState}
       //auth stuff
+      setAccessToken={setAccessToken}
+      setRefreshToken={setRefreshToken}
+      refreshToken={refreshToken}
       loginHelper={loginHelper}
       authorizeThenCallHttp={authorizeThenCallHttp}
       userInfo={userInfo}
@@ -145,6 +182,8 @@ function AppController() {
       //online stuff
       currentGameInfo={currentGameInfo}
       setCurrentGameInfo={setCurrentGameInfo}
+      matchmakingPreferences={matchmakingPreferences}
+      setMatchmakingPreferences={setMatchmakingPreferences}
       //settings stuff
       soundVolume={soundVolume}
       setSoundVolume={setSoundVolume}

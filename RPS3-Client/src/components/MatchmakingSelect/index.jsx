@@ -10,11 +10,13 @@ import { GAMEMODES, GAMEMODE_TYPES, MATCHMAKING_TYPES } from "../../shared/enums
 import DisplayStates from "../../enums/DisplayStates";
 
 export default function MatchmakingSelect({
+  userInfo,
   gamemode,
   validMatchmakingTypes,
   setDisplayState,
   authorizeThenCallHttp,
   gameInfoSetter,
+  setMatchmakingPreferences,
 }) {
   const [gameType, setGameType] = useState("Quickplay");
 
@@ -62,7 +64,23 @@ export default function MatchmakingSelect({
           style={{ width: "100%", marginTop: "2rem", display: "flex", flexDirection: "column", alignItems: "center" }}
         >
           <p className="labelText">OPPONENT</p>
-          <Button text={"SEARCH"} textStyle={"defaultText"} setDisplayState={setDisplayState} destination={"Search"} />
+          <Button
+            text={"SEARCH"}
+            textStyle={"defaultText"}
+            onClick={(event) => {
+              console.log(userInfo);
+              event.stopPropagation();
+              if (userInfo.username != "" && userInfo.username != "guest") {
+                setMatchmakingPreferences({
+                  gameMode: gamemode,
+                  gameType: gameType,
+                });
+                setDisplayState("Search");
+              } else {
+                alert("To search for an opponent to play against by name, login to an account");
+              }
+            }}
+          />
           <Button
             text={"RANDOM"}
             textStyle={"defaultText"}

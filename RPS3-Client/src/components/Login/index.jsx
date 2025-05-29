@@ -34,6 +34,7 @@ export default function Login({ displayState, setDisplayState, loginHelper }) {
         }}
         onClick={async () => {
           await loginHelper(userCredentials);
+          localStorage.setItem("lastUserCredentials", JSON.stringify(userCredentials));
         }}
       >
         LOGIN

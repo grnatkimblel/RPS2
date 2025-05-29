@@ -56,13 +56,13 @@ export default function MainMenu({ displayState, setDisplayState, userInfo }) {
           destination={DisplayStates.Local}
           styles={{ marginTop: "2.5rem" }}
         />
-        {/* <Button
+        <Button
           text={"ONLINE"}
           textStyle={"defaultText"}
           setDisplayState={setDisplayState}
           destination={DisplayStates.Online_Gamemodes}
           styles={{ marginTop: "2.5rem" }}
-        /> */}
+        />
         <Button
           text={"SETTINGS"}
           textStyle={"defaultText"}
