@@ -44,8 +44,10 @@ export default function QuickdrawInfoGraphic({ displayVariant, setDisplayState }
             }}
           >
             <div id="Title" style={{ alignSelf: "flex-start" }}>
-              <div className={"RPS-Title"}>QUICKDRAW</div>
-              <hr style={{ width: "105%", border: "0.6rem solid black", marginTop: "-1.5rem" }} />
+              <div className={"RPS-Title"} style={{ fontSize: "5rem" }}>
+                QUICKDRAW
+              </div>
+              <hr style={{ width: "105%", border: "0.4rem solid black", marginTop: "-1.5rem" }} />
             </div>
             <Button
               text={"GOT IT"}
@@ -56,8 +58,7 @@ export default function QuickdrawInfoGraphic({ displayVariant, setDisplayState }
             />
           </div>
           <div id="Subtitle" className={"RPS-Subtitle"} style={{ marginLeft: "1.5rem" }}>
-            ROCK BEATS PAPER BEATS SCISSORS BEATS ROCK BEATS PAPER BEATS SCISSORS BEATS ROCK BEATS PAPER BEATS SCISSORS
-            BEATS...
+            ROCK BEATS PAPER BEATS SCISSORS BEATS ROCK BEATS PAPER BEATS SCISSORS BEATS ROCK BEATS PAPER...
           </div>
           <div id="Player Controls" style={{ width: "100%", display: "flex", justifyContent: "space-around" }}>
             <div id="Player1 Controls" style={{ display: "flex" }}>
@@ -122,7 +123,7 @@ export default function QuickdrawInfoGraphic({ displayVariant, setDisplayState }
             </div>
           </div>
           <div id="Game Phase Explanation" style={{ width: "100%", display: "flex", justifyContent: "space-around" }}>
-            <div id="Ready Phase Explanation" style={{ maxWidth: "30%", display: "flex", flexDirection: "column" }}>
+            <div id="Ready Phase Explanation" style={{ maxWidth: "35%", display: "flex", flexDirection: "column" }}>
               <div style={{ fontSize: "5rem" }}>{EMOJIS.FLUTE}</div>
               <div className={"RPS-Subtitle"}>READY PHASE</div>
               <ul className="explanationText" style={{ textAlign: "left", marginTop: "0rem" }}>
@@ -132,7 +133,7 @@ export default function QuickdrawInfoGraphic({ displayVariant, setDisplayState }
                 <li>KEEP YOUR HAND AT THE READY, ANY SECOND NOW YOU'LL HAVE TO...</li>
               </ul>
             </div>
-            <div id="Ready Phase Explanation" style={{ maxWidth: "30%", display: "flex", flexDirection: "column" }}>
+            <div id="Ready Phase Explanation" style={{ maxWidth: "35%", display: "flex", flexDirection: "column" }}>
               <div style={{ fontSize: "5rem" }}>{EMOJIS.BOMB}</div>
               <div className={"RPS-Subtitle"}>DRAW PHASE</div>
               <ul className="explanationText" style={{ textAlign: "left", marginTop: "0rem" }}>
@@ -143,7 +144,7 @@ export default function QuickdrawInfoGraphic({ displayVariant, setDisplayState }
                 <li>WRESTLE FOR THE WINNING HAND UNTIL...</li>
               </ul>
             </div>
-            <div id="Ready Phase Explanation" style={{ maxWidth: "30%", display: "flex", flexDirection: "column" }}>
+            <div id="Ready Phase Explanation" style={{ maxWidth: "35%", display: "flex", flexDirection: "column" }}>
               <div style={{ fontSize: "5rem" }}>{EMOJIS.POW}</div>
               <div className={"RPS-Subtitle"}>END PHASE</div>
               <ul className="explanationText" style={{ textAlign: "left", marginTop: "0rem" }}>
@@ -153,14 +154,14 @@ export default function QuickdrawInfoGraphic({ displayVariant, setDisplayState }
                 <li>
                   SCORE = <b className="purple">PURPLE POINTS</b> + <b className="blue">PERMANENT POINTS</b>
                 </li>
-                <li>GAMES ARE FIRST TO 5</li>
+                <li>SCORE 5 POINTS TO WIN</li>
               </ul>
             </div>
           </div>
           <div id="Purple Point Explanation" style={{ width: "100%", display: "flex", flexDirection: "column" }}>
-            <div id="Purple Point Explanation Title" style={{ display: "flex", alignSelf: "flex-start" }}>
-              <div style={{ fontSize: "5rem" }}>{EMOJIS.ORB}</div>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+            <div id="Purple Point Explanation Title" style={{ display: "flex", alignSelf: "center" }}>
+              <div style={{ fontSize: "5rem", marginTop: "-2rem" }}>{EMOJIS.ORB}</div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <div className="RPS-Subtitle">
                   <b className="purple">PURPLE POINTS</b> CAN BE SPENT ON ABILITIES
                 </div>
@@ -168,8 +169,9 @@ export default function QuickdrawInfoGraphic({ displayVariant, setDisplayState }
                   1 POINT PER ABILITY
                 </div>
               </div>
+              <div style={{ fontSize: "5rem", marginTop: "-2rem" }}>{EMOJIS.ORB}</div>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-around", marginTop: "-3rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-around" }}>
               <div style={{ width: "25%", display: "flex", flexDirection: "column" }}>
                 <div style={{ fontSize: "4rem", textAlign: "center" }}>{EMOJIS.ICE}</div>
                 <div className="explanationText">{"ACTIVE: \n OPPONENT CANNOT PLAY FOR 2 SECONDS"}</div>

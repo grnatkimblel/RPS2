@@ -2,9 +2,12 @@ import { useState, useEffect, useRef, cloneElement } from "react";
 import { motion, steps } from "motion/react";
 import "../../styles/styles.css";
 
-export default function CycleButton({ options, setDisplayState, textStyle, styles }) {
+export default function CycleButton({ options, setDisplayState, textStyle, styles, setGameType }) {
   const [index, setIndex] = useState(0);
   const text = options[index];
+  useEffect(() => {
+    if (setGameType) setGameType(text);
+  }, [text]);
 
   return (
     <motion.button //Play Button
@@ -22,7 +25,7 @@ export default function CycleButton({ options, setDisplayState, textStyle, style
       style={{ width: "100%", ...styles }}
       className={textStyle}
     >
-      {text}
+      {text.toUpperCase()}
     </motion.button>
   );
 }

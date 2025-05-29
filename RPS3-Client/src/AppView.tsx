@@ -1,65 +1,45 @@
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence, LayoutGroup, usePresenceData, findSpring, delay } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import "./styles/texts.css";
 import "./styles/styles.css";
 
 import DisplayStates from "./enums/DisplayStates.ts";
-import GameSettings from "./types/GameSettings.ts";
 
 import GameInfo from "./types/QuickdrawSessionData.ts";
 import GameType from "./enums/GameType.ts";
 import PlayerInfo from "./types/PlayerModel.ts";
 
-import Tile from "./components/Tile";
-import MainMenu from "./components/MainMenu";
-import LocalMenu from "./components/LocalMenu";
-import GamemodeSelect from "./components/GamemodeSelect";
-import MatchmakingSelect from "./components/MatchmakingSelect";
-import Login from "./components/Login";
-import CreateAccount from "./components/CreateAccount";
-import OpponentSearch from "./components/OpponentSearch";
+import MainMenu from "./components/MainMenu/index.jsx";
+import LocalMenu from "./components/LocalMenu/index.jsx";
+import GamemodeSelect from "./components/GamemodeSelect/index.jsx";
+import MatchmakingSelect from "./components/MatchmakingSelect/index.jsx";
+import Login from "./components/Login/index.jsx";
+import CreateAccount from "./components/CreateAccount/index.jsx";
+import Account from "./components/Account/index.jsx";
+import OpponentSearch from "./components/OpponentSearch/index.jsx";
 import QuickdrawInfoGraphic from "./components/QuickdrawInfoGraphic/index";
 import QuickdrawArenaControllerLocal from "./components/QuickdrawArenaControllerLocal/index";
 import QuickdrawArenaControllerOnline from "./components/QuickdrawArenaControllerOnline/index";
 import Settings from "./components/Settings/index";
+import { userInfo } from "os";
 
-function App() {
-  const [soundVolume, setSoundVolume] = useState(() => {
-    const savedValue = localStorage.getItem("soundVolume");
-    console.log("Sound volume loaded from local storage: ", savedValue);
-    console.log("Sound volume loaded from local storage: ", typeof savedValue);
-    return savedValue !== null && savedValue !== "undefined" && savedValue !== "NaN" ? parseFloat(savedValue) : 0.1;
-  });
-
-  const [displayState, setDisplayState] = useState<DisplayStates>(DisplayStates.Home);
-  const [nextDisplayState, setNextDisplayState] = useState<DisplayStates>(DisplayStates.Home);
-  const previousDisplayState = useRef(displayState);
-
-  const [localPlayer1Name, setLocalPlayer1Name] = useState("");
-  const [localPlayer2Name, setLocalPlayer2Name] = useState("");
-
-  useEffect(() => {
-    // Save the sound volume to local storage whenever it changes
-    localStorage.setItem("soundVolume", soundVolume.toString());
-    return () => {
-      // Cleanup function to remove the sound volume from local storage if needed
-      // localStorage.clear();
-    };
-  }, [soundVolume]);
-
-  // console.log(displayState);
-  useEffect(() => {
-    // console.log("UseEffect called");
-    previousDisplayState.current = displayState;
-    // console.log("displayState: ", displayState);
-    // console.log("previousDisplayState: ", previousDisplayState.current)
-  }, [displayState]);
-
-  useEffect(() => {
-    // console.log("UseEffect called for nextDisplayState");
-    setDisplayState(nextDisplayState);
-  }, [nextDisplayState]);
-
+function AppView({
+  previousDisplayState,
+  displayState,
+  nextDisplayState,
+  setNextDisplayState,
+  loginHelper,
+  authorizeThenCallHttp,
+  userInfo,
+  setUserInfo,
+  localPlayer1Name,
+  localPlayer2Name,
+  setLocalPlayer1Name,
+  setLocalPlayer2Name,
+  currentGameInfo,
+  setCurrentGameInfo,
+  soundVolume,
+  setSoundVolume,
+}) {
   const MENU_DISPLAY_STATES = [
     DisplayStates.Home,
     DisplayStates.Local,
@@ -69,6 +49,7 @@ function App() {
     DisplayStates.Online_Matchmaking_Search,
     DisplayStates.Login,
     DisplayStates.Create_Account,
+    DisplayStates.Account,
     DisplayStates.Search,
     DisplayStates.Settings,
   ];
@@ -77,7 +58,7 @@ function App() {
     DisplayStates.Online_Matchmaking_TDM,
     DisplayStates.Online_Matchmaking_Search,
   ];
-  const USER_ACCOUNT_DISPLAY_STATES = [DisplayStates.Login, DisplayStates.Create_Account];
+  const USER_ACCOUNT_DISPLAY_STATES = [DisplayStates.Login, DisplayStates.Create_Account, DisplayStates.Account];
 
   const mainMenuVariants = {
     initial: { y: "1rem", opacity: 0 },
@@ -255,7 +236,7 @@ function App() {
     }),
   };
 
-  const slimUserAccountVariant = {
+  const userAccountVariant = {
     loginInitial: (custom) => ({
       opacity: 0,
       x: custom.previousDisplayState == DisplayStates.Create_Account ? "-15.5rem" : "-30rem",
@@ -277,6 +258,8 @@ function App() {
       x: custom.nextDisplayState == DisplayStates.Login ? "-15.5rem" : "-30rem",
       y: custom.nextDisplayState == DisplayStates.Login ? "30rem" : 0,
     }),
+    accountInitial: { opacity: 0, x: "-30rem" },
+    accountExit: { opacity: 0, x: "-30rem" },
   };
 
   const fullScreenRightToLeftVariant = {
@@ -320,7 +303,7 @@ function App() {
                     initial="loginInitial"
                     animate="present"
                     exit="loginExit"
-                    variants={slimUserAccountVariant}
+                    variants={userAccountVariant}
                     custom={{
                       nextDisplayState: nextDisplayState,
                       displayState: displayState,
@@ -328,7 +311,11 @@ function App() {
                     }}
                     // className={"tile slim pink"}
                   >
-                    <Login displayState={displayState} setDisplayState={setNextDisplayState} />
+                    <Login
+                      displayState={displayState}
+                      setDisplayState={setNextDisplayState}
+                      loginHelper={loginHelper}
+                    />
                   </motion.div>
                 ) : null}
                 {displayState == DisplayStates.Create_Account ? (
@@ -337,7 +324,7 @@ function App() {
                     initial="createAccountInitial"
                     animate="present"
                     exit="createAccountExit"
-                    variants={slimUserAccountVariant}
+                    variants={userAccountVariant}
                     custom={{
                       nextDisplayState: nextDisplayState,
                       displayState: displayState,
@@ -345,7 +332,34 @@ function App() {
                     }}
                     // className={"tile slim cyan"}
                   >
-                    <CreateAccount displayState={displayState} setDisplayState={setNextDisplayState} />
+                    <CreateAccount
+                      displayState={displayState}
+                      setDisplayState={setNextDisplayState}
+                      authorizeThenCallHttp={authorizeThenCallHttp}
+                      loginHelper={loginHelper}
+                    />
+                  </motion.div>
+                ) : null}
+                {displayState == DisplayStates.Account ? (
+                  <motion.div
+                    key={DisplayStates.Account}
+                    initial="accountInitial"
+                    animate="present"
+                    exit="accountExit"
+                    variants={userAccountVariant}
+                    custom={{
+                      nextDisplayState: nextDisplayState,
+                      displayState: displayState,
+                      previousDisplayState: previousDisplayState.current,
+                    }}
+                    // className={"tile slim cyan"}
+                  >
+                    <Account
+                      displayState={displayState}
+                      setDisplayState={setNextDisplayState}
+                      // authorizeThenCallHttp={authorizeThenCallHttp}
+                      // loginHelper={loginHelper}
+                    />
                   </motion.div>
                 ) : null}
                 {/* {displayState !== DisplayStates.Login && displayState !== DisplayStates.Create_Account ? ( */}
@@ -359,7 +373,7 @@ function App() {
                   // className={"tile thick green"}
                   style={{ position: "absolute", zIndex: "1" }}
                 >
-                  <MainMenu displayState={displayState} setDisplayState={setNextDisplayState} />
+                  <MainMenu displayState={displayState} setDisplayState={setNextDisplayState} userInfo={userInfo} />
                 </motion.div>
                 {/*}) : null */}
                 {displayState == DisplayStates.Local ? (
@@ -426,6 +440,8 @@ function App() {
                       gamemode={"Quickdraw"}
                       displayState={displayState}
                       setDisplayState={setNextDisplayState}
+                      authorizeThenCallHttp={authorizeThenCallHttp}
+                      gameInfoSetter={setCurrentGameInfo}
                     />
                   </motion.div>
                 ) : null}
@@ -450,6 +466,7 @@ function App() {
                       gamemode={"TDM"}
                       displayState={displayState}
                       setDisplayState={setNextDisplayState}
+                      gameInfoSetter={setCurrentGameInfo}
                     />
                   </motion.div>
                 ) : null}
@@ -471,9 +488,10 @@ function App() {
                     style={{ position: "absolute" }}
                   >
                     <MatchmakingSelect
-                      gamemode={DisplayStates.Search}
+                      gamemode={"S&D"}
                       displayState={displayState}
                       setDisplayState={setNextDisplayState}
+                      gameInfoSetter={setCurrentGameInfo}
                     />
                   </motion.div>
                 ) : null}
@@ -540,16 +558,7 @@ function App() {
         ) : displayState == DisplayStates.Quickdraw_Arena_Online ? (
           <QuickdrawArenaControllerOnline
             setDisplayState={setNextDisplayState}
-            quickdrawSessionData={
-              {
-                //comes from matchmaking
-                // sessionId: "1234",
-                // gameStartTime: 1234,
-                // gameType: GameType.QUICKPLAY,
-                // player1: { username: localPlayer1Name, userId: "1234", emoji: "" },
-                // player2: { username: localPlayer2Name, userId: "5678", emoji: "" },
-              }
-            }
+            quickdrawSessionData={currentGameInfo}
           />
         ) : null}
       </AnimatePresence>
@@ -557,36 +566,4 @@ function App() {
   );
 }
 
-export default App;
-
-const variants = {
-  present: {
-    x: "0rem",
-    y: "0rem",
-    opacity: 1,
-  },
-  up: (num, isVisible) => {
-    return {
-      y: `-${num}rem`,
-      opacity: isVisible ? 1 : 0,
-    };
-  },
-  down: (num, isVisible) => {
-    return {
-      y: `${num}rem`,
-      opacity: isVisible ? 1 : 0,
-    };
-  },
-  left: (num, isVisible) => {
-    return {
-      x: `-${num}rem`,
-      opacity: isVisible ? 1 : 0,
-    };
-  },
-  right: (num, isVisible) => {
-    return {
-      x: `${num}rem`,
-      opacity: isVisible ? 1 : 0,
-    };
-  },
-};
+export default AppView;

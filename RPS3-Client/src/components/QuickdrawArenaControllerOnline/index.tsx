@@ -48,6 +48,14 @@ export default function QuickdrawArenaControllerOnline({ setDisplayState, quickd
         Scissors: () => {
           setViewModel((viewModel: QuickdrawArenaViewModel) => ({ ...viewModel, player1_hand: EMOJIS.SCISSORS }));
         },
+        Quit: () => {
+          // initialRenderRefs.current.isCancelled = true;
+          // clearRoundTimeouts();
+          // goodBadUglyAudio.stop();
+          // gunshotAudio.stop();
+          // drumrollAudio.stop();
+          setDisplayState("Home");
+        },
       }}
       setMainDisplayState={setDisplayState}
       quickdrawSessionData={quickdrawSessionData}

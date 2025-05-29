@@ -5,7 +5,15 @@ import { motion } from "motion/react";
 import Tile from "../Tile";
 import Button from "../Button";
 
-export default function Login({ displayState, setDisplayState }) {
+export default function Login({ displayState, setDisplayState, loginHelper }) {
+  const [loginUsername, setLoginUsername] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+
+  const userCredentials = {
+    username: loginUsername,
+    password: loginPassword,
+  };
+
   return (
     <Tile
       size={"thick"}
@@ -24,6 +32,9 @@ export default function Login({ displayState, setDisplayState }) {
           marginLeft: "1rem",
           padding: "0.1rem 1rem 0.1rem 1rem",
         }}
+        onClick={async () => {
+          await loginHelper(userCredentials);
+        }}
       >
         LOGIN
       </Button>
@@ -37,6 +48,9 @@ export default function Login({ displayState, setDisplayState }) {
           className="defaultText"
           tabIndex="1"
           autoFocus="true"
+          onChange={(e) => {
+            setLoginUsername(e.target.value);
+          }}
           initial={{ borderColor: "var(--tileBorderColor_Default)" }}
           whileHover={{ borderColor: "var(--tileBorderColor_Active)" }}
           whileFocus={{ borderColor: "var(--tileBorderColor_Active)" }}
@@ -50,6 +64,9 @@ export default function Login({ displayState, setDisplayState }) {
           maxLength="20"
           className="defaultText"
           tabIndex="2"
+          onChange={(e) => {
+            setLoginPassword(e.target.value);
+          }}
           initial={{ borderColor: "var(--tileBorderColor_Default)" }}
           whileHover={{ borderColor: "var(--tileBorderColor_Active)" }}
           whileFocus={{ borderColor: "var(--tileBorderColor_Active)" }}

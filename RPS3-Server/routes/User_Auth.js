@@ -9,6 +9,7 @@ import db from "../models/index.js";
 const { User, RefreshToken } = db.models;
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { v4 as uuidv4 } from "uuid";
 
 const router = express.Router();
 
@@ -51,6 +52,27 @@ router.post("/login", async (req, res) => {
     logger.info(e);
     res.status(500).send();
   }
+});
+
+//gives user 30 minutes of access to protected endpoints per guest login.
+//should probably store guest users in the db so the backend can keep track of them. Maybe they get their own table?
+router.post("/guestLogin", async (req, res) => {
+  const guestUser = {
+    username: "guest",
+    userid: uuidv4(),
+    emoji: "",
+  };
+  const accessToken = jwt.sign(guestUser, secrets.jwtAccessTokenSecret, { expiresIn: "30m" });
+  const refreshToken = jwt.sign(guestUser, secrets.jwtRefreshTokenSecret); //this doesnt exist in the bd so it wont ever be useful
+  res.status(200).json({
+    accessToken: accessToken,
+    refreshToken: refreshToken,
+    user: {
+      username: guestUser.username,
+      userId: guestUser.userid,
+      emoji: guestUser.emoji,
+    },
+  });
 });
 
 router.post("/token", async (req, res) => {

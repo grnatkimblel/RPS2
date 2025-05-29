@@ -7,7 +7,7 @@ import DisplayStates from "../../enums/DisplayStates.ts";
 import Tile from "../Tile";
 import Button from "../Button";
 
-export default function MainMenu({ displayState, setDisplayState }) {
+export default function MainMenu({ displayState, setDisplayState, userInfo }) {
   return (
     <Tile
       size={"thick"}
@@ -19,11 +19,12 @@ export default function MainMenu({ displayState, setDisplayState }) {
       <motion.button
         className={"labelText"}
         onClick={(event) => {
-          //   event.stopPropagation();
-          //   if (displayState !== DisplayStates.Login) {
-          //     setDisplayState(DisplayStates.Login);
-          //   }
-          //
+          event.stopPropagation();
+          if (userInfo.userId) {
+            setDisplayState(DisplayStates.Account);
+          } else if (displayState !== DisplayStates.Login) {
+            setDisplayState(DisplayStates.Login);
+          }
         }}
         style={{
           width: "auto",
@@ -36,8 +37,8 @@ export default function MainMenu({ displayState, setDisplayState }) {
           scale: 1.05,
         }}
       >
-        {/* {displayState !== DisplayStates.Login ? "LOGIN" : "..."} */}
-        {"COMING SOON"}
+        {userInfo.userId ? userInfo.username : displayState !== DisplayStates.Login ? "LOGIN" : "..."}
+        {/* {"COMING SOON"} */}
       </motion.button>
       <div
         style={{
