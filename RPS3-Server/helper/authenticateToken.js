@@ -21,6 +21,8 @@ function authenticateToken(req, res, next) {
 
   jwt.verify(token, secrets.jwtAccessTokenSecret, (err, user) => {
     if (err) return res.status(403).json({ error: "Forbidden" });
+    console.log("middleware unwrapping jwt for user");
+    console.log(user);
     req.authUser = user; //to set req for future functions
     //console.log("calling next function");
     next();

@@ -31,8 +31,9 @@ router.post("/login", async (req, res) => {
   try {
     //logger.info(userFoundInDb);
     if (await bcrypt.compare(req.body.password, userFoundInDb.hashed_password)) {
-      const accessToken = generateAccessToken(userFoundInDb);
-      const refreshToken = jwt.sign(userFoundInDb, secrets.jwtRefreshTokenSecret);
+      const jwtUser = { id: userFoundInDb.id, username: userFoundInDb.username, role: "user" };
+      const accessToken = generateAccessToken(jwtUser);
+      const refreshToken = jwt.sign(jwtUser, secrets.jwtRefreshTokenSecret);
       await RefreshToken.create({
         refresh_token: refreshToken,
       });
@@ -43,6 +44,7 @@ router.post("/login", async (req, res) => {
           username: userFoundInDb.username,
           userId: userFoundInDb.id,
           emoji: userFoundInDb.player_emoji,
+          role: "user",
         },
       });
     } else {
@@ -57,20 +59,21 @@ router.post("/login", async (req, res) => {
 //gives user 30 minutes of access to protected endpoints per guest login.
 //should probably store guest users in the db so the backend can keep track of them. Maybe they get their own table?
 router.post("/guestLogin", async (req, res) => {
-  const guestUser = {
+  const guestUserWithDbSchema = {
+    id: uuidv4(),
     username: "guest",
-    userid: uuidv4(),
-    emoji: "",
+    role: "guest",
   };
-  const accessToken = jwt.sign(guestUser, secrets.jwtAccessTokenSecret, { expiresIn: "30m" });
-  const refreshToken = jwt.sign(guestUser, secrets.jwtRefreshTokenSecret); //this doesnt exist in the bd so it wont ever be useful
+  const accessToken = jwt.sign(guestUserWithDbSchema, secrets.jwtAccessTokenSecret, { expiresIn: "30m" });
+  const refreshToken = jwt.sign(guestUserWithDbSchema, secrets.jwtRefreshTokenSecret); //this doesnt exist in the bd so it wont ever be useful
   res.status(200).json({
     accessToken: accessToken,
     refreshToken: refreshToken,
     user: {
-      username: guestUser.username,
-      userId: guestUser.userid,
-      emoji: guestUser.emoji,
+      username: guestUserWithDbSchema.username,
+      userId: guestUserWithDbSchema.id,
+      emoji: "",
+      role: guestUserWithDbSchema.role,
     },
   });
 });

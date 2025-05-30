@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import "../../styles/styles.css";
 
 import Tile from "../Tile";
@@ -14,13 +14,22 @@ export default function MatchmakingSelect({
   gamemode,
   validMatchmakingTypes,
   setDisplayState,
+  loginHelper,
   authorizeThenCallHttp,
   gameInfoSetter,
   setMatchmakingPreferences,
 }) {
   const [gameType, setGameType] = useState("Quickplay");
 
-  const randomMatchmaking = useCallback(() => {
+  useEffect(() => {
+    console.log(userInfo);
+    async function guestLogin() {
+      if (userInfo.userId == "") await loginHelper();
+    }
+    guestLogin();
+  }, [userInfo, loginHelper]);
+
+  const randomMatchmaking = useCallback(async () => {
     authorizeThenCallHttp(API_ROUTES.MATCHMAKING.ADD_PLAYER, "POST", {
       gameType: gameType,
       gameMode: gamemode,
@@ -35,7 +44,7 @@ export default function MatchmakingSelect({
             : gamemode === GAMEMODES.TDM
             ? API_ROUTES.GAME.TDM.PREGAME
             : null;
-        return authorizeThenCallHttp(apiRoute, "POST", { gameType: gamemode, roster: data.roster });
+        return authorizeThenCallHttp(apiRoute, "POST", { game_type: gameType, roster: data.roster });
       })
       .then((res) => res.json())
       .then((data) => {
@@ -44,7 +53,7 @@ export default function MatchmakingSelect({
         setDisplayState(DisplayStates.Quickdraw_Arena_Online);
       })
       .catch((err) => console.log(err));
-  }, [gameType, gameInfoSetter, setDisplayState]);
+  }, [gameType, userInfo, gameInfoSetter, setDisplayState]);
 
   return (
     <Tile

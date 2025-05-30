@@ -43,22 +43,42 @@ router.post("/quickdraw/pregame", async (req, res) => {
   logger.info(" /quickdraw/pregame called successfully");
   const roster = req.body.roster;
   const game_type = req.body.game_type;
-  logger.info(activeRooms);
-  logger.info(roster);
-  logger.info(game_type);
+  logger.info("activeRooms", activeRooms);
+  logger.info("roster", roster);
+  logger.info("game_type", game_type);
   const players = roster.players;
   const fullPlayerInfo = await getUsersByList(players);
   // logger.info(fullPlayerInfo);
-  const player_1_info = {
-    username: fullPlayerInfo[0].username,
-    userId: fullPlayerInfo[0].id,
-    emoji: fullPlayerInfo[0].player_emoji,
-  };
-  const player_2_info = {
-    username: fullPlayerInfo[1].username,
-    userId: fullPlayerInfo[1].id,
-    emoji: fullPlayerInfo[1].player_emoji,
-  };
+  //either player could be a guest, and so would have a fullPlayerInfo entry of null
+  let player_1_info;
+  let player_2_info;
+
+  if (fullPlayerInfo[0]) {
+    player_1_info = {
+      username: fullPlayerInfo[0].username,
+      userId: fullPlayerInfo[0].id,
+      emoji: fullPlayerInfo[0].player_emoji,
+    };
+  } else {
+    player_1_info = {
+      username: "guest",
+      userId: roster.players[0],
+      emoji: "",
+    };
+  }
+  if (fullPlayerInfo[1]) {
+    player_2_info = {
+      username: fullPlayerInfo[1].username,
+      userId: fullPlayerInfo[1].id,
+      emoji: fullPlayerInfo[1].player_emoji,
+    };
+  } else {
+    player_2_info = {
+      username: "guest",
+      userId: roster.players[1],
+      emoji: "",
+    };
+  }
 
   if (!activeRooms.has(roster.rosterId)) {
     //countdown time is created when the room is added, all other players will get the exact same time

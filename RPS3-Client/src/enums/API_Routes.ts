@@ -1,5 +1,6 @@
 const API_ROUTES = {
   LOGIN: import.meta.env.VITE_HOST_URL + "api/auth/login",
+  GUEST_LOGIN: import.meta.env.VITE_HOST_URL + "api/auth/guestLogin",
   LOGOUT: import.meta.env.VITE_HOST_URL + "api/menu/user/logout",
   REGISTER: import.meta.env.VITE_HOST_URL + "api/menu/user/createUser",
   REFRESH_ACCESS_TOKEN: import.meta.env.VITE_HOST_URL + "api/auth/token",

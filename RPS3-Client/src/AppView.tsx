@@ -455,6 +455,7 @@ function AppView({
                       userInfo={userInfo}
                       gamemode={"Quickdraw"}
                       displayState={displayState}
+                      loginHelper={loginHelper}
                       setDisplayState={setNextDisplayState}
                       authorizeThenCallHttp={authorizeThenCallHttp}
                       gameInfoSetter={setCurrentGameInfo}

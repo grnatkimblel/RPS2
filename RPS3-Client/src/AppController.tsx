@@ -13,6 +13,7 @@ function AppController() {
     username: "",
     userId: "",
     emoji: "",
+    role: "",
   });
 
   const [matchmakingPreferences, setMatchmakingPreferences] = useState({
@@ -37,31 +38,59 @@ function AppController() {
 
   const loginHelper = async (credentials) => {
     //authorizes user and returns access tokens and user account info
-    // console.log(process.env.REACT_APP_HOST_URL);
-    let res = await fetch(API_ROUTES.LOGIN, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify(credentials),
-    });
-    if (res.status === 200) {
-      let body = await res.json();
-      //console.log(body);
-      // return body;
-      setAccessToken(body.accessToken);
-      setRefreshToken(body.refreshToken);
-      setUserInfo({
-        //this could be sent in the body of the JWT for style points
-        username: body.user.username,
-        userId: body.user.userId,
-        emoji: body.user.emoji,
+    if (!credentials) {
+      console.log("guestlogin");
+      let res = await fetch(API_ROUTES.GUEST_LOGIN, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
       });
-      setNextDisplayState(DisplayStates.Home);
+      if (res.status === 200) {
+        let body = await res.json();
+        //console.log(body);
+        // return body;
+        setAccessToken(body.accessToken);
+        setRefreshToken(body.refreshToken);
+        setUserInfo({
+          //this could be sent in the body of the JWT for style points
+          username: body.user.username,
+          userId: body.user.userId,
+          emoji: body.user.emoji,
+          role: body.user.role,
+        });
+      } else {
+        let body = await res.text();
+        console.log(body);
+        alert("Guest Login failed.");
+      }
     } else {
-      let body = await res.text();
-      console.log(body);
-      alert("Login failed. \nCheck your username and password and try again.");
+      let res = await fetch(API_ROUTES.LOGIN, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify(credentials),
+      });
+      if (res.status === 200) {
+        let body = await res.json();
+        //console.log(body);
+        // return body;
+        setAccessToken(body.accessToken);
+        setRefreshToken(body.refreshToken);
+        setUserInfo({
+          //this could be sent in the body of the JWT for style points
+          username: body.user.username,
+          userId: body.user.userId,
+          emoji: body.user.emoji,
+          role: body.user.role,
+        });
+        setNextDisplayState(DisplayStates.Home);
+      } else {
+        let body = await res.text();
+        console.log(body);
+        alert("Login failed. \nCheck your username and password and try again.");
+      }
     }
   };
 

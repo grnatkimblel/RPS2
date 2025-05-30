@@ -28,6 +28,7 @@ router.post("/addPlayer", async (req, res) => {
   const matchmakingType = req.body.matchmakingType;
 
   //validate the arguments to the request
+  // logger.info(req.authUser);
   try {
     validateRequestsGameDetails(gameType, gameMode, matchmakingType);
   } catch (error) {
@@ -38,7 +39,7 @@ router.post("/addPlayer", async (req, res) => {
   const chosenOne_id = req.body.chosenOne_id;
   const playerName = req.authUser.username;
   if (doLogging) {
-    // logger.info("authUser: ", req.authUser);
+    logger.info("authUser: ", req.authUser);
     logger.info(`${playerName} called addPlayer on ${gameType}:${gameMode}:${matchmakingType}`);
   }
 
