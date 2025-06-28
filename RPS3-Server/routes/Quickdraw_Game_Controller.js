@@ -89,11 +89,20 @@ router.post("/quickdraw/pregame", async (req, res) => {
   res.json({
     sessionId: roster.rosterId,
     gameStartTime: activeRooms.get(roster.rosterId).gameStartTime,
+    serverNow: Date.now(),
     gameType: game_type,
     player1: player_1_info,
     player2: player_2_info,
   });
 });
+
+/* router.get("/quickdraw/ping", async (req, res) => {
+  //this is used to check if the server is up and running
+  logger.info("quickdraw ping called");
+  res.json({
+    serverNow: Date.now(),
+  });
+}); */
 
 // router.post("/quickdraw/run", async (req, res) => {
 //   const client_id = req.authUser.id;

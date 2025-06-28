@@ -14,6 +14,7 @@ const API_ROUTES = {
   },
   GAME: {
     QUICKDRAW: {
+      PING: import.meta.env.VITE_HOST_URL + "api/game/quickdraw/ping",
       PREGAME: import.meta.env.VITE_HOST_URL + "api/game/quickdraw/pregame",
       START_GAME: import.meta.env.VITE_HOST_URL + "api/game/quickdraw/startGame",
       RUN: import.meta.env.VITE_HOST_URL + "api/game/quickdraw/run",

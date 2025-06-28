@@ -99,28 +99,25 @@ function AppController() {
       try {
         if (accessToken === "") throw new Error("No AccessToken to authorize against");
 
-        let res = await fetch(url, {
+        let request = {
           headers: {
             "Content-Type": "application/json",
             Authorization: "Bearer " + accessToken,
           },
           method: requestType,
-          body: JSON.stringify(body),
-        });
+        };
+        if (body) {
+          request.body = JSON.stringify(body);
+        }
+        let res = await fetch(url, request);
 
         if (res.status === 403) {
           //refresh Token
           const newAccessToken = await getNewAccessToken(refreshToken);
           setAccessToken(newAccessToken);
-
-          res = await fetch(url, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + newAccessToken,
-            },
-            method: requestType,
-            body: JSON.stringify(body),
-          });
+          request.headers.Authorization = "Bearer " + newAccessToken;
+          //retry the request with the new access token
+          let res = await fetch(url, request);
 
           if (res.status === 403) {
             throw new Error("Refresh Token invalid");

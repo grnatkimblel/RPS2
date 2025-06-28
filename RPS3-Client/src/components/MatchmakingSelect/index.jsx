@@ -86,7 +86,7 @@ export default function MatchmakingSelect({
                 });
                 setDisplayState("Search");
               } else {
-                alert("To search for an opponent to play against by name, login to an account");
+                alert("To search for an opponent to play against, login to an account");
               }
             }}
           />

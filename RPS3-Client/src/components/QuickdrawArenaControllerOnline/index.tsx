@@ -4,8 +4,14 @@ import QuickdrawArenaView from "../QuickdrawArenaView";
 import QuickdrawArenaViewModel from "../../types/QuickdrawArenaViewModel";
 import GamePhases from "../../enums/GamePhases";
 import EMOJIS from "../../enums/Emojis";
+import API_ROUTES from "../../enums/API_Routes";
+import useCountdownMs from "../../hooks/useCountdownMs";
 
-export default function QuickdrawArenaControllerOnline({ setDisplayState, quickdrawSessionData }) {
+export default function QuickdrawArenaControllerOnline({
+  setDisplayState,
+  quickdrawSessionData,
+  authorizeThenCallHttp,
+}) {
   const [viewModel, setViewModel] = useState<QuickdrawArenaViewModel>({
     titleText: "RPS",
     gamePhase: GamePhases.PRE_GAME,
@@ -17,15 +23,26 @@ export default function QuickdrawArenaControllerOnline({ setDisplayState, quickd
     player2_score: 0,
     player2_purplePoints: 0,
   });
+  const timeTillGameStart = useCountdownMs(() => {
+    const clientNow = Date.now();
+    //client time should be more recent
+    const clientServerDiff = clientNow - quickdrawSessionData.serverNow;
+    if (clientServerDiff > 1000) {
+      console.warn("Client time is more than 1 second ahead of server time, adjusting...");
+      return quickdrawSessionData.gameStartTime - quickdrawSessionData.serverNow;
+    } else {
+      return quickdrawSessionData.gameStartTime - clientNow;
+    }
+  });
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "q") {
-      } else if (event.key === "w") {
-      } else if (event.key === "e") {
-      } else if (event.key === "ArrowLeft") {
-      } else if (event.key === "ArrowDown") {
-      } else if (event.key === "ArrowRight") {
+      if (event.code === "KeyQ") {
+      } else if (event.code === "KeyW") {
+      } else if (event.code === "KeyE") {
+      } else if (event.code === "ArrowLeft") {
+      } else if (event.code === "ArrowDown") {
+      } else if (event.code === "ArrowRight") {
       }
     };
 
@@ -34,6 +51,8 @@ export default function QuickdrawArenaControllerOnline({ setDisplayState, quickd
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  useEffect(() => {});
 
   return (
     <QuickdrawArenaView

@@ -586,6 +586,7 @@ function AppView({
           <QuickdrawArenaControllerOnline
             setDisplayState={setNextDisplayState}
             quickdrawSessionData={currentGameInfo}
+            authorizeThenCallHttp={authorizeThenCallHttp}
           />
         ) : null}
       </AnimatePresence>
